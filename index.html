@@ -63,6 +63,56 @@
   ]
 }
 </script>
+<style>
+  .warranty-strip {
+    background: #211f1a;
+    color: #f8f2e7;
+    border-block: 1px solid #e4c79745;
+  }
+  .warranty-strip .shell {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    align-items: center;
+    column-gap: clamp(14px, 4vw, 42px);
+    row-gap: 12px;
+    padding-block: 22px;
+  }
+  .warranty-strip h2 {
+    color: #e4c797;
+    font-size: .86rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .warranty-duration {
+    display: flex;
+    align-items: baseline;
+    gap: .3em;
+    font-size: 1.25rem;
+    margin: 0;
+  }
+  .warranty-duration strong {
+    color: #e4c797;
+    font: 700 clamp(2.25rem, 5vw, 3.5rem)/1 Georgia, serif;
+  }
+  .warranty-replacement {
+    border-inline-start: 1px solid #e4c79765;
+    padding-inline-start: clamp(14px, 4vw, 42px);
+    font-weight: 700;
+    margin: 0;
+  }
+  @media (max-width: 540px) {
+    .warranty-strip .shell {
+      grid-template-columns: 1fr max-content;
+    }
+    .warranty-strip h2 {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 320px) {
+    .warranty-strip .shell { grid-template-columns: 1fr; }
+    .warranty-replacement { border: 0; padding: 0; }
+  }
+</style>
 </head>
 <body>
 <a class="skip" href="#main">انتقل للمحتوى</a>
@@ -82,6 +132,13 @@
       <a class="button" href="#collections">اكتشف المجموعات <span aria-hidden="true">↙</span></a>
       </div>
       <img class="hero-product" src="gold-faucet.webp" width="1215" height="1295" alt="خلاط مغسلة ذهبي لامع بتدفّق شلالي" fetchpriority="high">
+    </div>
+  </section>
+  <section class="warranty-strip" aria-labelledby="warranty-title">
+    <div class="shell">
+      <h2 id="warranty-title">الكفالة الذهبية</h2>
+      <p class="warranty-duration"><strong>5</strong> سنوات</p>
+      <p class="warranty-replacement">أول سنتين تبديل</p>
     </div>
   </section>
   <section class="collections shell" id="collections" aria-labelledby="collection-title">
