@@ -33,6 +33,19 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
     labels = {"encastre": "خلاطات الدفن", SET_GROUP: "أطقم الدفن الكاملة"}
     labels.update({group: label for slug, (label, price, photos, group) in models.items() if slug != SET})
+    headings = {
+        "encastre": "Encastre",
+        SET_GROUP: "Concealed Sets",
+        "concealed-shower-mixer": "Concealed Shower Mixer",
+        "concealed-basin-mixer": "Concealed Basin Mixer",
+        "concealed-toilet-mixer": "Concealed Toilet Mixer",
+        "concealed-accessory": "Concealed Accessories",
+    }
+
+    def collection_heading(group):
+        label = labels.get(group, "إكسسوارات الدفن")
+        return (f'<header class="cabinet-heading"><h1><small>{label}</small>'
+                f'<bdi lang="en" dir="ltr">{headings[group]}</bdi></h1></header>')
 
     def picture(photo, alt):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
@@ -46,6 +59,24 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         url = f"/{slug}/" + ("?from=set" if from_set else "")
         return (f'<a class="velato-card" href="{url}">{picture(photos[0], f"{model_name} · {label} · {finish}")}'
                 f'<span><bdi>{model_name}</bdi><br>{label}<br><bdi>${price:,}</bdi></span></a>')
+
+    def gallery_card(slug):
+        label, price, photos, group = models[slug]
+        model_name, finish = identity(slug)
+        arabic_name = "أوكتاغون" if model_name == "OCTAGON" else "فيلاتو"
+        english_name = model_name if slug == SET else f"{model_name} · {finish}"
+        return (f'<a class="hero mixer-product" href="/{slug}/">'
+                f'{picture(photos[0], f"{label} {model_name} · {finish}")}'
+                f'<div class="mixer-product-copy"><strong>{label} {arabic_name}</strong>'
+                f'<small><bdi dir="ltr">{english_name}</bdi></small>'
+                f'<span dir="ltr">${price:,}</span></div></a>')
+
+    grids = {
+        group: '<div class="cabinet-gallery">' + "".join(
+            gallery_card(slug) for slug, model in reversed(models.items()) if model[3] == group
+        ) + '</div>'
+        for group in labels if group != "encastre"
+    }
 
     velato_parts = [f"velato-concealed-{kind}" for kind in PARTS]
     part_cards = "".join(card(slug, from_set=True) for slug in velato_parts)
@@ -153,14 +184,22 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         html = html.replace(old_script, new_script).replace("<title>", styles + "<title>", 1)
         html = add_inside(html, "result", search_links)
         html = add_inside(html, "saved", saved_links)
-        html = add_inside(html, "encastre", hero, after_heading=True)
-        for slug, (_, _, _, group) in models.items():
-            if slug != SET:
-                html = add_inside(html, group, card(slug), after_heading=True)
+        html = html.replace(":is(#mixers,#showers)", ":is(#mixers,#showers,.concealed-gallery)")
+        html = html.replace("#showers .cabinet-heading h1 small", ":is(#showers,.concealed-gallery) .cabinet-heading h1 small")
+        html = html.replace("#showers .cabinet-gallery + .contact-card", ":is(#showers,.concealed-gallery) .cabinet-gallery + .contact-card")
+        for group in headings:
+            if group != SET_GROUP:
+                pattern = rf'(<section class="panel" id="{group}"[^>]*>\s*)<h1>.*?</h1>'
+                content = hero if group == "encastre" else grids.get(group, "")
+                html, count = re.subn(pattern, lambda m: m[1].replace('class="panel"', 'class="panel concealed-gallery"')
+                                      + collection_heading(group) + content, html, count=1, flags=re.S)
+                if count != 1:
+                    raise ValueError(f"Missing concealed collection heading: {group}")
+            if group in grids and group != SET_GROUP:
                 html = html.replace(f'href="#{group}"', f'href="/{group}/"')
         html = html.replace('href="#encastre"', 'href="/encastre/"')
-        html = html.replace("</main>", f'<section class="panel" id="{SET_GROUP}" data-nosnippet hidden>'
-                            f'<h1>أطقم الدفن الكاملة<br><bdi>Concealed Sets</bdi></h1>{card(SET)}</section>'
+        html = html.replace("</main>", f'<section class="panel concealed-gallery" id="{SET_GROUP}" data-nosnippet hidden>'
+                            f'{collection_heading(SET_GROUP)}{grids[SET_GROUP]}</section>'
                             + "".join(details) + "</main>", 1)
         path.write_text(html)
 
