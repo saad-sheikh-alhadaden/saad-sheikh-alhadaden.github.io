@@ -66,13 +66,15 @@ def add_sharing(root):
 
     script = publish_asset(root, SOURCE / "storefront-share.js")
     stylesheet = publish_asset(root, SOURCE / "storefront-share.css")
+    nav_script = publish_asset(root, SOURCE / "storefront-navigation.js")
+    nav_style = publish_asset(root, SOURCE / "storefront-navigation.css")
     targets = escape(json.dumps(share_pages, ensure_ascii=False, separators=(",", ":")), quote=True)
     button = SHARE_BUTTON.replace("data-share-page ", f'data-share-page data-share-pages="{targets}" ')
     for file, markup in pages.items():
         markup = BACK_LINK.sub(lambda match: f'<div class="share-actions">{button}{match[0]}</div>', markup, count=1)
         markup = re.sub(r'<link rel="stylesheet"[^>]*>',
-                        lambda match: match[0] + f'\n<link rel="stylesheet" href="{stylesheet}">', markup, count=1)
-        content = SHARE_DIALOG + f'\n<script src="{script}" defer></script>\n'
+                        lambda match: match[0] + f'\n<link rel="stylesheet" href="{stylesheet}">\n<link rel="stylesheet" href="{nav_style}">', markup, count=1)
+        content = SHARE_DIALOG + f'\n<script src="{script}" defer></script>\n<script src="{nav_script}" defer></script>\n'
         if "</body>" in markup:
             markup = markup.replace("</body>", content + "</body>", 1)
         else:

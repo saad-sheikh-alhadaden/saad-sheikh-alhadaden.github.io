@@ -1,0 +1,66 @@
+.app > header.top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 4px 12px;
+  gap: 8px;
+  background: #191713;
+  border-bottom: 1px solid #b99a642e;
+}
+.top .brand { gap: 7px; }
+.top .brand-name { white-space: normal; }
+.top .share-actions { gap: 4px; }
+.top .share-pill {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #d3c4aa;
+}
+.top .share-pill svg { width: 19px; height: 19px; }
+.top .share-pill span { display: none; }
+.top #back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: auto;
+  min-width: 64px;
+  height: 44px;
+  padding-inline: 12px;
+  border: 1px solid #b99a64;
+  border-radius: 999px;
+  color: #efd9ad;
+  background: #272219;
+  font-size: 14px;
+  font-weight: 600;
+}
+.top #back::before, .model-pager a::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border: solid currentColor;
+  border-width: 1.5px 1.5px 0 0;
+  transform: rotate(45deg);
+}
+.model-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #b7a58a;
+}
+.model-pager a {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding-inline: 6px;
+  color: #614b2d;
+  font-size: 14px;
+  text-decoration: none;
+}
+.model-pager [rel="next"] { margin-inline-start: auto; flex-direction: row-reverse; }
+.model-pager [rel="next"]::before { transform: rotate(225deg); }
