@@ -1,4 +1,4 @@
-"""Publish the Velato concealed collection using the storefront's shared cart."""
+"""Publish concealed fixtures using the storefront's shared cart."""
 import json
 import re
 import shutil
@@ -19,27 +19,36 @@ PARTS = {
 
 
 def publish(root, origin, store, meta, preview, schema_pattern, json_script):
-    source = Path(__file__).with_name("velato")
     models = {}
     for kind, (label, price, count) in PARTS.items():
         photos = [f"/assets/velato-{kind}-{i}.webp" for i in range(1, count + 1)]
-        for photo in photos:
-            shutil.copyfile(source / Path(photo).name, root / photo.lstrip("/"))
         models[f"velato-concealed-{kind}"] = (label, price, photos, f"concealed-{kind}-mixer")
     models[SET] = ("طقم دفن كامل", 1975, [model[2][0] for model in models.values()], SET_GROUP)
+    for kind, price in {"shower": 700, "basin": 300}.items():
+        photos = [f"/assets/octagon-{kind}-{i}.webp" for i in range(1, 5)]
+        models[f"octagon-concealed-{kind}"] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
+    for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
+        filename = Path(photo).name
+        source = Path(__file__).with_name(filename.split("-", 1)[0])
+        shutil.copyfile(source / filename, root / photo.lstrip("/"))
     labels = {"encastre": "خلاطات الدفن", SET_GROUP: "أطقم الدفن الكاملة"}
     labels.update({group: label for slug, (label, price, photos, group) in models.items() if slug != SET})
 
     def picture(photo, alt):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
+    def identity(slug):
+        return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
+
     def card(slug, from_set=False):
         label, price, photos, group = models[slug]
+        model_name, finish = identity(slug)
         url = f"/{slug}/" + ("?from=set" if from_set else "")
-        return (f'<a class="velato-card" href="{url}">{picture(photos[0], f"Velato · {label} · {FINISH}")}'
-                f'<span><bdi>Velato</bdi><br>{label}<br><bdi>${price:,}</bdi></span></a>')
+        return (f'<a class="velato-card" href="{url}">{picture(photos[0], f"{model_name} · {label} · {finish}")}'
+                f'<span><bdi>{model_name}</bdi><br>{label}<br><bdi>${price:,}</bdi></span></a>')
 
-    part_cards = "".join(card(slug, from_set=True) for slug in models if slug != SET)
+    velato_parts = [f"velato-concealed-{kind}" for kind in PARTS]
+    part_cards = "".join(card(slug, from_set=True) for slug in velato_parts)
     return_links = "".join(
         f'<a class="velato-link" href="/{slug}/?from=set" data-set-return="{kind}" hidden>'
         f'<span>الرجوع إلى {models[slug][0]}</span><span aria-hidden="true">↶</span></a>'
@@ -48,7 +57,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     hero = (f'<a class="velato-feature" href="/{SET_GROUP}/"><span>أطقم الدفن الكاملة'
             '<br><bdi lang="en">Concealed Sets</bdi><small>استعرض الأطقم</small></span>'
             '<div class="velato-strip">' + "".join(
-                picture(model[2][0], model[0]) for slug, model in models.items() if slug != SET
+                picture(models[slug][2][0], models[slug][0]) for slug in velato_parts
             ) + '</div></a>')
     styles = """<style>
 .velato-feature,.velato-card{display:block;color:#f6ebdc;background:#201c19;border:1px solid #9c7656;border-radius:14px;overflow:hidden;text-decoration:none}
@@ -75,32 +84,38 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     search_links = ""
     saved_links = ""
     for slug, (label, price, photos, group) in models.items():
-        name = f"Velato · {label}"
-        registry = {"name": name, "search": f"velato فيلاتو {label} دفن {FINISH.lower()} {price}",
-                    "price": price, "images": {FINISH: photos[0]}, "defaultColor": FINISH,
+        model_name, finish = identity(slug)
+        arabic_name = "أوكتاغون" if model_name == "OCTAGON" else "فيلاتو"
+        name = f"{model_name} · {label}"
+        registry = {"name": name, "search": f"{model_name.lower()} {arabic_name} {label} دفن {finish.lower()} {price}",
+                    "price": price, "images": {finish: photos[0]}, "defaultColor": finish,
                     "category": group, "favoriteKey": "saad-saved-" + slug}
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
         gallery = ""
         for index, photo in enumerate(photos, 1):
-            alt = f"{name} · {FINISH} · صورة {index}"
+            alt = f"{name} · {finish} · صورة {index}"
             gallery += (f'<button type="button" data-gallery-src="{photo}" data-width="1050" data-height="1300" '
                         f'aria-pressed="{str(index == 1).lower()}" aria-label="{alt}">{picture(photo, "")}</button>')
         related = (f'{return_links}<h2>مكوّنات الطقم</h2><div class="velato-parts">{part_cards}</div>' if slug == SET
                    else f'<a class="velato-link" href="/{SET}/?from={slug.rsplit("-", 1)[1]}">'
                         '<span>شوف طقم Velato الكامل</span><span aria-hidden="true">‹</span></a>')
+        if model_name == "OCTAGON":
+            other = "octagon-concealed-basin" if slug.endswith("-shower") else "octagon-concealed-shower"
+            related = (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} OCTAGON</span>'
+                       '<span aria-hidden="true">‹</span></a>')
         order = "أضف الطقم للسلة" if slug == SET else "أضف إلى السلة"
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
-    <button class="circle" data-save type="button" aria-label="إضافة Velato إلى المفضّلة" aria-pressed="false">♡</button>
+    <button class="circle" data-save type="button" aria-label="إضافة {model_name} إلى المفضّلة" aria-pressed="false">♡</button>
   </div>
   <div class="product-info">
-    <p class="category">{label}</p><h1><bdi>Velato</bdi></h1>
+    <p class="category">{label}</p><h1><bdi>{model_name}</bdi></h1>
     <span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>
     <div class="velato-gallery" aria-label="صور المنتج">{gallery}</div>
-    <p><bdi>{FINISH}</bdi></p>
+    <p><bdi>{finish}</bdi></p>
     <p class="price-tag" dir="ltr">${price:,}</p>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
     <button class="action" data-add-cart type="button">{order} — ${price:,}</button>
@@ -173,10 +188,11 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         (target / "index.html").write_text(page)
 
     for slug, (label, price, photos, group) in models.items():
+        model_name, finish = identity(slug)
         contents = " يشمل شاور دفن وخلاط مغسلة دفن وخلاط تواليت دفن." if slug == SET else ""
-        landing(slug, f"{label} Velato", f"{label} Velato بتشطيب {FINISH}، صنع في إيطاليا. ${price:,}.{contents}",
+        landing(slug, f"{label} {model_name}", f"{label} {model_name} بتشطيب {finish}، صنع في إيطاليا. ${price:,}.{contents}",
                 photos, {"@type": "Product", "@id": f"{origin}/{slug}/#product", "sku": slug,
-                         "color": FINISH, "countryOfOrigin": {"@type": "Country", "name": "Italy"},
+                         "color": finish, "countryOfOrigin": {"@type": "Country", "name": "Italy"},
                          "image": [origin + photo for photo in photos],
                          "offers": {"@type": "Offer", "price": price, "priceCurrency": "USD",
                                     "url": f"{origin}/{slug}/"}})
@@ -184,7 +200,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         children = (list(labels)[1:] if slug == "encastre" else
                     [model for model, data in models.items() if data[3] == slug])
         cover = next((data[2] for data in models.values() if data[3] == slug), models[SET][2])
-        landing(slug, label, f"تصفّح {label} وشاهد صور Velato بتشطيب {FINISH} والأسعار.", cover,
+        landing(slug, label, f"تصفّح {label} وشاهد الموديلات والتشطيبات والأسعار.", cover,
                 {"@type": "CollectionPage", "mainEntity": {"@type": "ItemList", "itemListElement": [
                     {"@type": "ListItem", "position": index, "url": f"{origin}/{child}/"}
                     for index, child in enumerate(children, 1)]}})
