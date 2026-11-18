@@ -166,3 +166,5 @@ if __name__ == "__main__":
                 {"OIL": "زيتي", "WHITE": "أبيض", "BLACK": "أسود", "GRAY": "رمادي", "CREAMY": "كريمي"},
                 "cabinet-a619")
     add_cabinet(root, "S.T5030", 60, 38, 250, {"BLACK": "أسود", "WHITE": "أبيض"}, "cabinet-a621")
+    add_cabinet(root, "L800", 80, 40, 400, {"CHARCOAL GRAY": "رمادي فحمي", "BLACK": "أسود", "WHITE": "أبيض"},
+                "cabinet-s-t5030", image_names={"CHARCOAL GRAY": "cabinet-l800-charcoal-gray.webp"})
