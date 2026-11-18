@@ -9,7 +9,7 @@ ORIGIN = "https://saad-customer-app.onrender.com"
 
 
 def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=None, box_price=None, box_size=None):
-    slug = f"cabinet-{model.lower()}"
+    slug = f"cabinet-{model.lower().replace('.', '-')}"
     default = next(iter(colors))
     images = {color: f"/assets/{slug}-{color.lower()}.webp" for color in colors}
     for color, name in (image_names or {}).items():
@@ -165,3 +165,4 @@ if __name__ == "__main__":
     add_cabinet(root, "A621", 59, 31, 250,
                 {"OIL": "زيتي", "WHITE": "أبيض", "BLACK": "أسود", "GRAY": "رمادي", "CREAMY": "كريمي"},
                 "cabinet-a619")
+    add_cabinet(root, "S.T5030", 60, 38, 250, {"BLACK": "أسود", "WHITE": "أبيض"}, "cabinet-a621")
