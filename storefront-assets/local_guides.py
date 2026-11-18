@@ -89,9 +89,12 @@ def card_html(card, first):
     <span class="price"><bdi dir="ltr">{card['price']}</bdi> دولار</span></div></a>'''
 
 
+BRANCHES = [
+    ("المناخلية", "دمشق", "شارع الملك فيصل، مقابل قوس المناخلية", "0944881127", MAIN_MAP),
+    ("عين ترما", "ريف دمشق", "عين ترما، دوار السفينة", "0945541790", EIN_MAP),
+]
 BRANCH_NUMBERS = {
-    "0944881127": ("المناخلية", MAIN_MAP),
-    "0945541790": ("عين ترما", EIN_MAP),
+    phone: (name, maps) for name, city, address, phone, maps in BRANCHES
 }
 ICONS = {
     "phone": '<path d="M6.6 3.5h2l1.5 4-2 1.8a14 14 0 0 0 6.6 6.6l1.8-2 4 1.5v2c0 1.8-1.5 3.2-3.3 2.9C10.3 19.2 4.8 13.7 3.7 6.8c-.3-1.8 1.1-3.3 2.9-3.3Z"/>',
@@ -136,8 +139,8 @@ def build_page(root, slug, guide):
     schema = {"@context": "https://schema.org", "@type": "CollectionPage", "url": url, "name": title,
               "inLanguage": "ar-SY", "description": intro, "mainEntity": {"@type": "ItemList", "itemListElement": item_list}}
     related = "".join(f'<a href="{path}">{label}</a>' for path, label in guide["related"])
-    main = branch_html("المناخلية", "دمشق، شارع الملك فيصل، مقابل قوس المناخلية", "0944881127")
-    ein = branch_html("عين ترما", "ريف دمشق، عين ترما، دوار السفينة", "0945541790")
+    branches = "".join(branch_html(name, f"{city}، {address}", phone)
+                       for name, city, address, phone, _ in BRANCHES)
     return f'''<!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} | {STORE}</title><meta name="description" content="{escape(intro)}">
@@ -149,8 +152,8 @@ def build_page(root, slug, guide):
 <a href="/#collections">المجموعات</a></div></header>
 <main class="wrap"><section><div class="intro"><h1>{title}</h1><p>{intro}</p></div>
 {''.join(groups)}<div class="more"><h2>تصفّح أيضاً</h2><div class="related">{related}</div></div>
-<div class="more"><h2>وين بتلاقينا؟</h2><div class="branches">{main}{ein}</div></div></section></main>
-<footer><div class="wrap"><a href="/">العودة إلى متجر {STORE}</a></div></footer></body></html>'''
+<div class="more"><h2>وين بتلاقينا؟</h2><div class="branches">{branches}</div></div></section></main>
+<footer><div class="wrap"><a href="/branches/">عناوين الفروع وأرقام التواصل</a> · <a href="/">العودة إلى متجر {STORE}</a></div></footer></body></html>'''
 
 
 def publish_guides(root):

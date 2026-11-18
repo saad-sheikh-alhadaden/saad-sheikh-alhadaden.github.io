@@ -20,6 +20,7 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
     def from_v13(markup):
         return (markup.replace(TEMPLATE, slug).replace("V13", model)
                 .replace("56 × 50 cm", dimensions)
+                .replace("56 × 50 سم", f"{width} × {depth} سم")
                 .replace(f"{slug}-white.webp", images[default].rsplit("/", 1)[-1])
                 .replace('height="987"', 'height="988"')
                 .replace("بلون أبيض", f"بلون {colors[default]}")

@@ -11,10 +11,10 @@ ROOT = Path("storefront")
 ORIGIN = "https://saad-customer-app.onrender.com"
 STORE = "شركة سعد شيخ الحدادين"
 COLLECTIONS = {
-    "mixers": ("mixers", "الخلاطات الفاخرة | Trend Of Mixer", "تصفّح خلاطات المغاسل والمطبخ من شركة سعد شيخ الحدادين في دمشق وقارن صور الموديلات وألوانها وأسعارها بالدولار."),
-    "showers": ("smart-showers", "الشاورات الذكية | Smart Shower", "اكتشف أنظمة الدش والشاور الذكي من شركة سعد شيخ الحدادين في دمشق. تصفّح صور الموديلات مثل Ferrari وVera وMidas مع الألوان والأسعار."),
-    "washbasins": ("washbasins", "المغاسل والكبائن", "تصفّح أقسام المغاسل والكبائن من شركة سعد شيخ الحدادين في دمشق، واختر عرض الكابينت المناسب لحمّامك."),
-    "cabinet-luxury": ("cabinet-luxury", "كابينتات مغاسل فخمة | Cabinet Luxury", "قارن كابينتات مغاسل الحمّام من فوم PVC بحسب المقاس واللون والسعر في متجر سعد شيخ الحدادين، دمشق."),
+    "mixers": ("mixers", "خلاطات مغاسل فاخرة في دمشق | Trend Of Mixer", "تصفّح خلاطات المغاسل والمطبخ من شركة سعد شيخ الحدادين في دمشق وقارن صور الموديلات وألوانها وأسعارها بالدولار."),
+    "showers": ("smart-showers", "أنظمة دش وشاورات ذكية في دمشق | Smart Shower", "اكتشف أنظمة الدش والشاور الذكي من شركة سعد شيخ الحدادين في دمشق. تصفّح صور الموديلات مثل Ferrari وVera وMidas مع الألوان والأسعار."),
+    "washbasins": ("washbasins", "مغاسل حمام مع خزائن في دمشق", "تصفّح أقسام المغاسل والكبائن من شركة سعد شيخ الحدادين في دمشق، واختر عرض الكابينت المناسب لحمّامك."),
+    "cabinet-luxury": ("cabinet-luxury", "خزائن ومغاسل حمام فوم PVC | Cabinet Luxury", "قارن كابينتات مغاسل الحمّام من فوم PVC بحسب المقاس واللون والسعر في متجر سعد شيخ الحدادين، دمشق."),
 }
 schema_pattern = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 
@@ -32,10 +32,10 @@ def meta(html, key, value):
 def category_links(html):
     for screen, (slug, _, _) in COLLECTIONS.items():
         html = html.replace(f'href="#{screen}"', f'href="/{slug}/"')
-    return html
+    return html.replace('href="#contact"', 'href="/branches/#contact"')
 
 
-def collection_page(home, screen, slug, title, description):
+def screen_page(home, screen, slug, title, description, page_type="CollectionPage"):
     url = f"{ORIGIN}/{slug}/"
     html = home.replace('<html lang="ar" dir="rtl">',
                         f'<html lang="ar" dir="rtl" data-screen="{screen}">\n<base href="/">', 1)
@@ -49,7 +49,7 @@ def collection_page(home, screen, slug, title, description):
     html = html.replace(f'rel="canonical" href="{ORIGIN}/"', f'rel="canonical" href="{url}"', 1)
     for key, value in [("og:url", url), ("og:title", title), ("og:description", description), ("description", description)]:
         html = meta(html, key, value)
-    schema = {"@context": "https://schema.org", "@type": "CollectionPage", "name": title,
+    schema = {"@context": "https://schema.org", "@type": page_type, "name": title,
               "description": description, "url": url, "inLanguage": "ar-SY"}
     return schema_pattern.sub(lambda _: json_script(schema), html, count=1)
 
@@ -100,7 +100,15 @@ home_path.write_text(schema_pattern.sub(lambda m: m[0] + "\n" + json_script(webs
 for screen, (slug, title, description) in COLLECTIONS.items():
     destination = ROOT / slug / "index.html"
     destination.parent.mkdir(exist_ok=True)
-    destination.write_text(collection_page(home, screen, slug, title, description))
+    destination.write_text(screen_page(home, screen, slug, title, description))
+
+branches = ROOT / "branches"
+branches.mkdir(exist_ok=True)
+branches.joinpath("index.html").write_text(screen_page(
+    home, "contact", "branches", "فروع الأدوات الصحية في دمشق وريف دمشق",
+    "عنوان ورقم هاتف فرعي شركة سعد شيخ الحدادين في المناخلية بدمشق وعين ترما بريف دمشق، مع روابط الخرائط والتواصل.",
+    page_type="ContactPage",
+))
 
 ET.ElementTree(image_map).write(ROOT / "product-images.xml", encoding="utf-8", xml_declaration=True)
 robots = ROOT / "robots.txt"
@@ -108,7 +116,10 @@ directive = f"Sitemap: {ORIGIN}/product-images.xml"
 if directive not in robots.read_text():
     robots.write_text(robots.read_text().rstrip() + "\n" + directive + "\n")
 
-run_path(str(Path(__file__).with_name("local_guides.py")), run_name="__main__")
+guides = run_path(str(Path(__file__).with_name("local_guides.py")), run_name="__main__")
+
+catalog_search = run_path(str(Path(__file__).with_name("catalog_search.py")))
+catalog_search["publish"](ROOT, ORIGIN, STORE, guides["BRANCHES"])
 
 sharing = run_path(str(Path(__file__).with_name("storefront_share.py")), run_name="__main__")
 
