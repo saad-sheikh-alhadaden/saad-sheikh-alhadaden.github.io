@@ -137,7 +137,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             f'<html lang="ar" dir="rtl" data-screen="{slug}">', 1)
         page = page.replace('<meta charset="utf-8">', '<meta charset="utf-8"><base href="/"> ', 1)
         page = page.replace('<section id="home">', '<section id="home" hidden>', 1)
-        pattern = rf'(<section\b[^>]*\bid="{slug}"[^>]*?) data-nosnippet hidden>'
+        pattern = rf'(<section\b[^>]*\bid="{slug}"[^>]*?)(?: data-nosnippet)? hidden>'
         page, count = re.subn(pattern, r'\1>', page, count=1)
         if count != 1:
             raise ValueError(f"Missing page panel {slug}")
