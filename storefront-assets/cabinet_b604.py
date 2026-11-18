@@ -145,7 +145,8 @@ def add_box_controls(script):
 
 if __name__ == "__main__":
     root = Path("storefront")
-    add_cabinet(root, "B604", 90, 42, 400, {"BLACK": "أسود", "WHITE": "أبيض"}, "cabinet-v20")
+    add_cabinet(root, "B604", 90, 42, 400, {"BLACK": "أسود", "WHITE": "أبيض"}, "cabinet-v20",
+                image_names={"BLACK": "cabinet-b604-black-oak.webp", "WHITE": "cabinet-b604-white-oak.webp"})
     add_cabinet(root, "D608", 74, 45, 325, {"OIL": "زيتي", "WHITE": "أبيض", "BLACK": "أسود"}, "cabinet-v13",
                 image_names={"BLACK": "cabinet-d608-black-top.webp"})
     add_cabinet(root, "Z605", 110, 44, 500, {"BLACK": "أسود", "WHITE": "أبيض"},
