@@ -59,7 +59,7 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
     )
     options = f'<div class="options" role="group" aria-label="لون الكابينت">{choices}</div>'
     if box_images:
-        options += f'''<div class="cabinet-box" style="position:relative;margin:16px 0;padding:12px 14px;border:1px solid #b7a58a;border-radius:12px;background:#faf7f0;color:#24201a">
+        options += f'''<style>.cabinet-box-check{{visibility:hidden}}[data-cabinet-box]:checked+.cabinet-box-check{{visibility:visible}}[data-cabinet-box]:focus-visible{{outline:2px solid #80591f;outline-offset:3px}}</style><div class="cabinet-box" style="position:relative;margin:16px 0;padding:12px 14px;border:1px solid #b7a58a;border-radius:12px;background:#faf7f0;color:#24201a">
   <label style="display:flex;align-items:center;gap:9px;min-height:44px;margin-left:50px;cursor:pointer">
     <span style="position:relative;display:grid;place-items:center;width:20px;height:20px;flex:none">
       <input type="checkbox" data-cabinet-box style="appearance:none;-webkit-appearance:none;box-sizing:border-box;width:20px;height:20px;margin:0;border:2px solid #24201a;border-radius:4px;background:#fff;color-scheme:light;cursor:pointer">
