@@ -4,6 +4,7 @@ import re
 import xml.etree.ElementTree as ET
 from html import escape, unescape
 from pathlib import Path
+from runpy import run_path
 from urllib.parse import urlsplit
 
 ROOT = Path("storefront")
@@ -104,3 +105,5 @@ robots = ROOT / "robots.txt"
 directive = f"Sitemap: {ORIGIN}/product-images.xml"
 if directive not in robots.read_text():
     robots.write_text(robots.read_text().rstrip() + "\n" + directive + "\n")
+
+run_path(str(Path(__file__).with_name("local_guides.py")), run_name="__main__")
