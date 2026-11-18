@@ -2,6 +2,7 @@
 import json
 import re
 import xml.etree.ElementTree as ET
+from hashlib import sha256
 from html import escape, unescape
 from pathlib import Path
 from runpy import run_path
@@ -61,7 +62,39 @@ def set_product_preview(html, name, image):
     return re.sub(r'<meta property="og:image:(?:width|height|type)"[^>]*>\s*', "", html)
 
 
+V20_PHOTO_ALT = "مغسلة V20 بخزانة سوداء مخدّدة وشريط ذهبي، وفوقها مرآة مضاءة بإطار ذهبي"
+
+
+def publish_v20_photo(root):
+    legacy = "cabinet-v20-black.webp"
+    photo = Path(__file__).with_name("cabinet-v20-black-gold-90x50.webp")
+    data = photo.read_bytes()
+    for name in (legacy, photo.name):
+        (root / "assets" / name).write_bytes(data)
+
+    home = (root / "index.html").read_text()
+    old_script = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
+    registry = (root / old_script).read_text()
+    if legacy not in registry:
+        raise ValueError("Missing V20 image in the storefront registry")
+    registry = registry.replace(legacy, photo.name)
+    new_script = f"assets/storefront-{sha256(registry.encode()).hexdigest()[:12]}.js"
+    (root / new_script).write_text(registry)
+
+    for page in root.rglob("index.html"):
+        html = page.read_text().replace(old_script, new_script)
+        html = html.replace(f'src="/assets/{legacy}" width="790" height="988"',
+                            f'src="/assets/{photo.name}" width="1229" height="1536"')
+        html = html.replace('alt="كابينت مغسلة V20 بلون أسود"', f'alt="{V20_PHOTO_ALT}"')
+        html = html.replace(legacy, photo.name)
+        if page.parent.name == "cabinet-v20":
+            html = html.replace("كابينت مغسلة V20 بلون أسود، مقاس",
+                                "مغسلة حمّام V20 مع خزانة سوداء معلّقة بواجهة مخدّدة وشريط ذهبي، مقاس")
+        page.write_text(html)
+
+
 run_path(str(Path(__file__).with_name("cabinet_b604.py")), run_name="__main__")
+publish_v20_photo(ROOT)
 
 image_map = ET.Element("urlset", {"xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
                                   "xmlns:image": "http://www.google.com/schemas/sitemap-image/1.1"})
@@ -73,7 +106,8 @@ for page in sorted(ROOT.glob("*/index.html")):
         continue
     url = f"{ORIGIN}/{page.parent.name}/"
     images = schema["image"] if isinstance(schema["image"], list) else [schema["image"]]
-    html = set_product_preview(html, schema["name"], images[0])
+    image_label = V20_PHOTO_ALT if page.parent.name == "cabinet-v20" else schema["name"]
+    html = set_product_preview(html, image_label, images[0])
     if page.parent.name.startswith("java-mix-"):
         java_models.append((urlsplit(url).path, schema["name"].split(" · ")[-1]))
     entry = ET.SubElement(image_map, "url")
