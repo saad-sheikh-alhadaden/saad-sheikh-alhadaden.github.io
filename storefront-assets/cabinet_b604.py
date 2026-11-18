@@ -8,10 +8,12 @@ TEMPLATE = "cabinet-v13"
 ORIGIN = "https://saad-customer-app.onrender.com"
 
 
-def add_cabinet(root, model, width, depth, price, colors, after):
+def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=None):
     slug = f"cabinet-{model.lower()}"
     default = next(iter(colors))
     images = {color: f"/assets/{slug}-{color.lower()}.webp" for color in colors}
+    for color, name in (image_names or {}).items():
+        images[color] = f"/assets/{name}"
     dimensions = f"{width} × {depth} cm"
     width_marker = f'data-vanity-width="{width}"'
 
@@ -90,4 +92,5 @@ def add_cabinet(root, model, width, depth, price, colors, after):
 if __name__ == "__main__":
     root = Path("storefront")
     add_cabinet(root, "B604", 90, 42, 400, {"BLACK": "أسود", "WHITE": "أبيض"}, "cabinet-v20")
-    add_cabinet(root, "D608", 74, 45, 325, {"OIL": "زيتي", "WHITE": "أبيض", "BLACK": "أسود"}, "cabinet-v13")
+    add_cabinet(root, "D608", 74, 45, 325, {"OIL": "زيتي", "WHITE": "أبيض", "BLACK": "أسود"}, "cabinet-v13",
+                image_names={"BLACK": "cabinet-d608-black-top.webp"})
