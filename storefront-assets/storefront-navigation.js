@@ -30,6 +30,26 @@
     returnLink.textContent = "رجوع";
     if (!Object.hasOwn(products, model)) return;
 
+    const from = query.get("from");
+    const sourcePart = [...section.querySelectorAll("[data-set-return]")]
+      .find(link => link.dataset.setReturn === from);
+    if (sourcePart) {
+      sourcePart.hidden = false;
+      returnLink.href = sourcePart.href;
+      returnLink.textContent = "للقطعة";
+      returnLink.setAttribute("aria-label", sourcePart.firstElementChild.textContent);
+      return;
+    }
+    if (from === "set" && model.startsWith("velato-concealed-") && model !== "velato-concealed-set") {
+      const setLink = section.querySelector(".velato-link");
+      if (setLink) {
+        returnLink.href = setLink.href;
+        returnLink.textContent = "للطقم";
+        returnLink.setAttribute("aria-label", "الرجوع إلى طقم Velato الكامل");
+        return;
+      }
+    }
+
     const group = products[model].category || "mixers";
     const filtered = group === "cabinet-luxury" && bandButton;
     const collection = document.getElementById(filtered ? "washbasins" : group);

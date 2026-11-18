@@ -8,6 +8,7 @@ from html import escape
 from pathlib import Path
 
 FINISH = "Brushed Rose Gold"
+WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</strong><span>تبديل خلال أول سنتين من الكفالة</span></p>'
 SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 PARTS = {
@@ -32,12 +33,18 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def picture(photo, alt):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
-    def card(slug):
+    def card(slug, from_set=False):
         label, price, photos, group = models[slug]
-        return (f'<a class="velato-card" href="/{slug}/">{picture(photos[0], f"Velato · {label} · {FINISH}")}'
+        url = f"/{slug}/" + ("?from=set" if from_set else "")
+        return (f'<a class="velato-card" href="{url}">{picture(photos[0], f"Velato · {label} · {FINISH}")}'
                 f'<span><bdi>Velato</bdi><br>{label}<br><bdi>${price:,}</bdi></span></a>')
 
-    part_cards = "".join(card(slug) for slug in models if slug != SET)
+    part_cards = "".join(card(slug, from_set=True) for slug in models if slug != SET)
+    return_links = "".join(
+        f'<a class="velato-link" href="/{slug}/?from=set" data-set-return="{kind}" hidden>'
+        f'<span>الرجوع إلى {models[slug][0]}</span><span aria-hidden="true">↶</span></a>'
+        for kind in PARTS for slug in [f"velato-concealed-{kind}"]
+    )
     hero = (f'<a class="velato-feature" href="/{SET_GROUP}/"><span>أطقم الدفن الكاملة'
             '<br><bdi lang="en">Concealed Sets</bdi><small>استعرض الأطقم</small></span>'
             '<div class="velato-strip">' + "".join(
@@ -53,6 +60,15 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 .velato-gallery{display:flex;gap:.45rem;overflow-x:auto;padding:.5rem 0}
 .velato-gallery button{flex:0 0 4rem;background:transparent;border:1px solid transparent;border-radius:6px;padding:2px}
 .velato-gallery button[aria-pressed=true]{border-color:#be9166}.velato-gallery img{display:block;width:100%;border-radius:4px}
+.product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
+border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
+.product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
+border-inline-start:2px solid #a67a3d;background:#ebe3d4;color:#35291b;font-size:.86rem}
+.velato-warranty strong{color:#684a25}
+.product-info a.velato-link:not([hidden]){display:flex;align-items:center;justify-content:space-between;
+gap:1rem;min-height:48px;margin:.7rem 0;padding:.55rem .85rem;border:1px solid #aa8a5f;
+border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-weight:650}
+.velato-link:focus-visible{outline:2px solid #81591f;outline-offset:3px}
 </style>"""
     details = []
     registry_additions = []
@@ -71,8 +87,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             alt = f"{name} · {FINISH} · صورة {index}"
             gallery += (f'<button type="button" data-gallery-src="{photo}" data-width="1050" data-height="1300" '
                         f'aria-pressed="{str(index == 1).lower()}" aria-label="{alt}">{picture(photo, "")}</button>')
-        related = (f'<h2>مكوّنات الطقم</h2><div class="velato-parts">{part_cards}</div>' if slug == SET
-                   else f'<a class="contact-card" href="/{SET}/">شوف طقم Velato الكامل</a>')
+        related = (f'{return_links}<h2>مكوّنات الطقم</h2><div class="velato-parts">{part_cards}</div>' if slug == SET
+                   else f'<a class="velato-link" href="/{SET}/?from={slug.rsplit("-", 1)[1]}">'
+                        '<span>شوف طقم Velato الكامل</span><span aria-hidden="true">‹</span></a>')
         order = "أضف الطقم للسلة" if slug == SET else "أضف إلى السلة"
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
@@ -81,12 +98,14 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
   </div>
   <div class="product-info">
     <p class="category">{label}</p><h1><bdi>Velato</bdi></h1>
+    <span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>
     <div class="velato-gallery" aria-label="صور المنتج">{gallery}</div>
-    <p><bdi>{FINISH}</bdi><br><bdi>Made in Italy</bdi></p>
+    <p><bdi>{FINISH}</bdi></p>
     <p class="price-tag" dir="ltr">${price:,}</p>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
     <button class="action" data-add-cart type="button">{order} — ${price:,}</button>
     {related}
+    {WARRANTY}
   </div>
 </section>""")
 
