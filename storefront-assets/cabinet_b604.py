@@ -59,11 +59,18 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
     )
     options = f'<div class="options" role="group" aria-label="لون الكابينت">{choices}</div>'
     if box_images:
-        options += f'''<div class="contact-card">
-  <label><input type="checkbox" data-cabinet-box> إضافة الصيدلية بنفس اللون <bdi dir="ltr">+${box_price}</bdi></label>
-  <p>مقاس الصيدلية <bdi dir="ltr">30 × 22 × 120 cm</bdi></p>
-  <details><summary>شوف صورة الصيدلية</summary>
-    <img data-box-image src="{box_images[default]}" alt="الصيدلية الجانبية" width="140" loading="lazy" style="display:block;height:auto;max-width:100%">
+        options += f'''<div class="cabinet-box" style="position:relative;margin:16px 0;padding:12px 14px;border:1px solid #b7a58a;border-radius:12px;background:#faf7f0;color:#24201a">
+  <label style="display:flex;align-items:center;gap:9px;min-height:44px;margin-left:50px;cursor:pointer">
+    <input type="checkbox" data-cabinet-box style="width:18px;height:18px;flex:none;margin:0;accent-color:#80591f">
+    <span><strong>إضافة الصيدلية <bdi dir="ltr">+${box_price}</bdi></strong>
+      <small dir="ltr" style="display:block;width:max-content;max-width:100%;color:#625342">Size: 30 × 22 × 120 cm</small>
+    </span>
+  </label>
+  <details>
+    <summary aria-label="صورة الصيدلية باللون المختار" title="صورة الصيدلية باللون المختار" style="position:absolute;top:12px;left:12px;width:44px;height:44px;display:grid;place-items:center;list-style:none;border:1px solid #b7a58a;border-radius:9px;color:#674a20;cursor:pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 17 5-5 4 4 4-5 5 5"/></svg>
+    </summary>
+    <img data-box-image src="{box_images[default]}" alt="الصيدلية الجانبية" width="140" loading="lazy" style="display:block;height:auto;max-width:100%;margin:12px auto 0;border-radius:8px">
   </details>
 </div>'''
     for page in root.rglob("index.html"):
