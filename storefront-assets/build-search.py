@@ -109,3 +109,5 @@ if directive not in robots.read_text():
     robots.write_text(robots.read_text().rstrip() + "\n" + directive + "\n")
 
 run_path(str(Path(__file__).with_name("local_guides.py")), run_name="__main__")
+
+run_path(str(Path(__file__).with_name("storefront_share.py")), run_name="__main__")
