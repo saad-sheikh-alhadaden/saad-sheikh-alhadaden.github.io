@@ -8,7 +8,7 @@ TEMPLATE = "cabinet-v13"
 ORIGIN = "https://saad-customer-app.onrender.com"
 
 
-def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=None, box_price=None):
+def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=None, box_price=None, box_size=None):
     slug = f"cabinet-{model.lower()}"
     default = next(iter(colors))
     images = {color: f"/assets/{slug}-{color.lower()}.webp" for color in colors}
@@ -45,7 +45,7 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
     marker = f'  "{TEMPLATE}": '
     assert script.count(marker) == 1
     script = script.replace(marker, f'  "{slug}": {json.dumps(product_data, ensure_ascii=False)},\n{marker}')
-    if box_images:
+    if box_images and "const orderColor =" not in script:
         script = add_box_controls(script)
     target_script = f'assets/storefront-{hashlib.sha256(script.encode()).hexdigest()[:12]}.js'
     (root / target_script).write_text(script)
@@ -66,7 +66,7 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
       <svg class="cabinet-box-check" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="position:absolute;pointer-events:none"><path d="m3.5 8 3 3 6-6" stroke="#24201a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </span>
     <span><strong>إضافة الصيدلية <bdi dir="ltr">+${box_price}</bdi></strong>
-      <small dir="ltr" style="display:block;width:max-content;max-width:100%;color:#625342">Size: 30 × 22 × 120 cm</small>
+      <small dir="ltr" style="display:block;width:max-content;max-width:100%;color:#625342">Size: {box_size} cm</small>
     </span>
   </label>
   <details>
@@ -149,4 +149,6 @@ if __name__ == "__main__":
     add_cabinet(root, "D608", 74, 45, 325, {"OIL": "زيتي", "WHITE": "أبيض", "BLACK": "أسود"}, "cabinet-v13",
                 image_names={"BLACK": "cabinet-d608-black-top.webp"})
     add_cabinet(root, "Z605", 110, 44, 500, {"BLACK": "أسود", "WHITE": "أبيض"},
-                "cabinet-v1-leather", box_price=40)
+                "cabinet-v1-leather", box_price=40, box_size="30 × 22 × 120")
+    add_cabinet(root, "A609", 70, 42, 300, {"BLACK": "أسود", "WHITE": "أبيض", "IVORE": "عاجي"},
+                "cabinet-v13", box_price=40, box_size="26 × 18 × 90")
