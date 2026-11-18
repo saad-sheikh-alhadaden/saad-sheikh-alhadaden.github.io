@@ -163,5 +163,5 @@ if __name__ == "__main__":
     add_cabinet(root, "A619", 50, 35, 275, {"WHITE": "أبيض", "BLACK": "أسود", "GRAY": "رمادي"},
                 "cabinet-a624", box_price=40, box_size="28 × 17 × 80")
     add_cabinet(root, "A621", 59, 31, 250,
-                {"WHITE": "أبيض", "BLACK": "أسود", "OIL": "زيتي", "GRAY": "رمادي", "CREAMY": "كريمي"},
+                {"OIL": "زيتي", "WHITE": "أبيض", "BLACK": "أسود", "GRAY": "رمادي", "CREAMY": "كريمي"},
                 "cabinet-a619")
