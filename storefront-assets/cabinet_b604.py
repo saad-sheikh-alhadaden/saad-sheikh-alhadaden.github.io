@@ -8,7 +8,7 @@ TEMPLATE = "cabinet-v13"
 ORIGIN = "https://saad-customer-app.onrender.com"
 
 
-def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=None):
+def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=None, box_price=None):
     slug = f"cabinet-{model.lower()}"
     default = next(iter(colors))
     images = {color: f"/assets/{slug}-{color.lower()}.webp" for color in colors}
@@ -31,15 +31,25 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
         "price": price, "defaultColor": default, "images": images,
         "favoriteKey": f"saad-{slug}-favorite", "category": "cabinet-luxury",
     }
+    box_images = {}
+    if box_price is not None:
+        box_images = {color: f"/assets/{slug}-box-{color.lower()}.webp" for color in colors}
+        product_data["boxImages"] = box_images
+        product_data["images"] = {**images, **{color + "-BOX": image for color, image in images.items()}}
+        product_data["prices"] = {color + "-BOX": price + box_price for color in colors}
+        product_data["colorLabels"] = {color + "-BOX": color + " · مع الصيدلية" for color in colors}
+
     home = (root / "index.html").read_text()
     script_name = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
     script = (root / script_name).read_text()
     marker = f'  "{TEMPLATE}": '
     assert script.count(marker) == 1
     script = script.replace(marker, f'  "{slug}": {json.dumps(product_data, ensure_ascii=False)},\n{marker}')
+    if box_images:
+        script = add_box_controls(script)
     target_script = f'assets/storefront-{hashlib.sha256(script.encode()).hexdigest()[:12]}.js'
     (root / target_script).write_text(script)
-    for image in images.values():
+    for image in (*images.values(), *box_images.values()):
         destination = root / image.lstrip("/")
         destination.write_bytes((Path(__file__).parent / destination.name).read_bytes())
 
@@ -48,6 +58,14 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
         f'{label} <bdi dir="ltr">{color}</bdi></button>' for color, label in colors.items()
     )
     options = f'<div class="options" role="group" aria-label="لون الكابينت">{choices}</div>'
+    if box_images:
+        options += f'''<div class="contact-card">
+  <label><input type="checkbox" data-cabinet-box> إضافة الصيدلية بنفس اللون <bdi dir="ltr">+${box_price}</bdi></label>
+  <p>مقاس الصيدلية <bdi dir="ltr">30 × 22 × 120 cm</bdi></p>
+  <details><summary>شوف صورة الصيدلية</summary>
+    <img data-box-image src="{box_images[default]}" alt="الصيدلية الجانبية" width="140" loading="lazy" style="display:block;height:auto;max-width:100%">
+  </details>
+</div>'''
     for page in root.rglob("index.html"):
         markup = page.read_text()
         if f"/{script_name}" not in markup:
@@ -71,6 +89,8 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
     header, body = markup.split('<div class="app">', 1)
     header = from_v13(header).replace(f"بلون {colors[default]}", "بألوان " + "، ".join(colors.values()))
     header = header.replace("بسعر 400 دولار", f"بسعر {price} دولار")
+    if box_images:
+        header = header.replace(f"بسعر {price} دولار.", f"بسعر {price} دولار. الصيدلية الجانبية الظاهرة بالصورة اختيارية بسعر {box_price} دولار.")
     schema_tag = re.compile(r'(<script type="application/ld\+json">)(.*?)(</script>)', re.S)
     def set_schema(match):
         data = json.loads(match[2])
@@ -89,8 +109,34 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
     (folder / "index.html").write_text(header + '<div class="app">' + body)
 
 
+def add_box_controls(script):
+    controls = r'''   const box = screen.querySelector("[data-cabinet-box]");
+  const boxImage = screen.querySelector("[data-box-image]");
+  const orderColor = () => box?.checked ? color + "-BOX" : color;
+  const syncOrder = () => {
+    addButton.textContent = `أضف إلى السلة — ${money(quantity * unitPrice(product, orderColor()))}`;
+    if (boxImage) boxImage.src = product.boxImages[color];
+  };
+  box?.addEventListener("change", syncOrder);
+'''
+    changes = {
+        "  let quantity = 1;": "  let quantity = 1;\n" + controls,
+        '      addButton.textContent = `أضف إلى السلة — ${money(quantity * price)}`;': "      syncOrder();",
+        '      addButton.textContent = `أضف إلى السلة — ${money(quantity * unitPrice(product, color))}`;': "      syncOrder();",
+        "&& item.color === color);": "&& item.color === orderColor());",
+        "else cart.push({product: id, color, qty: quantity});": "else cart.push({product: id, color: orderColor(), qty: quantity});",
+    }
+    for old, new in changes.items():
+        if script.count(old) != 1:
+            raise ValueError(f"Expected one storefront cart hook: {old}")
+        script = script.replace(old, new)
+    return script
+
+
 if __name__ == "__main__":
     root = Path("storefront")
     add_cabinet(root, "B604", 90, 42, 400, {"BLACK": "أسود", "WHITE": "أبيض"}, "cabinet-v20")
     add_cabinet(root, "D608", 74, 45, 325, {"OIL": "زيتي", "WHITE": "أبيض", "BLACK": "أسود"}, "cabinet-v13",
                 image_names={"BLACK": "cabinet-d608-black-top.webp"})
+    add_cabinet(root, "Z605", 110, 44, 500, {"BLACK": "أسود", "WHITE": "أبيض"},
+                "cabinet-v1-leather", box_price=40)
