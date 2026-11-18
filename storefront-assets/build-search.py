@@ -110,4 +110,18 @@ if directive not in robots.read_text():
 
 run_path(str(Path(__file__).with_name("local_guides.py")), run_name="__main__")
 
-run_path(str(Path(__file__).with_name("storefront_share.py")), run_name="__main__")
+sharing = run_path(str(Path(__file__).with_name("storefront_share.py")), run_name="__main__")
+
+# Include photo controls on every public store page, including standalone guides.
+publish_asset = sharing["publish_asset"]
+photo_css = publish_asset(ROOT, Path(__file__).with_name("storefront-photos.css"))
+photo_js = publish_asset(ROOT, Path(__file__).with_name("storefront-photos.js"))
+photo_controls = f'<link rel="stylesheet" href="{photo_css}"><script defer src="{photo_js}"></script>'
+for page in ROOT.rglob("index.html"):
+    markup = page.read_text()
+    if not re.search(r"<img\b", markup, re.I):
+        continue
+    markup, count = re.subn(r"(<title\b[^>]*>)", lambda match: photo_controls + match[0], markup, count=1, flags=re.I)
+    if not count:
+        raise ValueError(f"Missing page title in {page}")
+    page.write_text(markup)
