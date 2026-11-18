@@ -1,0 +1,49 @@
+#contact .contact-location {
+  padding: clamp(16px, 4vw, 22px);
+  background: #211e19;
+  border: 1px solid #514737;
+  border-radius: 15px;
+}
+#contact .contact-location h2 {
+  padding-inline-start: 10px;
+  border-inline-start: 2px solid #c5a264;
+  color: #f6f0e6;
+}
+#contact .contact-location p { margin-block: 7px 16px; }
+.branch-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+.branch-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  text-decoration: none;
+}
+.branch-buttons a {
+  border-radius: 9px;
+  font-weight: 600;
+  border: 1px solid #9a8055;
+}
+.branch-call { color: #eddbba; background: #29241d; }
+.branch-chat { color: #241e15; background: #ddc18e; }
+.branch-links svg { width: 20px; height: 20px; flex: none; }
+.branch-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 12px;
+  border-top: 1px solid #504537;
+  color: #c9bfb0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.branch-details a { color: #e2c697; }
+.branch-details svg { width: 16px; height: 16px; }
+.branch-links a:focus-visible { outline: 2px solid #ffe0a6; outline-offset: 3px; }
+.branch-buttons a:active { filter: brightness(.9); }

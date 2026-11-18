@@ -4,6 +4,7 @@ import re
 from decimal import Decimal
 from html import escape
 from pathlib import Path
+from urllib.parse import quote
 
 ORIGIN = "https://saad-customer-app.onrender.com"
 STORE = "شركة سعد شيخ الحدادين"
@@ -88,9 +89,36 @@ def card_html(card, first):
     <span class="price"><bdi dir="ltr">{card['price']}</bdi> دولار</span></div></a>'''
 
 
-def branch_html(name, address, number, maps_url):
-    return f'''<article><h3>{name}</h3><p>{address}</p><div class="actions">
-    <a href="tel:+963{number[1:]}"><bdi>{number}</bdi></a><a href="{escape(maps_url)}">الاتجاهات إلى {name}</a></div></article>'''
+BRANCH_NUMBERS = {
+    "0944881127": ("المناخلية", MAIN_MAP),
+    "0945541790": ("عين ترما", EIN_MAP),
+}
+ICONS = {
+    "phone": '<path d="M6.6 3.5h2l1.5 4-2 1.8a14 14 0 0 0 6.6 6.6l1.8-2 4 1.5v2c0 1.8-1.5 3.2-3.3 2.9C10.3 19.2 4.8 13.7 3.7 6.8c-.3-1.8 1.1-3.3 2.9-3.3Z"/>',
+    "whatsapp": '<path d="M20.8 11.8a8.8 8.8 0 0 1-13 7.7l-4.7 1.3 1.3-4.5A8.8 8.8 0 1 1 20.8 11.8Z"/><path d="M8.6 7.4c-.7.2-1 1.2-.8 2.1.7 2.6 3.6 5.5 6.4 6 .9.1 1.8-.5 2-1.4l-2.4-1.3-.9 1c-1.6-.7-2.8-1.9-3.5-3.4l.8-1-1-2Z" fill="currentColor" stroke="none"/>',
+    "map": '<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.2"/>',
+}
+
+
+def icon(name):
+    return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{ICONS[name]}</svg>'
+
+
+def branch_links(number):
+    name, maps = BRANCH_NUMBERS[number]
+    phone = "963" + number[1:]
+    message = f"مرحباً، عم بتصفّح متجركم الإلكتروني وحابب استفسر عن أحد المنتجات المتوفّرة بفرع {name}."
+    return f'''<div class="branch-links">
+    <div class="branch-buttons">
+      <a class="branch-call" href="tel:+{phone}" aria-label="اتصل بفرع {name}">{icon("phone")}اتصال</a>
+      <a class="branch-chat" href="https://wa.me/{phone}?text={quote(message)}" target="_blank" rel="noopener" aria-label="راسل فرع {name} على واتساب">{icon("whatsapp")}واتساب</a>
+    </div>
+    <div class="branch-details"><a href="{escape(maps)}" target="_blank" rel="noopener" aria-label="موقع فرع {name} على الخريطة">{icon("map")}الخريطة</a><bdi dir="ltr">{number}</bdi></div>
+    </div>'''
+
+
+def branch_html(name, address, number):
+    return f'<article><h3>{name}</h3><p>{address}</p>{branch_links(number)}</article>'
 
 
 def build_page(root, slug, guide):
@@ -108,8 +136,8 @@ def build_page(root, slug, guide):
     schema = {"@context": "https://schema.org", "@type": "CollectionPage", "url": url, "name": title,
               "inLanguage": "ar-SY", "description": intro, "mainEntity": {"@type": "ItemList", "itemListElement": item_list}}
     related = "".join(f'<a href="{path}">{label}</a>' for path, label in guide["related"])
-    main = branch_html("المناخلية", "دمشق، شارع الملك فيصل، مقابل قوس المناخلية", "0944881127", MAIN_MAP)
-    ein = branch_html("عين ترما", "ريف دمشق، عين ترما، دوار السفينة", "0945541790", EIN_MAP)
+    main = branch_html("المناخلية", "دمشق، شارع الملك فيصل، مقابل قوس المناخلية", "0944881127")
+    ein = branch_html("عين ترما", "ريف دمشق، عين ترما، دوار السفينة", "0945541790")
     return f'''<!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} | {STORE}</title><meta name="description" content="{escape(intro)}">
@@ -129,13 +157,18 @@ def publish_guides(root):
     kitchen_link = '<a href="#kitchen">مطبخ <bdi>Kitchen</bdi></a>'
     links = (f'<a href="/{KITCHEN}/">خلاطات مطبخ في دمشق</a>'
              f'<a href="/{BATH}/">تجهيزات وإكساء حمامات في دمشق</a>')
-    ein_phone = '<div class="contact-actions"><a href="tel:+963945541790">'
-    ein_directions = f'<div class="contact-actions"><a class="action" href="{EIN_MAP}" target="_blank" rel="noopener">افتح الموقع على Google Maps</a><a href="tel:+963945541790">'
+    legacy_actions = re.compile(r'<div class="contact-actions">([^<]*(?:<a\b[^>]*>.*?</a>\s*)+)</div>', re.S)
+
+    def upgrade_actions(match):
+        telephone = re.search(r'href="tel:\+963(9\d{8})"', match[1])
+        number = "0" + telephone[1] if telephone else ""
+        return branch_links(number) if number in BRANCH_NUMBERS else match[0]
+
     for page in root.rglob("index.html"):
         source = page.read_text()
         if page == root / "index.html" and kitchen_link not in source and links not in source:
             raise ValueError("The storefront's home collection menu has changed")
-        updated = source.replace(kitchen_link, links).replace(ein_phone, ein_directions)
+        updated = legacy_actions.sub(upgrade_actions, source.replace(kitchen_link, links))
         if updated != source:
             page.write_text(updated)
     for slug, guide in GUIDES.items():
