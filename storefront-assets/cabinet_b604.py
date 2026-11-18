@@ -8,8 +8,8 @@ TEMPLATE = "cabinet-v13"
 ORIGIN = "https://saad-customer-app.onrender.com"
 
 
-def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=None, box_price=None, box_size=None):
-    slug = f"cabinet-{model.lower().replace('.', '-')}"
+def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=None, box_price=None, box_size=None, mirror_storage=False):
+    slug = f"cabinet-{model.lower().replace('.', '-').replace(' ', '-')}"
     default = next(iter(colors))
     images = {color: f"/assets/{slug}-{color.lower()}.webp" for color in colors}
     for color, name in (image_names or {}).items():
@@ -88,6 +88,10 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
         hidden = from_v13(detail).replace('class="vanity-detail">', 'class="vanity-detail" hidden>')
         hidden = hidden.replace('fetchpriority="high"', 'loading="lazy"')
         hidden = hidden.replace('<p>اللون <bdi dir="ltr">WHITE</bdi></p>', options)
+        if mirror_storage:
+            hidden = hidden.replace('  </div>\n</section>',
+                                    '    <p class="vanity-material">مرآة مع خزانة تخزين مخفية خلفها لترتيب مستلزمات الحمّام اليومية.</p>\n  </div>\n</section>')
+
         assert options in hidden
         markup = markup.replace(detail, detail + "\n" + hidden, 1)
         for attribute in ("data-search-product", "data-saved"):
@@ -168,3 +172,9 @@ if __name__ == "__main__":
     add_cabinet(root, "S.T5030", 60, 38, 250, {"BLACK": "أسود", "WHITE": "أبيض"}, "cabinet-a621")
     add_cabinet(root, "L800", 80, 40, 400, {"CHARCOAL GRAY": "رمادي فحمي", "BLACK": "أسود", "WHITE": "أبيض"},
                 "cabinet-s-t5030", image_names={"CHARCOAL GRAY": "cabinet-l800-charcoal-gray.webp"})
+    add_cabinet(root, "L601 W", 60, 40, 350, {"WHITE": "أبيض"}, "cabinet-l800")
+    add_cabinet(root, "L101 W", 61, 37, 315, {"WHITE": "أبيض"}, "cabinet-l601-w", mirror_storage=True)
+    add_cabinet(root, "GOLF", 35, 35, 280, {"WHITE": "أبيض", "CHARCOAL GRAY": "رمادي فحمي"},
+                "cabinet-l101-w", image_names={"CHARCOAL GRAY": "cabinet-golf-charcoal-gray.webp"}, mirror_storage=True)
+    add_cabinet(root, "OMEGA", 35, 35, 280, {"CHARCOAL GRAY": "رمادي فحمي", "WHITE": "أبيض", "GREEN": "أخضر"},
+                "cabinet-golf", image_names={"CHARCOAL GRAY": "cabinet-omega-charcoal-gray.webp"}, mirror_storage=True)
