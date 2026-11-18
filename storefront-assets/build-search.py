@@ -61,6 +61,8 @@ def set_product_preview(html, name, image):
     return re.sub(r'<meta property="og:image:(?:width|height|type)"[^>]*>\s*', "", html)
 
 
+run_path(str(Path(__file__).with_name("cabinet_b604.py")), run_name="__main__")
+
 image_map = ET.Element("urlset", {"xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
                                   "xmlns:image": "http://www.google.com/schemas/sitemap-image/1.1"})
 java_models = []
