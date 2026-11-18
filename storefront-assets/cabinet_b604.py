@@ -61,7 +61,10 @@ def add_cabinet(root, model, width, depth, price, colors, after, *, image_names=
     if box_images:
         options += f'''<div class="cabinet-box" style="position:relative;margin:16px 0;padding:12px 14px;border:1px solid #b7a58a;border-radius:12px;background:#faf7f0;color:#24201a">
   <label style="display:flex;align-items:center;gap:9px;min-height:44px;margin-left:50px;cursor:pointer">
-    <input type="checkbox" data-cabinet-box style="width:18px;height:18px;flex:none;margin:0;accent-color:#80591f">
+    <span style="position:relative;display:grid;place-items:center;width:20px;height:20px;flex:none">
+      <input type="checkbox" data-cabinet-box style="appearance:none;-webkit-appearance:none;box-sizing:border-box;width:20px;height:20px;margin:0;border:2px solid #24201a;border-radius:4px;background:#fff;color-scheme:light;cursor:pointer">
+      <svg class="cabinet-box-check" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="position:absolute;pointer-events:none"><path d="m3.5 8 3 3 6-6" stroke="#24201a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
     <span><strong>إضافة الصيدلية <bdi dir="ltr">+${box_price}</bdi></strong>
       <small dir="ltr" style="display:block;width:max-content;max-width:100%;color:#625342">Size: 30 × 22 × 120 cm</small>
     </span>
