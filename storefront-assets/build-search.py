@@ -95,6 +95,8 @@ def publish_v20_photo(root):
 
 run_path(str(Path(__file__).with_name("cabinet_b604.py")), run_name="__main__")
 publish_v20_photo(ROOT)
+velato = run_path(str(Path(__file__).with_name("velato.py")))
+velato["publish"](ROOT, ORIGIN, STORE, meta, set_product_preview, schema_pattern, json_script)
 
 image_map = ET.Element("urlset", {"xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
                                   "xmlns:image": "http://www.google.com/schemas/sitemap-image/1.1"})
