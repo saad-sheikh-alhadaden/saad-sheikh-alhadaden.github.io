@@ -63,12 +63,10 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def gallery_card(slug):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
-        arabic_name = "أوكتاغون" if model_name == "OCTAGON" else "فيلاتو"
-        english_name = model_name if slug == SET else f"{model_name} · {finish}"
         return (f'<a class="hero mixer-product" href="/{slug}/">'
                 f'{picture(photos[0], f"{label} {model_name} · {finish}")}'
-                f'<div class="mixer-product-copy"><strong>{label} {arabic_name}</strong>'
-                f'<small><bdi dir="ltr">{english_name}</bdi></small>'
+                f'<div class="mixer-product-copy"><strong><bdi lang="en" dir="ltr">{model_name}</bdi></strong>'
+                f'<small><bdi lang="en" dir="ltr">{finish}</bdi></small>'
                 f'<span dir="ltr">${price:,}</span></div></a>')
 
     grids = {
