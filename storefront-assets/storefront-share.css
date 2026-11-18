@@ -4,60 +4,93 @@
   flex: none;
   gap: 6px;
 }
-.top [data-share-page] {
-  background: transparent;
-  color: inherit;
+.top .share-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 38px;
+  padding: 0 9px;
+  border: 1px solid #b89962;
+  border-radius: 999px;
+  background: #231f1a;
+  color: #e6c992;
+  font: inherit;
+  font-size: 12px;
+  white-space: nowrap;
   cursor: pointer;
 }
-.top [data-share-page] svg {
-  display: block;
-  width: 20px;
-  height: 20px;
+.top .share-pill svg { display: block; width: 16px; height: 16px; }
+.top .share-pill:active { background: #3a3022; }
+.top .share-pill:focus-visible { outline: 2px solid #dfc38f; outline-offset: 2px; }
+@media (max-width: 360px) {
+  header.top:has(.share-pill) { padding-inline: 10px; }
+  header.top:has(.share-pill) .brand-name { font-size: 13px; white-space: normal; }
 }
 .share-dialog {
-  width: min(26rem, calc(100% - 32px));
+  box-sizing: border-box;
+  width: min(26rem, calc(100% - 24px));
   margin: auto;
-  padding: 20px;
-  border: 1px solid #b7a58a;
-  border-radius: 14px;
-  background: #faf7f0;
-  color: #24201a;
+  padding: 18px;
+  border: 1px solid #735c3d;
+  border-radius: 17px;
+  background: #211d18;
+  color: #f5efe6;
 }
-.share-dialog::backdrop { background: rgb(11 9 7 / 62%); }
-.share-dialog form {
+.share-dialog::backdrop { background: rgb(11 9 7 / 72%); }
+.share-dialog [hidden] { display: none; }
+@media (max-width: 540px) {
+  .share-dialog { margin: auto auto max(12px, env(safe-area-inset-bottom)); }
+}
+.share-dialog form, .share-preview {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
-.share-dialog h2 { margin: 0; font-size: 1.15rem; }
-.share-dialog input {
-  box-sizing: border-box;
-  width: 100%;
+.share-dialog form { justify-content: space-between; }
+.share-dialog h2 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.share-preview {
   min-height: 44px;
-  padding: 8px;
-  margin: 5px 0 12px;
-  border: 1px solid #b7a58a;
-  border-radius: 7px;
-  background: white;
-  color: inherit;
-  font: inherit;
+  padding: 10px;
+  border: 1px solid #544430;
+  border-radius: 12px;
+  background: #2b251e;
 }
+.share-preview img {
+  border-radius: 7px;
+  flex: none;
+  object-fit: cover;
+}
+.share-preview strong { font-size: 1.05rem; overflow-wrap: anywhere; }
 .share-dialog .share-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .share-dialog button, .share-dialog a {
   display: inline-grid;
   place-items: center;
   min-height: 44px;
   padding: 0 12px;
-  border: 1px solid #b7a58a;
+  border: 1px solid #806745;
   border-radius: 8px;
   background: transparent;
-  color: inherit;
+  color: #f2e4ce;
   font: inherit;
+  font-size: .9rem;
   text-decoration: none;
   cursor: pointer;
 }
-.share-dialog [data-share-copy] { background: #dfc38f; border-color: #a9874c; }
-.share-dialog [data-share-status] { margin: 8px 0 0; font-size: .92rem; }
-.share-dialog [data-share-status]:empty { display: none; }
+.share-dialog [data-share-whatsapp] { background: #dfc38f; border-color: #dfc38f; color: #211d18; }
+.share-dialog [data-share-manual] { margin-top: 12px; }
+.share-dialog input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #806745;
+  border-radius: 7px;
+  background: #2b251e;
+  color: inherit;
+  font: inherit;
+}
+.share-dialog [data-share-status] { margin: 8px 0 0; font-size: .88rem; color: #efdbb6; }
+.share-dialog [data-share-status]:empty { margin: 0; }

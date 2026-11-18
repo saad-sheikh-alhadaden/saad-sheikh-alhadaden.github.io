@@ -9,19 +9,27 @@ from urllib.parse import urlsplit
 ROOT = Path("storefront")
 SOURCE = Path(__file__).parent
 
-SHARE_BUTTON = '''<button class="circle" type="button" data-share-page aria-label="مشاركة المتجر" title="مشاركة المتجر">
+SHARE_BUTTON = '''<button class="share-pill" type="button" data-share-page aria-label="مشاركة المتجر" title="مشاركة المتجر">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M12 15V3m-4 4 4-4 4 4M7 10H5v11h14V10h-2"/>
   </svg>
+  <span>شارك</span>
 </button>'''
 
 SHARE_DIALOG = '''<dialog class="share-dialog" data-share-dialog dir="rtl" aria-labelledby="share-dialog-title">
   <form method="dialog"><h2 id="share-dialog-title">مشاركة المتجر</h2><button type="submit">إغلاق</button></form>
-  <label for="store-share-link">الرابط</label>
-  <input id="store-share-link" data-share-link dir="ltr" type="text" readonly>
+  <div class="share-preview" data-share-preview>
+    <img data-share-image alt="" width="64" height="74" hidden>
+    <strong data-share-name></strong>
+  </div>
   <div class="share-dialog-actions">
+    <a data-share-whatsapp href="https://wa.me/" target="_blank" rel="noopener noreferrer">واتساب</a>
     <button type="button" data-share-copy>نسخ الرابط</button>
-    <a data-share-whatsapp href="https://wa.me/" target="_blank" rel="noopener noreferrer">مشاركة عبر واتساب</a>
+    <button type="button" data-share-native hidden>خيارات المشاركة</button>
+  </div>
+  <div data-share-manual hidden>
+    <label for="store-share-link">الرابط</label>
+    <input id="store-share-link" data-share-link dir="ltr" type="text" readonly>
   </div>
   <p data-share-status role="status"></p>
 </dialog>'''

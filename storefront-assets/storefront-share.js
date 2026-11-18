@@ -22,23 +22,41 @@ function updateShareLabel() {
   shareButton.title = label;
 }
 
-async function shareCurrentPage() {
+const nativeShare = shareDialog.querySelector("[data-share-native]");
+const manualShare = shareDialog.querySelector("[data-share-manual]");
+const shareImage = shareDialog.querySelector("[data-share-image]");
+const shareName = shareDialog.querySelector("[data-share-name]");
+
+function shareCurrentPage() {
   const { title, url, label } = currentSharePage();
-  if (typeof navigator.share === "function") {
-    try {
-      await navigator.share({ title, url });
-      return;
-    } catch (error) {
-      if (error?.name === "AbortError") return;
-    }
-  }
+  const screen = document.querySelector("main > section[id]:not([hidden])");
+  const isProduct = label === "مشاركة المنتج";
+  const productImage = isProduct ? screen?.querySelector(".product-image img") : null;
+  const modelName = isProduct ? screen?.querySelector("h1")?.textContent : null;
+  shareName.textContent = modelName?.trim() || title.split("|")[0].trim();
+  shareImage.hidden = !productImage;
+  if (productImage) shareImage.src = productImage.currentSrc || productImage.src;
+
   shareDialog.querySelector("h2").textContent = label;
   shareInput.value = url;
   shareStatus.textContent = "";
+  manualShare.hidden = true;
+  nativeShare.hidden = typeof navigator.share !== "function";
   const whatsapp = shareDialog.querySelector("[data-share-whatsapp]");
   whatsapp.href = "https://wa.me/?text=" + encodeURIComponent(title + "\n" + url);
   shareDialog.showModal();
 }
+
+nativeShare.addEventListener("click", async () => {
+  const { title, url } = currentSharePage();
+  try {
+    await navigator.share({ title, url });
+  } catch (error) {
+    if (error?.name !== "AbortError") {
+      shareStatus.textContent = "جرّب نسخ الرابط أو مشاركته عبر واتساب.";
+    }
+  }
+});
 
 shareButton.addEventListener("click", shareCurrentPage);
 shareDialog.querySelector("[data-share-copy]").addEventListener("click", async () => {
@@ -46,6 +64,7 @@ shareDialog.querySelector("[data-share-copy]").addEventListener("click", async (
     await navigator.clipboard.writeText(shareInput.value);
     shareStatus.textContent = "تم نسخ الرابط.";
   } catch {
+    manualShare.hidden = false;
     shareInput.focus();
     shareInput.select();
     shareStatus.textContent = "تم تحديد الرابط. انسخه من قائمة النسخ على جهازك.";
