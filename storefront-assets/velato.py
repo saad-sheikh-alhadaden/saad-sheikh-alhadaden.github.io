@@ -12,6 +12,8 @@ WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</st
 SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 CASCATA = "cascata-oro"
+CASCATA_CHROME = f"{CASCATA}-chrome"
+CASCATA_TOILET = f"{CASCATA}-concealed-toilet"
 PARTS = {
     "shower": ("شاور دفن", 1200, 6),
     "basin": ("خلاط مغسلة دفن", 475, 3),
@@ -55,6 +57,17 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     for kind, price, count in [("shower", 450, 5), ("basin", 225, 3), ("toilet", 200, 4)]:
         photos = [f"/assets/cascata-{kind}-{i}.webp" for i in range(1, count + 1)]
         models[f"{CASCATA}-concealed-{kind}"] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
+    chrome_photos = {
+        kind: [f"/assets/cascata-chrome-{kind}-{i}.webp" for i in range(1, count + 1)]
+        for kind, count in (("shower", 5), ("basin", 3), ("toilet", 4))
+    }
+    for kind, price in (("shower", 350), ("basin", 325)):
+        models[f"{CASCATA_CHROME}-concealed-{kind}"] = (
+            PARTS[kind][0], price, chrome_photos[kind], f"concealed-{kind}-mixer"
+        )
+    label, price, gold_photos, group = models[CASCATA_TOILET]
+    color_galleries[CASCATA_TOILET] = {"Gold": gold_photos, "Chrome": chrome_photos["toilet"]}
+    models[CASCATA_TOILET] = (label, price, gold_photos + chrome_photos["toilet"], group)
     sets = {}
     for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus", CASCATA):
         slug = f"{prefix}-concealed-set"
@@ -74,7 +87,13 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         price = 1975 if slug == SET else sum(models[part][1] for part in parts)
         label = "طقم دفن كامل" if len(parts) == 3 else "طقم شاور ومغسلة دفن"
         models[slug] = (label, price, photos, SET_GROUP)
-    part_sets = {part: slug for slug, parts in sets.items() for part in parts}
+    chrome_set = f"{CASCATA_CHROME}-concealed-set"
+    chrome_parts = [f"{CASCATA_CHROME}-concealed-shower", f"{CASCATA_CHROME}-concealed-basin", CASCATA_TOILET]
+    sets[chrome_set] = chrome_parts
+    models[chrome_set] = ("طقم دفن كامل", sum(models[part][1] for part in chrome_parts),
+                          [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
+    part_sets = {part: slug for slug, parts in sets.items() for part in parts
+                 if part != CASCATA_TOILET or slug != chrome_set}
     photo_sizes = {}
     for folder in ("eclipse", "lunaire", "cascata"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
@@ -102,6 +121,10 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == CASCATA_TOILET:
+            return "Cascata Oro", "Gold / Chrome"
+        if slug.startswith(CASCATA_CHROME + "-"):
+            return "Cascata Oro", "Chrome"
         if slug.startswith(CASCATA + "-"):
             return "Cascata Oro", "Gold"
         if slug.startswith("lunaire-"):
@@ -110,11 +133,21 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             return "Eclipse Flow", "Black / Chrome"
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
-    def card(slug, from_set=False):
+    def has_italian_origin(slug):
+        return not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-")
+
+    def set_part_url(part, set_slug):
+        color = "&amp;color=chrome" if part == CASCATA_TOILET and set_slug == chrome_set else ""
+        return f"/{part}/?from=set{color}"
+
+    def card(slug, set_slug):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
-        url = f"/{slug}/" + ("?from=set" if from_set else "")
-        return (f'<a class="velato-card" href="{url}">{picture(photos[0], f"{model_name} · {label} · {finish}")}'
+        photo = photos[0]
+        if slug == CASCATA_TOILET:
+            finish = "Chrome" if set_slug == chrome_set else "Gold"
+            photo = color_galleries[slug][finish][0]
+        return (f'<a class="velato-card" href="{set_part_url(slug, set_slug)}">{picture(photo, f"{model_name} · {label} · {finish}")}'
                 f'<span><bdi>{model_name}</bdi><br>{label}<br><bdi>${price:,}</bdi></span></a>')
 
     def gallery_card(slug):
@@ -161,6 +194,7 @@ display:flex;flex-direction:column;border-color:#d8c9b6;border-radius:8px}
 font-family:inherit;font-size:.72rem;font-weight:600;line-height:1.45;text-align:center}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
+.product-info .velato-origin[hidden]{display:none}
 .product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
 border-inline-start:2px solid #a67a3d;background:#ebe3d4;color:#35291b;font-size:.86rem}
 .velato-warranty strong{color:#684a25}
@@ -216,9 +250,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             )
             finishes = f'<div class="options" role="group" aria-label="التشطيب">{options}</div>'
         if slug in sets:
-            part_cards = "".join(card(part, from_set=True) for part in parts)
+            part_cards = "".join(card(part, slug) for part in parts)
             return_links = "".join(
-                f'<a class="velato-link" href="/{part}/?from=set" data-set-return="{part.rsplit("-", 1)[1]}" hidden>'
+                f'<a class="velato-link" href="{set_part_url(part, slug)}" data-set-return="{part.rsplit("-", 1)[1]}" hidden>'
                 f'<span>الرجوع إلى {models[part][0]}</span><span aria-hidden="true">↶</span></a>'
                 for part in parts
             )
@@ -227,15 +261,17 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         else:
             set_slug = part_sets[slug]
             kind = slug.rsplit("-", 1)[1]
-            related = (f'<a class="velato-link" data-related-set href="/{set_slug}/?from={kind}">'
+            chrome_link = f' data-chrome-set="/{chrome_set}/?from={kind}"' if slug == CASCATA_TOILET else ""
+            related = (f'<a class="velato-link" data-related-set{chrome_link} href="/{set_slug}/?from={kind}">'
                        f'<span>شوف طقم {model_name} الكامل</span><span aria-hidden="true">‹</span></a>')
             if len(sets[set_slug]) == 2:
                 other = next(part for part in sets[set_slug] if part != slug)
                 related += (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
                             '<span aria-hidden="true">‹</span></a>')
         order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
-        origin_badge = ('' if model_name == "Cascata Oro" else
-                        '<span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>')
+        origin_badge = '<span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>' if has_italian_origin(slug) else ""
+        if slug == CASCATA_TOILET:
+            origin_badge = '<span class="velato-origin" data-chrome-origin lang="en" dir="ltr" hidden>Made in Italy</span>'
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -262,6 +298,27 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     if registry_additions[0] not in js:
         raise ValueError("Missing storefront product registry")
     js = js.replace('const encastreScreens = new Set([', f'const encastreScreens = new Set(["{SET_GROUP}", ', 1)
+    color_listener = '  for (const choice of choices) {\n    choice.addEventListener("click", () => {\n      if (color !== choice.dataset.color)'
+    quantity_listener = '  for (const button of screen.querySelectorAll("[data-quantity-change]")) {'
+    if color_listener not in js or quantity_listener not in js:
+        raise ValueError("Missing storefront finish or quantity controls")
+    js = js.replace(color_listener, """  const chromeSetLink = screen.querySelector("[data-chrome-set]");
+  const goldSetPath = chromeSetLink?.getAttribute("href");
+  for (const choice of choices) {
+    choice.addEventListener("click", () => {
+      if (chromeSetLink) {
+        const chrome = choice.dataset.color === "Chrome";
+        chromeSetLink.href = chrome ? chromeSetLink.dataset.chromeSet : goldSetPath;
+        screen.querySelector("[data-chrome-origin]").hidden = !chrome;
+        if (new URLSearchParams(location.search).get("from") === "set" && !screen.hidden) {
+          document.getElementById("back").href = chromeSetLink.href;
+        }
+      }
+      if (color !== choice.dataset.color)""", 1)
+    js = js.replace(quantity_listener, """  if (chromeSetLink && requestedFinish === "chrome") {
+    choices.find(choice => choice.dataset.color === "Chrome")?.click();
+  }
+""" + quantity_listener, 1)
     js = js.replace('addButton.textContent = `أضف إلى السلة — ${money(quantity * unitPrice(product, orderColor()))}`;',
                     'addButton.textContent = `${product.category === "concealed-sets" ? "أضف الطقم للسلة" : "أضف إلى السلة"} — ${money(quantity * unitPrice(product, orderColor()))}`;')
     new_script = f"assets/storefront-{sha256(js.encode()).hexdigest()[:12]}.js"
@@ -328,10 +385,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     for slug, (label, price, photos, group) in models.items():
         model_name, finish = identity(slug)
         contents = " يشمل " + " و".join(models[part][0] for part in sets[slug]) + "." if slug in sets else ""
-        italy = model_name != "Cascata Oro"
+        italy = has_italian_origin(slug)
         origin_text = "، صنع في إيطاليا" if italy else ""
         country = {"countryOfOrigin": {"@type": "Country", "name": "Italy"}} if italy else {}
-        landing(slug, f"{label} {model_name}", f"{label} {model_name} بتشطيب {finish}{origin_text}. ${price:,}.{contents}",
+        title = f"{label} {model_name}"
+        if slug.startswith(CASCATA_CHROME + "-"):
+            title += " · Chrome"
+        landing(slug, title, f"{label} {model_name} بتشطيب {finish}{origin_text}. ${price:,}.{contents}",
                 photos, {"@type": "Product", "@id": f"{origin}/{slug}/#product", "sku": slug,
                          "color": finish, **country,
                          "image": [origin + photo for photo in photos],
