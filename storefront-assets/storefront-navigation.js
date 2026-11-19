@@ -23,6 +23,12 @@
     nav.append(link);
   }
 
+  function returnDestination(link) {
+    const target = new URL(link.href, location.origin);
+    target.searchParams.delete("from");
+    return target.href;
+  }
+
   function updateNavigation() {
     const section = screen();
     if (!section) return;
@@ -34,6 +40,7 @@
     const sourcePart = [...section.querySelectorAll("[data-set-return]")]
       .find(link => link.dataset.setReturn === from);
     if (sourcePart) {
+      sourcePart.href = returnDestination(sourcePart);
       sourcePart.hidden = false;
       returnLink.href = sourcePart.href;
       returnLink.textContent = "للقطعة";
@@ -43,7 +50,7 @@
     if (from === "set") {
       const setLink = section.querySelector("[data-related-set]");
       if (setLink) {
-        returnLink.href = setLink.href;
+        returnLink.href = returnDestination(setLink);
         returnLink.textContent = "للطقم";
         returnLink.setAttribute("aria-label", setLink.firstElementChild.textContent);
         return;
