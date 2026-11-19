@@ -19,7 +19,7 @@ CASCATA_CHROME = f"{CASCATA}-chrome"
 CASCATA_TOILET = f"{CASCATA}-concealed-toilet"
 PARTS = {
     "shower": ("شاور دفن", 1200, 6),
-    "basin": ("خلاط مغسلة دفن", 475, 3),
+    "basin": ("خلاط مغسلة دفن", 475, 5),
     "toilet": ("خلاط تواليت دفن", 300, 2),
 }
 
@@ -27,7 +27,8 @@ PARTS = {
 def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models = {}
     for kind, (label, price, count) in PARTS.items():
-        photos = [f"/assets/velato-{kind}-{i}.webp" for i in range(1, count + 1)]
+        prefix = "velato-basin-brushed-rose-gold" if kind == "basin" else f"velato-{kind}"
+        photos = [f"/assets/{prefix}-{i}.webp" for i in range(1, count + 1)]
         models[f"velato-concealed-{kind}"] = (label, price, photos, f"concealed-{kind}-mixer")
     for kind, price in {"shower": 700, "basin": 300}.items():
         photos = [f"/assets/octagon-{kind}-{i}.webp" for i in range(1, 5)]
@@ -114,7 +115,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {}
-    for folder in ("eclipse", "lunaire", "cascata", "stgr", "stbl", "str"):
+    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
