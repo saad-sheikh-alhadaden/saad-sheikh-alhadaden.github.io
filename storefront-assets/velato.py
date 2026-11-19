@@ -14,6 +14,13 @@ SET_GROUP = "concealed-sets"
 ST_GR = "st-gr"
 ST_BL_BASIN = "st-bl-concealed-basin"
 ST_R_BASIN = "st-r-concealed-basin"
+CUBE = "cube-3-outlet-concealed-shower"
+CUBE_PRICES = {"Chrome": 350, "Black": 450, "Gold": 500, "Brushed Gold": 600, "Gray": 600}
+CUBE_DESCRIPTION = (
+    "تصميم هندسي بخطوط مستقيمة وتركيب مخفي داخل الجدار، يمنح مساحة الشاور مظهراً مرتباً. "
+    "يتيح لك الطقم التبديل بين ثلاثة مخارج للمياه: رأس دش مطري علوي مربّع بقياس 30 × 30 سم، "
+    "ودش يدوي، ومصبّ سفلي."
+)
 CASCATA = "cascata-oro"
 CASCATA_CHROME = f"{CASCATA}-chrome"
 CASCATA_TOILET = f"{CASCATA}-concealed-toilet"
@@ -89,6 +96,13 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         color_galleries[slug] = galleries
         photos = [photo for gallery in galleries.values() for photo in gallery]
         models[slug] = (PARTS["basin"][0], 300, photos, "concealed-basin-mixer")
+    cube_gallery = {
+        color: [f"/assets/cube-shower-{color.lower().replace(' ', '-')}.webp"]
+        for color in CUBE_PRICES
+    }
+    color_galleries[CUBE] = cube_gallery
+    models[CUBE] = ("شاور دفن بثلاثة مخارج", CUBE_PRICES["Chrome"],
+                    [images[0] for images in cube_gallery.values()], "concealed-shower-mixer")
     cover_manifest = json.loads(Path(__file__).with_name("cinematic").joinpath("covers.json").read_text())
     cover_paths = {f"/assets/{original}": f"/assets/{replacement['file']}"
                    for original, replacement in cover_manifest.items()}
@@ -131,6 +145,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
     for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
+    photo_sizes.update(json.loads(Path(__file__).with_name("cube").joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
@@ -155,6 +170,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == CUBE:
+            return "Cube 3 Outlet", " / ".join(CUBE_PRICES)
         if slug in (ST_BL_BASIN, ST_R_BASIN):
             name = "S.T bl" if slug == ST_BL_BASIN else "S.T R"
             return name, " / ".join(color_galleries[slug])
@@ -173,6 +190,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
     def country_of_origin(slug):
+        if slug == CUBE:
+            return "Germany", "ألمانيا"
         if slug.startswith(ST_GR + "-"):
             return ("Germany", "ألمانيا") if slug.endswith("-basin") else None
         if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
@@ -196,11 +215,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def gallery_card(slug):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
+        price_text = f"${price:,}–${max(CUBE_PRICES.values()):,}" if slug == CUBE else f"${price:,}"
         return (f'<a class="hero mixer-product" href="/{slug}/">'
                 f'{picture(photos[0], f"{label} {model_name} · {finish}")}'
                 f'<div class="mixer-product-copy"><strong><bdi lang="en" dir="ltr">{model_name}</bdi></strong>'
                 f'<small><bdi lang="en" dir="ltr">{finish}</bdi></small>'
-                f'<span dir="ltr">${price:,}</span></div></a>')
+                f'<span dir="ltr">{price_text}</span></div></a>')
 
     grids = {
         group: '<div class="cabinet-gallery">' + "".join(
@@ -256,6 +276,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T Gr": "اس تي جي آر st gr",
                        "S.T bl": "اس تي بي إل st bl",
                        "S.T R": "اس تي آر st r",
+                       "Cube 3 Outlet": "كيوب ٣ مخارج",
                        "S.T 80036": "اس تي 80036 st80036",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
@@ -265,6 +286,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     "price": price, "images": {color: images[0] for color, images in galleries.items()},
                     "defaultColor": default_color,
                     "category": group, "favoriteKey": "saad-saved-" + slug}
+        if slug == CUBE:
+            registry["prices"] = CUBE_PRICES
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
@@ -318,6 +341,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
         country = country_of_origin(slug)
         origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>' if country else ""
+        description_html = f'<p>{escape(CUBE_DESCRIPTION)}</p>' if slug == CUBE else ""
+        unit_price_attr = " data-unit-price" if slug == CUBE else ""
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -328,7 +353,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     {origin_badge}
     <div class="velato-gallery{gallery_class}" aria-label="صور المنتج">{gallery}</div>
     {finishes}
-    <p class="price-tag" dir="ltr">${price:,}</p>
+    {description_html}
+    <p class="price-tag" dir="ltr"{unit_price_attr}>${price:,}</p>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
     <button class="action" data-add-cart type="button">{order} — ${price:,}</button>
     {related}
@@ -423,12 +449,17 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         title = f"{label} {model_name}"
         if slug.startswith(CASCATA_CHROME + "-"):
             title += " · Chrome"
-        landing(slug, title, f"{label} {model_name} بتشطيب {finish}{origin_text}. ${price:,}.{contents}",
+        description = f"{label} {model_name} بتشطيب {finish}{origin_text}. ${price:,}.{contents}"
+        offer = {"@type": "Offer", "price": price, "priceCurrency": "USD", "url": f"{origin}/{slug}/"}
+        if slug == CUBE:
+            description = f"{title}{origin_text}. {CUBE_DESCRIPTION}"
+            offer = [{"@type": "Offer", "name": color, "price": amount, "priceCurrency": "USD",
+                      "url": f"{origin}/{slug}/"} for color, amount in CUBE_PRICES.items()]
+        landing(slug, title, description,
                 photos, {"@type": "Product", "@id": f"{origin}/{slug}/#product", "sku": slug,
                          "color": finish, **country,
                          "image": [origin + photo for photo in photos],
-                         "offers": {"@type": "Offer", "price": price, "priceCurrency": "USD",
-                                    "url": f"{origin}/{slug}/"}})
+                         "offers": offer})
     for slug, label in labels.items():
         children = (list(labels)[1:] if slug == "encastre" else
                     [model for model, data in models.items() if data[3] == slug])
