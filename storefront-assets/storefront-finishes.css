@@ -1,0 +1,56 @@
+/* The product option and the JAVA MIX cards share the same finish palette. */
+[data-color="chrome" i], [data-color="chrome-1" i], [data-color="chrome-2" i],
+#java-mix a[href$="?color=chrome"] {
+  --store-finish: linear-gradient(135deg, #fff, #888, #eee);
+}
+[data-color="black" i], [data-color="black-1" i], [data-color="black-2" i],
+[data-color="tall mixer black" i], #java-mix a[href$="?color=black"] {
+  --store-finish: #242424;
+}
+[data-color="gold" i], [data-color="gold-1" i], [data-color="gold-2" i],
+#java-mix a[href$="?color=gold"] {
+  --store-finish: linear-gradient(135deg, #ffe5a3, #b67d17);
+}
+[data-color="brushed gold" i], #java-mix a[href$="?color=brushed-gold"] {
+  --store-finish: linear-gradient(135deg, #e4d3a8, #a2824d);
+}
+[data-color="rose gold" i], #java-mix a[href$="?color=rose-gold"] {
+  --store-finish: linear-gradient(135deg, #f5c1ae, #a66560);
+}
+[data-color="brushed rose gold" i] {
+  --store-finish: linear-gradient(135deg, #d9aa99, #905e54);
+}
+[data-color="gray" i], #java-mix a[href$="?color=gray"] { --store-finish: #78787a; }
+[data-color="charcoal gray" i] { --store-finish: #46484c; }
+[data-color="white" i] { --store-finish: #fff; }
+[data-color="off-white" i], [data-color="ivore" i] { --store-finish: #eee7d6; }
+[data-color="creamy" i] { --store-finish: #e8d6b3; }
+[data-color="greige" i] { --store-finish: #b2a28e; }
+[data-color="green" i] { --store-finish: #526d55; }
+[data-color="oil" i] { --store-finish: #77764c; }
+[data-color="red" i] { --store-finish: #a21729; }
+[data-color="bronze" i] { --store-finish: linear-gradient(135deg, #d2a778, #784d37); }
+#java-mix a[href$="?color=black-chrome"] {
+  --store-finish: linear-gradient(90deg, #242424 50%, #bdbfc3 50%);
+}
+#java-mix a[href$="?color=black-rose-gold"] {
+  --store-finish: linear-gradient(90deg, #242424 50%, #cf9281 50%);
+}
+
+button.option[data-color]:not(:has(> img))::before,
+:is(#cobra-classic, #dinosaur, #pelle) button.option[data-color]:not(:has(> img))::before,
+button.option[data-color]:has(> img) > bdi::before,
+#java-mix a[href*="?color="] .mixer-product-copy bdi::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #81766a;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin: 0 6px 0 0;
+  margin-inline: 0 6px;
+  background: var(--store-finish, transparent);
+}
+button.option[data-color]:has(> img)::before { content: none; }
