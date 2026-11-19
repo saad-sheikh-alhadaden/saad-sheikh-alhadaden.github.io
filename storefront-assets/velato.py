@@ -18,7 +18,7 @@ CASCATA = "cascata-oro"
 CASCATA_CHROME = f"{CASCATA}-chrome"
 CASCATA_TOILET = f"{CASCATA}-concealed-toilet"
 PARTS = {
-    "shower": ("شاور دفن", 1200, 6),
+    "shower": ("شاور دفن", 1200, 7),
     "basin": ("خلاط مغسلة دفن", 475, 5),
     "toilet": ("خلاط تواليت دفن", 300, 2),
 }
@@ -27,7 +27,9 @@ PARTS = {
 def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models = {}
     for kind, (label, price, count) in PARTS.items():
-        prefix = "velato-basin-brushed-rose-gold" if kind == "basin" else f"velato-{kind}"
+        prefix = f"velato-{kind}"
+        if kind in ("shower", "basin"):
+            prefix += "-brushed-rose-gold"
         photos = [f"/assets/{prefix}-{i}.webp" for i in range(1, count + 1)]
         models[f"velato-concealed-{kind}"] = (label, price, photos, f"concealed-{kind}-mixer")
     for kind, price in {"shower": 700, "basin": 300}.items():
