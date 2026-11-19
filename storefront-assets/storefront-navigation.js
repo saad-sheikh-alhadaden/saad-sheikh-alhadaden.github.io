@@ -40,12 +40,12 @@
       returnLink.setAttribute("aria-label", sourcePart.firstElementChild.textContent);
       return;
     }
-    if (from === "set" && model.startsWith("velato-concealed-") && model !== "velato-concealed-set") {
-      const setLink = section.querySelector(".velato-link");
+    if (from === "set") {
+      const setLink = section.querySelector("[data-related-set]");
       if (setLink) {
         returnLink.href = setLink.href;
         returnLink.textContent = "للطقم";
-        returnLink.setAttribute("aria-label", "الرجوع إلى طقم Velato الكامل");
+        returnLink.setAttribute("aria-label", setLink.firstElementChild.textContent);
         return;
       }
     }

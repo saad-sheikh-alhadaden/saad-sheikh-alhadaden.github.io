@@ -23,7 +23,6 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     for kind, (label, price, count) in PARTS.items():
         photos = [f"/assets/velato-{kind}-{i}.webp" for i in range(1, count + 1)]
         models[f"velato-concealed-{kind}"] = (label, price, photos, f"concealed-{kind}-mixer")
-    models[SET] = ("طقم دفن كامل", 1975, [model[2][0] for model in models.values()], SET_GROUP)
     for kind, price in {"shower": 700, "basin": 300}.items():
         photos = [f"/assets/octagon-{kind}-{i}.webp" for i in range(1, 5)]
         models[f"octagon-concealed-{kind}"] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
@@ -52,6 +51,26 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         color_galleries[slug] = galleries
         photos = [photo for gallery in galleries.values() for photo in gallery]
         models[slug] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
+    sets = {}
+    for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus"):
+        slug = f"{prefix}-concealed-set"
+        kinds = PARTS if slug == SET else ("shower", "basin")
+        parts = [f"{prefix}-concealed-{kind}" for kind in kinds]
+        sets[slug] = parts
+        if parts[0] in color_galleries:
+            galleries = {
+                color: [color_galleries[part][color][0] for part in parts]
+                for color in color_galleries[parts[0]]
+                if all(color in color_galleries[part] for part in parts)
+            }
+            color_galleries[slug] = galleries
+            photos = [photo for gallery in galleries.values() for photo in gallery]
+        else:
+            photos = [models[part][2][0] for part in parts]
+        price = 1975 if slug == SET else sum(models[part][1] for part in parts)
+        label = "طقم دفن كامل" if slug == SET else "طقم شاور ومغسلة دفن"
+        models[slug] = (label, price, photos, SET_GROUP)
+    part_sets = {part: slug for slug, parts in sets.items() for part in parts}
     photo_sizes = {}
     for folder in ("eclipse", "lunaire"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
@@ -60,7 +79,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         source = Path(__file__).with_name(filename.split("-", 1)[0])
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
     labels = {"encastre": "خلاطات الدفن", SET_GROUP: "أطقم الدفن الكاملة"}
-    labels.update({group: label for slug, (label, price, photos, group) in models.items() if slug != SET})
+    labels.update({group: label for slug, (label, price, photos, group) in models.items() if slug not in sets})
     headings = {
         "encastre": "Encastre",
         SET_GROUP: "Concealed Sets",
@@ -108,23 +127,17 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         for group in labels if group != "encastre"
     }
 
-    velato_parts = [f"velato-concealed-{kind}" for kind in PARTS]
-    part_cards = "".join(card(slug, from_set=True) for slug in velato_parts)
-    return_links = "".join(
-        f'<a class="velato-link" href="/{slug}/?from=set" data-set-return="{kind}" hidden>'
-        f'<span>الرجوع إلى {models[slug][0]}</span><span aria-hidden="true">↶</span></a>'
-        for kind in PARTS for slug in [f"velato-concealed-{kind}"]
-    )
     hero = (f'<a class="velato-feature" href="/{SET_GROUP}/"><span>أطقم الدفن الكاملة'
             '<br><bdi lang="en">Concealed Sets</bdi><small>استعرض الأطقم</small></span>'
             '<div class="velato-strip">' + "".join(
-                picture(models[slug][2][0], models[slug][0]) for slug in velato_parts
+                picture(models[slug][2][0], models[slug][0]) for slug in sets[SET]
             ) + '</div></a>')
     styles = """<style>
 .velato-feature,.velato-card{display:block;color:#f6ebdc;background:#201c19;border:1px solid #9c7656;border-radius:14px;overflow:hidden;text-decoration:none}
 .velato-feature{margin:1rem 0}.velato-feature>span,.velato-card>span{display:block;padding:.75rem 1rem}
 .velato-feature small{display:block;margin-top:.35rem;color:#e4b58d}
 .velato-strip,.velato-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
+.velato-parts-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
 .velato-strip img,.velato-card img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
 .velato-card{max-width:22rem;margin:.6rem 0 1rem}.velato-parts .velato-card>span{padding:.5rem;font-size:.8rem}
 .velato-gallery{display:flex;gap:.45rem;overflow-x:auto;padding:.5rem 0}
@@ -177,15 +190,26 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                 for color in galleries
             )
             finishes = f'<div class="options" role="group" aria-label="التشطيب">{options}</div>'
-        related = (f'{return_links}<h2>مكوّنات الطقم</h2><div class="velato-parts">{part_cards}</div>' if slug == SET
-                   else f'<a class="velato-link" href="/{SET}/?from={slug.rsplit("-", 1)[1]}">'
-                        '<span>شوف طقم Velato الكامل</span><span aria-hidden="true">‹</span></a>')
-        if model_name == "OCTAGON" or slug in color_galleries:
-            prefix, kind = slug.rsplit("-", 1)
-            other = prefix + ("-basin" if kind == "shower" else "-shower")
-            related = (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
-                       '<span aria-hidden="true">‹</span></a>')
-        order = "أضف الطقم للسلة" if slug == SET else "أضف إلى السلة"
+        if slug in sets:
+            parts = sets[slug]
+            part_cards = "".join(card(part, from_set=True) for part in parts)
+            return_links = "".join(
+                f'<a class="velato-link" href="/{part}/?from=set" data-set-return="{part.rsplit("-", 1)[1]}" hidden>'
+                f'<span>الرجوع إلى {models[part][0]}</span><span aria-hidden="true">↶</span></a>'
+                for part in parts
+            )
+            columns = " velato-parts-pair" if len(parts) == 2 else ""
+            related = f'{return_links}<h2>مكوّنات الطقم</h2><div class="velato-parts{columns}">{part_cards}</div>'
+        else:
+            set_slug = part_sets[slug]
+            kind = slug.rsplit("-", 1)[1]
+            related = (f'<a class="velato-link" data-related-set href="/{set_slug}/?from={kind}">'
+                       f'<span>شوف طقم {model_name} الكامل</span><span aria-hidden="true">‹</span></a>')
+            if set_slug != SET:
+                other = next(part for part in sets[set_slug] if part != slug)
+                related += (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
+                            '<span aria-hidden="true">‹</span></a>')
+        order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -213,7 +237,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         raise ValueError("Missing storefront product registry")
     js = js.replace('const encastreScreens = new Set([', f'const encastreScreens = new Set(["{SET_GROUP}", ', 1)
     js = js.replace('addButton.textContent = `أضف إلى السلة — ${money(quantity * unitPrice(product, orderColor()))}`;',
-                    'addButton.textContent = `${id === "velato-concealed-set" ? "أضف الطقم للسلة" : "أضف إلى السلة"} — ${money(quantity * unitPrice(product, orderColor()))}`;')
+                    'addButton.textContent = `${product.category === "concealed-sets" ? "أضف الطقم للسلة" : "أضف إلى السلة"} — ${money(quantity * unitPrice(product, orderColor()))}`;')
     new_script = f"assets/storefront-{sha256(js.encode()).hexdigest()[:12]}.js"
     (root / new_script).write_text(js)
 
@@ -277,7 +301,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
 
     for slug, (label, price, photos, group) in models.items():
         model_name, finish = identity(slug)
-        contents = " يشمل شاور دفن وخلاط مغسلة دفن وخلاط تواليت دفن." if slug == SET else ""
+        contents = " يشمل " + " و".join(models[part][0] for part in sets[slug]) + "." if slug in sets else ""
         landing(slug, f"{label} {model_name}", f"{label} {model_name} بتشطيب {finish}، صنع في إيطاليا. ${price:,}.{contents}",
                 photos, {"@type": "Product", "@id": f"{origin}/{slug}/#product", "sku": slug,
                          "color": finish, "countryOfOrigin": {"@type": "Country", "name": "Italy"},
