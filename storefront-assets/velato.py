@@ -11,6 +11,7 @@ FINISH = "Brushed Rose Gold"
 WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</strong><span>تبديل خلال أول سنتين من الكفالة</span></p>'
 SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
+CASCATA = "cascata-oro"
 PARTS = {
     "shower": ("شاور دفن", 1200, 6),
     "basin": ("خلاط مغسلة دفن", 475, 3),
@@ -51,10 +52,13 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         color_galleries[slug] = galleries
         photos = [photo for gallery in galleries.values() for photo in gallery]
         models[slug] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
+    for kind, price, count in [("shower", 450, 5), ("basin", 225, 3), ("toilet", 200, 4)]:
+        photos = [f"/assets/cascata-{kind}-{i}.webp" for i in range(1, count + 1)]
+        models[f"{CASCATA}-concealed-{kind}"] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
     sets = {}
-    for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus"):
+    for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus", CASCATA):
         slug = f"{prefix}-concealed-set"
-        kinds = PARTS if slug == SET else ("shower", "basin")
+        kinds = PARTS if prefix in ("velato", CASCATA) else ("shower", "basin")
         parts = [f"{prefix}-concealed-{kind}" for kind in kinds]
         sets[slug] = parts
         if parts[0] in color_galleries:
@@ -68,11 +72,11 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         else:
             photos = [models[part][2][0] for part in parts]
         price = 1975 if slug == SET else sum(models[part][1] for part in parts)
-        label = "طقم دفن كامل" if slug == SET else "طقم شاور ومغسلة دفن"
+        label = "طقم دفن كامل" if len(parts) == 3 else "طقم شاور ومغسلة دفن"
         models[slug] = (label, price, photos, SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts}
     photo_sizes = {}
-    for folder in ("eclipse", "lunaire"):
+    for folder in ("eclipse", "lunaire", "cascata"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
@@ -98,6 +102,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug.startswith(CASCATA + "-"):
+            return "Cascata Oro", "Gold"
         if slug.startswith("lunaire-"):
             return "Lunaire Digital blus", "Chrome / Rose Gold / Gray / White"
         if slug.startswith("eclipse-"):
@@ -170,6 +176,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     for slug, (label, price, photos, group) in models.items():
         model_name, finish = identity(slug)
         arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو",
+                       "Cascata Oro": "كاسكاتا أورو",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
         galleries = color_galleries.get(slug, {finish: photos})
@@ -222,11 +229,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             kind = slug.rsplit("-", 1)[1]
             related = (f'<a class="velato-link" data-related-set href="/{set_slug}/?from={kind}">'
                        f'<span>شوف طقم {model_name} الكامل</span><span aria-hidden="true">‹</span></a>')
-            if set_slug != SET:
+            if len(sets[set_slug]) == 2:
                 other = next(part for part in sets[set_slug] if part != slug)
                 related += (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
                             '<span aria-hidden="true">‹</span></a>')
         order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
+        origin_badge = ('' if model_name == "Cascata Oro" else
+                        '<span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>')
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -234,7 +243,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
   </div>
   <div class="product-info">
     <p class="category">{label}</p><h1><bdi>{model_name}</bdi></h1>
-    <span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>
+    {origin_badge}
     <div class="velato-gallery{gallery_class}" aria-label="صور المنتج">{gallery}</div>
     {finishes}
     <p class="price-tag" dir="ltr">${price:,}</p>
@@ -319,9 +328,12 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     for slug, (label, price, photos, group) in models.items():
         model_name, finish = identity(slug)
         contents = " يشمل " + " و".join(models[part][0] for part in sets[slug]) + "." if slug in sets else ""
-        landing(slug, f"{label} {model_name}", f"{label} {model_name} بتشطيب {finish}، صنع في إيطاليا. ${price:,}.{contents}",
+        italy = model_name != "Cascata Oro"
+        origin_text = "، صنع في إيطاليا" if italy else ""
+        country = {"countryOfOrigin": {"@type": "Country", "name": "Italy"}} if italy else {}
+        landing(slug, f"{label} {model_name}", f"{label} {model_name} بتشطيب {finish}{origin_text}. ${price:,}.{contents}",
                 photos, {"@type": "Product", "@id": f"{origin}/{slug}/#product", "sku": slug,
-                         "color": finish, "countryOfOrigin": {"@type": "Country", "name": "Italy"},
+                         "color": finish, **country,
                          "image": [origin + photo for photo in photos],
                          "offers": {"@type": "Offer", "price": price, "priceCurrency": "USD",
                                     "url": f"{origin}/{slug}/"}})
