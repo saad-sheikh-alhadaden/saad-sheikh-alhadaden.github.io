@@ -89,6 +89,20 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         color_galleries[slug] = galleries
         photos = [photo for gallery in galleries.values() for photo in gallery]
         models[slug] = (PARTS["basin"][0], 300, photos, "concealed-basin-mixer")
+    cover_manifest = json.loads(Path(__file__).with_name("cinematic").joinpath("covers.json").read_text())
+    cover_paths = {f"/assets/{original}": f"/assets/{replacement['file']}"
+                   for original, replacement in cover_manifest.items()}
+
+    def cover_photos(photos):
+        return [cover_paths.get(photo, photo) for photo in photos]
+
+    for slug, (label, price, photos, group) in models.items():
+        models[slug] = (label, price, cover_photos(photos), group)
+    for galleries in color_galleries.values():
+        for color, photos in galleries.items():
+            galleries[color] = cover_photos(photos)
+    chrome_photos = {kind: cover_photos(photos) for kind, photos in chrome_photos.items()}
+
     sets = {}
     for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus", CASCATA, ST_GR):
         slug = f"{prefix}-concealed-set"
@@ -114,7 +128,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models[chrome_set] = ("طقم دفن كامل", sum(models[part][1] for part in chrome_parts),
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
-    photo_sizes = {}
+    photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
     for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
