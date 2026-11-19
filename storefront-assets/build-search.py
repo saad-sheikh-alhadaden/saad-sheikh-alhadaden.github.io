@@ -165,6 +165,7 @@ logo = Path(__file__).with_name("saad-watermark-gold.webp")
 (ROOT / "assets" / logo.name).write_bytes(logo.read_bytes())
 branch_css = publish_asset(ROOT, Path(__file__).with_name("storefront-branches.css"))
 finish_css = publish_asset(ROOT, Path(__file__).with_name("storefront-finishes.css"))
+finish_picker = publish_asset(ROOT, Path(__file__).with_name("storefront-finish-picker.js"))
 photo_css = publish_asset(ROOT, Path(__file__).with_name("storefront-photos.css"))
 photo_js = publish_asset(ROOT, Path(__file__).with_name("storefront-photos.js"))
 photo_controls = f'<link rel="stylesheet" href="{photo_css}"><script defer src="{photo_js}"></script>'
@@ -173,7 +174,8 @@ for page in ROOT.rglob("index.html"):
     if not re.search(r"<img\b", markup, re.I):
         continue
     markup = markup.replace("<span>أول سنتين تبديل</span>", "<span>تبديل فوري خلال أول سنتين، وصيانة خلال السنوات الثلاث التالية.</span>")
-    controls = f'<link rel="stylesheet" href="{finish_css}">' + photo_controls
+    controls = (f'<link rel="stylesheet" href="{finish_css}">'
+                f'<script defer src="{finish_picker}"></script>' + photo_controls)
     if 'class="branch-links"' in markup:
         controls += f'<link rel="stylesheet" href="{branch_css}">'
     markup, count = re.subn(r"(<title\b[^>]*>)", lambda match: controls + match[0], markup, count=1, flags=re.I)
