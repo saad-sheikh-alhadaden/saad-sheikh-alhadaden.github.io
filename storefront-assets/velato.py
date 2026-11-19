@@ -11,6 +11,7 @@ FINISH = "Brushed Rose Gold"
 WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</strong><span>تبديل خلال أول سنتين من الكفالة</span></p>'
 SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
+ST_GR = "st-gr"
 CASCATA = "cascata-oro"
 CASCATA_CHROME = f"{CASCATA}-chrome"
 CASCATA_TOILET = f"{CASCATA}-concealed-toilet"
@@ -68,10 +69,15 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     label, price, gold_photos, group = models[CASCATA_TOILET]
     color_galleries[CASCATA_TOILET] = {"Gold": gold_photos, "Chrome": chrome_photos["toilet"]}
     models[CASCATA_TOILET] = (label, price, gold_photos + chrome_photos["toilet"], group)
+    for kind, price, count in (("shower", 500, 5), ("basin", 300, 3), ("toilet", 200, 3)):
+        photos = [f"/assets/stgr-{kind}-{i}.webp" for i in range(1, count + 1)]
+        models[f"{ST_GR}-concealed-{kind}"] = (
+            PARTS[kind][0], price, photos, f"concealed-{kind}-mixer"
+        )
     sets = {}
-    for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus", CASCATA):
+    for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus", CASCATA, ST_GR):
         slug = f"{prefix}-concealed-set"
-        kinds = PARTS if prefix in ("velato", CASCATA) else ("shower", "basin")
+        kinds = PARTS if prefix in ("velato", CASCATA, ST_GR) else ("shower", "basin")
         parts = [f"{prefix}-concealed-{kind}" for kind in kinds]
         sets[slug] = parts
         if parts[0] in color_galleries:
@@ -94,7 +100,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {}
-    for folder in ("eclipse", "lunaire", "cascata"):
+    for folder in ("eclipse", "lunaire", "cascata", "stgr"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
@@ -120,6 +126,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug.startswith(ST_GR + "-"):
+            return "S.T Gr", "Gray"
         if slug == CASCATA_TOILET:
             return "S.T 80036", "Gold / Chrome"
         if slug.startswith(CASCATA_CHROME + "-"):
@@ -133,6 +141,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
     def has_italian_origin(slug):
+        if slug.startswith(ST_GR + "-"):
+            return slug.endswith("-basin")
         return not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-")
 
     def set_part_url(part, set_slug):
@@ -209,6 +219,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         model_name, finish = identity(slug)
         arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو",
                        "Cascata Oro": "كاسكاتا أورو",
+                       "S.T Gr": "اس تي جي آر st gr",
                        "S.T 80036": "اس تي 80036 st80036",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
