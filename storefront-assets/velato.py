@@ -144,6 +144,15 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 .velato-gallery button{flex:0 0 4rem;background:transparent;border:1px solid transparent;border-radius:6px;padding:2px}
 .velato-gallery button[aria-pressed=true]{border-color:#be9166}.velato-gallery img{display:block;width:100%;border-radius:4px}
 .velato-gallery button[hidden]{display:none}
+.velato-set-thumbnails{gap:.55rem;align-items:stretch}
+.velato-set-thumbnails button{flex-basis:clamp(4.5rem,26%,6.5rem);min-width:0;padding:3px;
+display:flex;flex-direction:column;border-color:#d8c9b6;border-radius:8px}
+.velato-set-thumbnails button[aria-pressed=true]{border-color:#aa8055;background:#f7efe2}
+.velato-set-thumbnails button:focus-visible{outline:2px solid #81591f;outline-offset:-2px}
+.velato-set-thumbnails picture{display:block;width:100%}
+.velato-set-thumbnails img{aspect-ratio:4/5;object-fit:cover}
+.velato-set-thumbnails .velato-thumb-caption{width:100%;padding:.3rem .1rem .15rem;color:#5b462c;
+font-family:inherit;font-size:.72rem;font-weight:600;line-height:1.45;text-align:center}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
 .product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
@@ -172,6 +181,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
+        parts = sets.get(slug, [])
+        gallery_class = " velato-set-thumbnails" if parts else ""
         gallery = ""
         for color, images in galleries.items():
             color_attr = f' data-gallery-color="{color}"' if slug in color_galleries else ""
@@ -179,9 +190,16 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             for index, photo in enumerate(images, 1):
                 width, height = photo_sizes.get(Path(photo).name, (1050, 1300))
                 alt = f"{name} · {color} · صورة {index}"
+                caption = ""
+                if parts:
+                    kind = parts[index - 1].rsplit("-", 1)[1]
+                    part_label = "خلاط شاور دفن" if kind == "shower" else PARTS[kind][0]
+                    alt = f"{part_label} · {color}"
+                    caption = f'<span class="velato-thumb-caption">{part_label}</span>'
                 pressed = str(index == 1 and not hidden).lower()
                 gallery += (f'<button type="button" data-gallery-src="{photo}" data-width="{width}" data-height="{height}"'
-                            f'{color_attr}{hidden} aria-pressed="{pressed}" aria-label="{alt}">{picture(photo, "")}</button>')
+                            f'{color_attr}{hidden} aria-pressed="{pressed}" aria-label="{alt}">'
+                            f'{picture(photo, "")}{caption}</button>')
         finishes = f"<p><bdi>{finish}</bdi></p>"
         if slug in color_galleries:
             options = "".join(
@@ -191,7 +209,6 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             )
             finishes = f'<div class="options" role="group" aria-label="التشطيب">{options}</div>'
         if slug in sets:
-            parts = sets[slug]
             part_cards = "".join(card(part, from_set=True) for part in parts)
             return_links = "".join(
                 f'<a class="velato-link" href="/{part}/?from=set" data-set-return="{part.rsplit("-", 1)[1]}" hidden>'
@@ -218,7 +235,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
   <div class="product-info">
     <p class="category">{label}</p><h1><bdi>{model_name}</bdi></h1>
     <span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>
-    <div class="velato-gallery" aria-label="صور المنتج">{gallery}</div>
+    <div class="velato-gallery{gallery_class}" aria-label="صور المنتج">{gallery}</div>
     {finishes}
     <p class="price-tag" dir="ltr">${price:,}</p>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
