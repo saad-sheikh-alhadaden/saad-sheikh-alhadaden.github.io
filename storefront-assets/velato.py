@@ -14,13 +14,18 @@ SET_GROUP = "concealed-sets"
 ST_GR = "st-gr"
 ST_BL_BASIN = "st-bl-concealed-basin"
 ST_R_BASIN = "st-r-concealed-basin"
-CUBE = "cube-3-outlet-concealed-shower"
-CUBE_PRICES = {"Chrome": 350, "Black": 450, "Gold": 500, "Brushed Gold": 600, "Gray": 600}
-CUBE_DESCRIPTION = (
-    "تصميم هندسي بخطوط مستقيمة وتركيب مخفي داخل الجدار، يمنح مساحة الشاور مظهراً مرتباً. "
-    "يتيح لك الطقم التبديل بين ثلاثة مخارج للمياه: رأس دش مطري علوي مربّع بقياس 30 × 30 سم، "
-    "ودش يدوي، ومصبّ سفلي."
-)
+CUBE_SHOWERS = {
+    "cube-3-outlet-concealed-shower": (
+        "Cube 3 Outlet", "شاور دفن بثلاثة مخارج", "cube-shower",
+        {"Chrome": 350, "Black": 450, "Gold": 500, "Brushed Gold": 600, "Gray": 600},
+        "طقم شاور دفن يضمّ رأس دش مطري مربّع بقياس 30 × 30 سم، ودشّاً يدوياً، ومصبّاً سفلياً.",
+    ),
+    "cube-2-outlet-concealed-shower": (
+        "Cube 2 Outlet", "شاور دفن بمخرجين", "cube-2-shower",
+        {"Chrome": 300, "Black": 400, "Brushed Gold": 500, "Gray": 500},
+        "طقم شاور دفن يضمّ رأس دش مطري مربّع بقياس 30 × 30 سم ودشّاً يدوياً.",
+    ),
+}
 CASCATA = "cascata-oro"
 CASCATA_CHROME = f"{CASCATA}-chrome"
 CASCATA_TOILET = f"{CASCATA}-concealed-toilet"
@@ -96,13 +101,14 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         color_galleries[slug] = galleries
         photos = [photo for gallery in galleries.values() for photo in gallery]
         models[slug] = (PARTS["basin"][0], 300, photos, "concealed-basin-mixer")
-    cube_gallery = {
-        color: [f"/assets/cube-shower-{color.lower().replace(' ', '-')}.webp"]
-        for color in CUBE_PRICES
-    }
-    color_galleries[CUBE] = cube_gallery
-    models[CUBE] = ("شاور دفن بثلاثة مخارج", CUBE_PRICES["Chrome"],
-                    [images[0] for images in cube_gallery.values()], "concealed-shower-mixer")
+    for slug, (_, label, photo_prefix, prices, _) in CUBE_SHOWERS.items():
+        galleries = {
+            color: [f"/assets/{photo_prefix}-{color.lower().replace(' ', '-')}.webp"]
+            for color in prices
+        }
+        color_galleries[slug] = galleries
+        models[slug] = (label, prices["Chrome"], [images[0] for images in galleries.values()],
+                        "concealed-shower-mixer")
     cover_manifest = json.loads(Path(__file__).with_name("cinematic").joinpath("covers.json").read_text())
     cover_paths = {f"/assets/{original}": f"/assets/{replacement['file']}"
                    for original, replacement in cover_manifest.items()}
@@ -170,8 +176,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
-        if slug == CUBE:
-            return "Cube 3 Outlet", " / ".join(CUBE_PRICES)
+        if slug in CUBE_SHOWERS:
+            name, _, _, prices, _ = CUBE_SHOWERS[slug]
+            return name, " / ".join(prices)
         if slug in (ST_BL_BASIN, ST_R_BASIN):
             name = "S.T bl" if slug == ST_BL_BASIN else "S.T R"
             return name, " / ".join(color_galleries[slug])
@@ -190,7 +197,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
     def country_of_origin(slug):
-        if slug == CUBE:
+        if slug in CUBE_SHOWERS:
             return "Germany", "ألمانيا"
         if slug.startswith(ST_GR + "-"):
             return ("Germany", "ألمانيا") if slug.endswith("-basin") else None
@@ -215,7 +222,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def gallery_card(slug):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
-        price_text = f"${price:,}–${max(CUBE_PRICES.values()):,}" if slug == CUBE else f"${price:,}"
+        price_text = f"${price:,}–${max(CUBE_SHOWERS[slug][3].values()):,}" if slug in CUBE_SHOWERS else f"${price:,}"
         return (f'<a class="hero mixer-product" href="/{slug}/">'
                 f'{picture(photos[0], f"{label} {model_name} · {finish}")}'
                 f'<div class="mixer-product-copy"><strong><bdi lang="en" dir="ltr">{model_name}</bdi></strong>'
@@ -277,6 +284,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T bl": "اس تي بي إل st bl",
                        "S.T R": "اس تي آر st r",
                        "Cube 3 Outlet": "كيوب ٣ مخارج",
+                       "Cube 2 Outlet": "كيوب مخرجين",
                        "S.T 80036": "اس تي 80036 st80036",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
@@ -286,8 +294,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     "price": price, "images": {color: images[0] for color, images in galleries.items()},
                     "defaultColor": default_color,
                     "category": group, "favoriteKey": "saad-saved-" + slug}
-        if slug == CUBE:
-            registry["prices"] = CUBE_PRICES
+        if slug in CUBE_SHOWERS:
+            registry["prices"] = CUBE_SHOWERS[slug][3]
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
@@ -341,8 +349,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
         country = country_of_origin(slug)
         origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>' if country else ""
-        description_html = f'<p>{escape(CUBE_DESCRIPTION)}</p>' if slug == CUBE else ""
-        unit_price_attr = " data-unit-price" if slug == CUBE else ""
+        description_html = f'<p>{escape(CUBE_SHOWERS[slug][4])}</p>' if slug in CUBE_SHOWERS else ""
+        unit_price_attr = " data-unit-price" if slug in CUBE_SHOWERS else ""
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -451,10 +459,10 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             title += " · Chrome"
         description = f"{label} {model_name} بتشطيب {finish}{origin_text}. ${price:,}.{contents}"
         offer = {"@type": "Offer", "price": price, "priceCurrency": "USD", "url": f"{origin}/{slug}/"}
-        if slug == CUBE:
-            description = f"{title}{origin_text}. {CUBE_DESCRIPTION}"
+        if slug in CUBE_SHOWERS:
+            description = f"{title}{origin_text}. {CUBE_SHOWERS[slug][4]}"
             offer = [{"@type": "Offer", "name": color, "price": amount, "priceCurrency": "USD",
-                      "url": f"{origin}/{slug}/"} for color, amount in CUBE_PRICES.items()]
+                      "url": f"{origin}/{slug}/"} for color, amount in CUBE_SHOWERS[slug][3].items()]
         landing(slug, title, description,
                 photos, {"@type": "Product", "@id": f"{origin}/{slug}/#product", "sku": slug,
                          "color": finish, **country,
