@@ -27,9 +27,7 @@ PARTS = {
 def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models = {}
     for kind, (label, price, count) in PARTS.items():
-        prefix = f"velato-{kind}"
-        if kind in ("shower", "basin"):
-            prefix += "-brushed-rose-gold"
+        prefix = f"velato-{kind}-brushed-rose-gold"
         photos = [f"/assets/{prefix}-{i}.webp" for i in range(1, count + 1)]
         models[f"velato-concealed-{kind}"] = (label, price, photos, f"concealed-{kind}-mixer")
     for kind, price in {"shower": 700, "basin": 300}.items():
