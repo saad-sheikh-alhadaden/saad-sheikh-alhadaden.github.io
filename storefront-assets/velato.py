@@ -140,10 +140,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             return "Eclipse Flow", "Black / Chrome"
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
-    def has_italian_origin(slug):
+    def country_of_origin(slug):
         if slug.startswith(ST_GR + "-"):
-            return slug.endswith("-basin")
-        return not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-")
+            return ("Germany", "ألمانيا") if slug.endswith("-basin") else None
+        if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
+            return ("Italy", "إيطاليا")
+        return None
 
     def set_part_url(part, set_slug):
         color = "&amp;color=chrome" if part == CASCATA_TOILET and set_slug == chrome_set else ""
@@ -280,7 +282,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                 related += (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
                             '<span aria-hidden="true">‹</span></a>')
         order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
-        origin_badge = '<span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>' if has_italian_origin(slug) else ""
+        country = country_of_origin(slug)
+        origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>' if country else ""
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -380,9 +383,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     for slug, (label, price, photos, group) in models.items():
         model_name, finish = identity(slug)
         contents = " يشمل " + " و".join(models[part][0] for part in sets[slug]) + "." if slug in sets else ""
-        italy = has_italian_origin(slug)
-        origin_text = "، صنع في إيطاليا" if italy else ""
-        country = {"countryOfOrigin": {"@type": "Country", "name": "Italy"}} if italy else {}
+        origin_country = country_of_origin(slug)
+        origin_text = f"، صنع في {origin_country[1]}" if origin_country else ""
+        country = {"countryOfOrigin": {"@type": "Country", "name": origin_country[0]}} if origin_country else {}
         title = f"{label} {model_name}"
         if slug.startswith(CASCATA_CHROME + "-"):
             title += " · Chrome"
