@@ -92,8 +92,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     sets[chrome_set] = chrome_parts
     models[chrome_set] = ("طقم دفن كامل", sum(models[part][1] for part in chrome_parts),
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
-    part_sets = {part: slug for slug, parts in sets.items() for part in parts
-                 if part != CASCATA_TOILET or slug != chrome_set}
+    part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {}
     for folder in ("eclipse", "lunaire", "cascata"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
@@ -122,7 +121,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 
     def identity(slug):
         if slug == CASCATA_TOILET:
-            return "Cascata Oro", "Gold / Chrome"
+            return "S.T 80036", "Gold / Chrome"
         if slug.startswith(CASCATA_CHROME + "-"):
             return "Cascata Oro", "Chrome"
         if slug.startswith(CASCATA + "-"):
@@ -194,7 +193,6 @@ display:flex;flex-direction:column;border-color:#d8c9b6;border-radius:8px}
 font-family:inherit;font-size:.72rem;font-weight:600;line-height:1.45;text-align:center}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
-.product-info .velato-origin[hidden]{display:none}
 .product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
 border-inline-start:2px solid #a67a3d;background:#ebe3d4;color:#35291b;font-size:.86rem}
 .velato-warranty strong{color:#684a25}
@@ -211,6 +209,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         model_name, finish = identity(slug)
         arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو",
                        "Cascata Oro": "كاسكاتا أورو",
+                       "S.T 80036": "اس تي 80036 st80036",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
         galleries = color_galleries.get(slug, {finish: photos})
@@ -258,11 +257,12 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             )
             columns = " velato-parts-pair" if len(parts) == 2 else ""
             related = f'{return_links}<h2>مكوّنات الطقم</h2><div class="velato-parts{columns}">{part_cards}</div>'
+        elif slug == CASCATA_TOILET:
+            related = ""
         else:
             set_slug = part_sets[slug]
             kind = slug.rsplit("-", 1)[1]
-            chrome_link = f' data-chrome-set="/{chrome_set}/?from={kind}"' if slug == CASCATA_TOILET else ""
-            related = (f'<a class="velato-link" data-related-set{chrome_link} href="/{set_slug}/?from={kind}">'
+            related = (f'<a class="velato-link" data-related-set href="/{set_slug}/?from={kind}">'
                        f'<span>شوف طقم {model_name} الكامل</span><span aria-hidden="true">‹</span></a>')
             if len(sets[set_slug]) == 2:
                 other = next(part for part in sets[set_slug] if part != slug)
@@ -270,8 +270,6 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                             '<span aria-hidden="true">‹</span></a>')
         order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
         origin_badge = '<span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>' if has_italian_origin(slug) else ""
-        if slug == CASCATA_TOILET:
-            origin_badge = '<span class="velato-origin" data-chrome-origin lang="en" dir="ltr" hidden>Made in Italy</span>'
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -298,27 +296,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     if registry_additions[0] not in js:
         raise ValueError("Missing storefront product registry")
     js = js.replace('const encastreScreens = new Set([', f'const encastreScreens = new Set(["{SET_GROUP}", ', 1)
-    color_listener = '  for (const choice of choices) {\n    choice.addEventListener("click", () => {\n      if (color !== choice.dataset.color)'
     quantity_listener = '  for (const button of screen.querySelectorAll("[data-quantity-change]")) {'
-    if color_listener not in js or quantity_listener not in js:
-        raise ValueError("Missing storefront finish or quantity controls")
-    js = js.replace(color_listener, """  const chromeSetLink = screen.querySelector("[data-chrome-set]");
-  const goldSetPath = chromeSetLink?.getAttribute("href");
-  for (const choice of choices) {
-    choice.addEventListener("click", () => {
-      if (chromeSetLink) {
-        const chrome = choice.dataset.color === "Chrome";
-        chromeSetLink.href = chrome ? chromeSetLink.dataset.chromeSet : goldSetPath;
-        screen.querySelector("[data-chrome-origin]").hidden = !chrome;
-        if (new URLSearchParams(location.search).get("from") === "set" && !screen.hidden) {
-          document.getElementById("back").href = chromeSetLink.href;
-        }
-      }
-      if (color !== choice.dataset.color)""", 1)
-    js = js.replace(quantity_listener, """  if (chromeSetLink && requestedFinish === "chrome") {
-    choices.find(choice => choice.dataset.color === "Chrome")?.click();
-  }
-""" + quantity_listener, 1)
+    if quantity_listener not in js:
+        raise ValueError("Missing storefront quantity controls")
+    js = js.replace(quantity_listener,
+                    f'  if (id === "{CASCATA_TOILET}" && requestedFinish === "chrome") {{\n'
+                    '    choices.find(choice => choice.dataset.color === "Chrome")?.click();\n'
+                    '  }\n' + quantity_listener, 1)
     js = js.replace('addButton.textContent = `أضف إلى السلة — ${money(quantity * unitPrice(product, orderColor()))}`;',
                     'addButton.textContent = `${product.category === "concealed-sets" ? "أضف الطقم للسلة" : "أضف إلى السلة"} — ${money(quantity * unitPrice(product, orderColor()))}`;')
     new_script = f"assets/storefront-{sha256(js.encode()).hexdigest()[:12]}.js"
