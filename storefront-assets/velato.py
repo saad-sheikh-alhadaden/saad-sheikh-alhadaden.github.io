@@ -37,7 +37,24 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         color_galleries[slug] = galleries
         photos = [photo for gallery in galleries.values() for photo in gallery]
         models[slug] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
-    eclipse_sizes = json.loads(Path(__file__).with_name("eclipse").joinpath("sizes.json").read_text())
+    for kind, price, count, first_color in [
+        ("shower", 950, 1, "Rose Gold"),
+        ("basin", 500, 4, "Gray"),
+    ]:
+        slug = f"lunaire-digital-blus-concealed-{kind}"
+        colors = [first_color, *[color for color in ("Chrome", "Rose Gold", "Gray", "White")
+                                 if color != first_color]]
+        galleries = {
+            color: [f"/assets/lunaire-{kind}-{color.lower().replace(' ', '-')}-{i}.webp"
+                    for i in range(1, count + 1)]
+            for color in colors
+        }
+        color_galleries[slug] = galleries
+        photos = [photo for gallery in galleries.values() for photo in gallery]
+        models[slug] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
+    photo_sizes = {}
+    for folder in ("eclipse", "lunaire"):
+        photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
@@ -62,7 +79,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
-        if slug in color_galleries:
+        if slug.startswith("lunaire-"):
+            return "Lunaire Digital blus", "Chrome / Rose Gold / Gray / White"
+        if slug.startswith("eclipse-"):
             return "Eclipse Flow", "Black / Chrome"
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
@@ -128,7 +147,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     saved_links = ""
     for slug, (label, price, photos, group) in models.items():
         model_name, finish = identity(slug)
-        arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو"}[model_name]
+        arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو",
+                       "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
         galleries = color_galleries.get(slug, {finish: photos})
         default_color = next(iter(galleries))
@@ -144,7 +164,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             color_attr = f' data-gallery-color="{color}"' if slug in color_galleries else ""
             hidden = "" if color == default_color else " hidden"
             for index, photo in enumerate(images, 1):
-                width, height = eclipse_sizes.get(Path(photo).name, (1050, 1300))
+                width, height = photo_sizes.get(Path(photo).name, (1050, 1300))
                 alt = f"{name} · {color} · صورة {index}"
                 pressed = str(index == 1 and not hidden).lower()
                 gallery += (f'<button type="button" data-gallery-src="{photo}" data-width="{width}" data-height="{height}"'
@@ -160,7 +180,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         related = (f'{return_links}<h2>مكوّنات الطقم</h2><div class="velato-parts">{part_cards}</div>' if slug == SET
                    else f'<a class="velato-link" href="/{SET}/?from={slug.rsplit("-", 1)[1]}">'
                         '<span>شوف طقم Velato الكامل</span><span aria-hidden="true">‹</span></a>')
-        if model_name in ("OCTAGON", "Eclipse Flow"):
+        if model_name == "OCTAGON" or slug in color_galleries:
             prefix, kind = slug.rsplit("-", 1)
             other = prefix + ("-basin" if kind == "shower" else "-shower")
             related = (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
