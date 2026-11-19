@@ -13,6 +13,7 @@ SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 ST_GR = "st-gr"
 ST_BL_BASIN = "st-bl-concealed-basin"
+ST_R_BASIN = "st-r-concealed-basin"
 CASCATA = "cascata-oro"
 CASCATA_CHROME = f"{CASCATA}-chrome"
 CASCATA_TOILET = f"{CASCATA}-concealed-toilet"
@@ -75,15 +76,18 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         models[f"{ST_GR}-concealed-{kind}"] = (
             PARTS[kind][0], price, photos, f"concealed-{kind}-mixer"
         )
-    st_bl_galleries = {
-        color: [f"/assets/stbl-basin-{color.lower().replace(' ', '-')}-{i}.webp"
-                for i in range(1, 4)]
-        for color in ("Black", "Gray", "Brushed Gold")
-    }
-    color_galleries[ST_BL_BASIN] = st_bl_galleries
-    models[ST_BL_BASIN] = (PARTS["basin"][0], 300,
-                           [photo for gallery in st_bl_galleries.values() for photo in gallery],
-                           "concealed-basin-mixer")
+    for slug, folder, count, finishes in (
+        (ST_BL_BASIN, "stbl", 3, ("Black", "Gray", "Brushed Gold")),
+        (ST_R_BASIN, "str", 5, ("Black", "Gray", "Gold", "Rose Gold", "Chrome")),
+    ):
+        galleries = {
+            color: [f"/assets/{folder}-basin-{color.lower().replace(' ', '-')}-{i}.webp"
+                    for i in range(1, count + 1)]
+            for color in finishes
+        }
+        color_galleries[slug] = galleries
+        photos = [photo for gallery in galleries.values() for photo in gallery]
+        models[slug] = (PARTS["basin"][0], 300, photos, "concealed-basin-mixer")
     sets = {}
     for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus", CASCATA, ST_GR):
         slug = f"{prefix}-concealed-set"
@@ -110,7 +114,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {}
-    for folder in ("eclipse", "lunaire", "cascata", "stgr", "stbl"):
+    for folder in ("eclipse", "lunaire", "cascata", "stgr", "stbl", "str"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
@@ -136,8 +140,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
-        if slug == ST_BL_BASIN:
-            return "S.T bl", " / ".join(st_bl_galleries)
+        if slug in (ST_BL_BASIN, ST_R_BASIN):
+            name = "S.T bl" if slug == ST_BL_BASIN else "S.T R"
+            return name, " / ".join(color_galleries[slug])
         if slug.startswith(ST_GR + "-"):
             return "S.T Gr", "Gray"
         if slug == CASCATA_TOILET:
@@ -235,6 +240,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "Cascata Oro": "كاسكاتا أورو",
                        "S.T Gr": "اس تي جي آر st gr",
                        "S.T bl": "اس تي بي إل st bl",
+                       "S.T R": "اس تي آر st r",
                        "S.T 80036": "اس تي 80036 st80036",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
