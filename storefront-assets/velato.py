@@ -8,7 +8,7 @@ from html import escape
 from pathlib import Path
 
 FINISH = "Brushed Rose Gold"
-WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</strong><span>تبديل خلال أول سنتين من الكفالة</span></p>'
+WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</strong><span>كفالة 5 سنوات. تبديل فوري خلال أول سنتين، وصيانة خلال السنوات الثلاث التالية.</span></p>'
 SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 ST_GR = "st-gr"
@@ -17,12 +17,12 @@ ST_R_BASIN = "st-r-concealed-basin"
 CUBE_SHOWERS = {
     "cube-3-outlet-concealed-shower": (
         "Cube 3 Outlet", "شاور دفن بثلاثة مخارج", "cube-shower",
-        {"Chrome": 350, "Black": 450, "Gold": 500, "Brushed Gold": 600, "Gray": 600},
+        {"Brushed Gold": 600, "Chrome": 350, "Black": 450, "Gold": 500, "Gray": 600},
         "طقم شاور دفن يضمّ رأس دش مطري مربّع بقياس 30 × 30 سم، ودشّاً يدوياً، ومصبّاً سفلياً.",
     ),
     "cube-2-outlet-concealed-shower": (
         "Cube 2 Outlet", "شاور دفن بمخرجين", "cube-2-shower",
-        {"Chrome": 300, "Black": 400, "Brushed Gold": 500, "Gray": 500},
+        {"Gray": 500, "Chrome": 300, "Black": 400, "Brushed Gold": 500},
         "طقم شاور دفن يضمّ رأس دش مطري مربّع بقياس 30 × 30 سم ودشّاً يدوياً.",
     ),
 }
@@ -107,7 +107,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             for color in prices
         }
         color_galleries[slug] = galleries
-        models[slug] = (label, prices["Chrome"], [images[0] for images in galleries.values()],
+        models[slug] = (label, next(iter(prices.values())), [images[0] for images in galleries.values()],
                         "concealed-shower-mixer")
     cover_manifest = json.loads(Path(__file__).with_name("cinematic").joinpath("covers.json").read_text())
     cover_paths = {f"/assets/{original}": f"/assets/{replacement['file']}"
@@ -222,7 +222,10 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def gallery_card(slug):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
-        price_text = f"${price:,}–${max(CUBE_SHOWERS[slug][3].values()):,}" if slug in CUBE_SHOWERS else f"${price:,}"
+        price_text = f"${price:,}"
+        if slug in CUBE_SHOWERS:
+            prices = CUBE_SHOWERS[slug][3].values()
+            price_text = f"${min(prices):,}–${max(prices):,}"
         return (f'<a class="hero mixer-product" href="/{slug}/">'
                 f'{picture(photos[0], f"{label} {model_name} · {finish}")}'
                 f'<div class="mixer-product-copy"><strong><bdi lang="en" dir="ltr">{model_name}</bdi></strong>'

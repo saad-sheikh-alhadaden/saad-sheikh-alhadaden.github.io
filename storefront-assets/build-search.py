@@ -172,6 +172,7 @@ for page in ROOT.rglob("index.html"):
     markup = page.read_text()
     if not re.search(r"<img\b", markup, re.I):
         continue
+    markup = markup.replace("<span>أول سنتين تبديل</span>", "<span>تبديل فوري خلال أول سنتين، وصيانة خلال السنوات الثلاث التالية.</span>")
     controls = f'<link rel="stylesheet" href="{finish_css}">' + photo_controls
     if 'class="branch-links"' in markup:
         controls += f'<link rel="stylesheet" href="{branch_css}">'
