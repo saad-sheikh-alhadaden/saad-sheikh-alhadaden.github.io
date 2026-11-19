@@ -27,6 +27,17 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     for kind, price in {"shower": 700, "basin": 300}.items():
         photos = [f"/assets/octagon-{kind}-{i}.webp" for i in range(1, 5)]
         models[f"octagon-concealed-{kind}"] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
+    color_galleries = {}
+    for kind, price, count in [("shower", 700, 5), ("basin", 350, 2)]:
+        slug = f"eclipse-flow-concealed-{kind}"
+        galleries = {
+            color: [f"/assets/eclipse-{kind}-{color.lower()}-{i}.webp" for i in range(1, count + 1)]
+            for color in ("Black", "Chrome")
+        }
+        color_galleries[slug] = galleries
+        photos = [photo for gallery in galleries.values() for photo in gallery]
+        models[slug] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
+    eclipse_sizes = json.loads(Path(__file__).with_name("eclipse").joinpath("sizes.json").read_text())
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
@@ -51,6 +62,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug in color_galleries:
+            return "Eclipse Flow", "Black / Chrome"
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
     def card(slug, from_set=False):
@@ -98,6 +111,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 .velato-gallery{display:flex;gap:.45rem;overflow-x:auto;padding:.5rem 0}
 .velato-gallery button{flex:0 0 4rem;background:transparent;border:1px solid transparent;border-radius:6px;padding:2px}
 .velato-gallery button[aria-pressed=true]{border-color:#be9166}.velato-gallery img{display:block;width:100%;border-radius:4px}
+.velato-gallery button[hidden]{display:none}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
 .product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
@@ -114,25 +128,42 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     saved_links = ""
     for slug, (label, price, photos, group) in models.items():
         model_name, finish = identity(slug)
-        arabic_name = "أوكتاغون" if model_name == "OCTAGON" else "فيلاتو"
+        arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو"}[model_name]
         name = f"{model_name} · {label}"
+        galleries = color_galleries.get(slug, {finish: photos})
+        default_color = next(iter(galleries))
         registry = {"name": name, "search": f"{model_name.lower()} {arabic_name} {label} دفن {finish.lower()} {price}",
-                    "price": price, "images": {finish: photos[0]}, "defaultColor": finish,
+                    "price": price, "images": {color: images[0] for color, images in galleries.items()},
+                    "defaultColor": default_color,
                     "category": group, "favoriteKey": "saad-saved-" + slug}
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
         gallery = ""
-        for index, photo in enumerate(photos, 1):
-            alt = f"{name} · {finish} · صورة {index}"
-            gallery += (f'<button type="button" data-gallery-src="{photo}" data-width="1050" data-height="1300" '
-                        f'aria-pressed="{str(index == 1).lower()}" aria-label="{alt}">{picture(photo, "")}</button>')
+        for color, images in galleries.items():
+            color_attr = f' data-gallery-color="{color}"' if slug in color_galleries else ""
+            hidden = "" if color == default_color else " hidden"
+            for index, photo in enumerate(images, 1):
+                width, height = eclipse_sizes.get(Path(photo).name, (1050, 1300))
+                alt = f"{name} · {color} · صورة {index}"
+                pressed = str(index == 1 and not hidden).lower()
+                gallery += (f'<button type="button" data-gallery-src="{photo}" data-width="{width}" data-height="{height}"'
+                            f'{color_attr}{hidden} aria-pressed="{pressed}" aria-label="{alt}">{picture(photo, "")}</button>')
+        finishes = f"<p><bdi>{finish}</bdi></p>"
+        if slug in color_galleries:
+            options = "".join(
+                f'<button class="option" type="button" data-color="{color}" '
+                f'aria-pressed="{str(color == default_color).lower()}"><bdi>{color}</bdi></button>'
+                for color in galleries
+            )
+            finishes = f'<div class="options" role="group" aria-label="التشطيب">{options}</div>'
         related = (f'{return_links}<h2>مكوّنات الطقم</h2><div class="velato-parts">{part_cards}</div>' if slug == SET
                    else f'<a class="velato-link" href="/{SET}/?from={slug.rsplit("-", 1)[1]}">'
                         '<span>شوف طقم Velato الكامل</span><span aria-hidden="true">‹</span></a>')
-        if model_name == "OCTAGON":
-            other = "octagon-concealed-basin" if slug.endswith("-shower") else "octagon-concealed-shower"
-            related = (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} OCTAGON</span>'
+        if model_name in ("OCTAGON", "Eclipse Flow"):
+            prefix, kind = slug.rsplit("-", 1)
+            other = prefix + ("-basin" if kind == "shower" else "-shower")
+            related = (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
                        '<span aria-hidden="true">‹</span></a>')
         order = "أضف الطقم للسلة" if slug == SET else "أضف إلى السلة"
         details.append(f"""
@@ -144,7 +175,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     <p class="category">{label}</p><h1><bdi>{model_name}</bdi></h1>
     <span class="velato-origin" lang="en" dir="ltr">Made in Italy</span>
     <div class="velato-gallery" aria-label="صور المنتج">{gallery}</div>
-    <p><bdi>{finish}</bdi></p>
+    {finishes}
     <p class="price-tag" dir="ltr">${price:,}</p>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
     <button class="action" data-add-cart type="button">{order} — ${price:,}</button>
