@@ -14,6 +14,7 @@ for (const options of document.querySelectorAll(".options")) {
 
   const picker = document.createElement("details");
   picker.className = "finish-picker";
+  picker.open = true;
   const summary = document.createElement("summary");
   summary.innerHTML = '<span class="finish-picker-copy"><strong>الألوان المتاحة <span class="finish-picker-count"></span></strong><span class="finish-picker-selected"><bdi></bdi></span></span><span class="finish-picker-palette" aria-hidden="true"></span>';
   summary.querySelector(".finish-picker-count").textContent = `(${finishes.size})`;
