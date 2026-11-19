@@ -1,1 +1,70 @@
-{"stgr-shower-1.webp": [1229, 1536], "stgr-shower-2.webp": [1122, 1402], "stgr-shower-3.webp": [1122, 1402], "stgr-shower-4.webp": [1122, 1402], "stgr-shower-5.webp": [1122, 1402], "stgr-basin-1.webp": [1229, 1536], "stgr-basin-2.webp": [1229, 1536], "stgr-basin-3.webp": [1229, 1536], "stgr-toilet-1.webp": [1229, 1536], "stgr-toilet-2.webp": [1229, 1536], "stgr-toilet-3.webp": [1229, 1536]}
+{
+  "stgr-shower-1.webp": [
+    1229,
+    1536
+  ],
+  "stgr-shower-2.webp": [
+    1122,
+    1402
+  ],
+  "stgr-shower-3.webp": [
+    1122,
+    1402
+  ],
+  "stgr-shower-4.webp": [
+    1122,
+    1402
+  ],
+  "stgr-shower-5.webp": [
+    1122,
+    1402
+  ],
+  "stgr-basin-1.webp": [
+    1229,
+    1536
+  ],
+  "stgr-basin-2.webp": [
+    1229,
+    1536
+  ],
+  "stgr-basin-3.webp": [
+    1229,
+    1536
+  ],
+  "stgr-toilet-1.webp": [
+    1229,
+    1536
+  ],
+  "stgr-toilet-2.webp": [
+    1229,
+    1536
+  ],
+  "stgr-toilet-3.webp": [
+    1229,
+    1536
+  ],
+  "stgr-basin-gray-water.webp": [
+    1121,
+    1403
+  ],
+  "stgr-basin-brushed-gold-water.webp": [
+    1121,
+    1403
+  ],
+  "stgr-basin-black-front.webp": [
+    1122,
+    1402
+  ],
+  "stgr-basin-black-water.webp": [
+    1121,
+    1403
+  ],
+  "stgr-basin-chrome-front.webp": [
+    1122,
+    1402
+  ],
+  "stgr-basin-chrome-water.webp": [
+    1121,
+    1403
+  ]
+}

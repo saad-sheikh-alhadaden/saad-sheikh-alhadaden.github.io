@@ -12,6 +12,7 @@ WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</st
 SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 ST_GR = "st-gr"
+ST_GR_BASIN = f"{ST_GR}-concealed-basin"
 ST_BL_BASIN = "st-bl-concealed-basin"
 ST_R_BASIN = "st-r-concealed-basin"
 GERMAN_SHOWERS = {
@@ -89,11 +90,23 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     label, price, gold_photos, group = models[CASCATA_TOILET]
     color_galleries[CASCATA_TOILET] = {"Gold": gold_photos, "Chrome": chrome_photos["toilet"]}
     models[CASCATA_TOILET] = (label, price, gold_photos + chrome_photos["toilet"], group)
-    for kind, price, count in (("shower", 500, 5), ("basin", 300, 3), ("toilet", 200, 3)):
+    for kind, price, count in (("shower", 500, 5), ("toilet", 200, 3)):
         photos = [f"/assets/stgr-{kind}-{i}.webp" for i in range(1, count + 1)]
         models[f"{ST_GR}-concealed-{kind}"] = (
             PARTS[kind][0], price, photos, f"concealed-{kind}-mixer"
         )
+    st_gr_prices = {"Gray": 300, "Brushed Gold": 300, "Black": 275, "Chrome": 250}
+    st_gr_galleries = {
+        "Gray": ["/assets/stgr-basin-gray-water.webp"],
+        "Brushed Gold": ["/assets/stgr-basin-brushed-gold-water.webp"],
+        "Black": ["/assets/stgr-basin-black-front.webp", "/assets/stgr-basin-black-water.webp"],
+        "Chrome": ["/assets/stgr-basin-chrome-front.webp", "/assets/stgr-basin-chrome-water.webp"],
+    }
+    color_galleries[ST_GR_BASIN] = st_gr_galleries
+    models[ST_GR_BASIN] = (PARTS["basin"][0], st_gr_prices["Gray"],
+                          [photo for images in st_gr_galleries.values() for photo in images],
+                          "concealed-basin-mixer")
+    variant_prices = {ST_GR_BASIN: st_gr_prices}
     for slug, folder, count, finishes in (
         (ST_BL_BASIN, "stbl", 3, ("Black", "Gray", "Brushed Gold")),
         (ST_R_BASIN, "str", 5, ("Black", "Gray", "Gold", "Rose Gold", "Chrome")),
@@ -107,6 +120,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         photos = [photo for gallery in galleries.values() for photo in gallery]
         models[slug] = (PARTS["basin"][0], 300, photos, "concealed-basin-mixer")
     for slug, (_, label, photo_prefix, prices, _) in GERMAN_SHOWERS.items():
+        variant_prices[slug] = prices
         galleries = {
             color: [f"/assets/{photo_prefix}-{color.lower().replace(' ', '-')}.webp"]
             for color in prices
@@ -187,7 +201,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             name = "S.T bl" if slug == ST_BL_BASIN else "S.T R"
             return name, " / ".join(color_galleries[slug])
         if slug.startswith(ST_GR + "-"):
-            return "S.T Gr", "Gray"
+            return "S.T Gr", " / ".join(color_galleries.get(slug, ("Gray",)))
         if slug == CASCATA_TOILET:
             return "S.T 80036", "Gold / Chrome"
         if slug.startswith(CASCATA_CHROME + "-"):
@@ -227,8 +241,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
         price_text = f"${price:,}"
-        if slug in GERMAN_SHOWERS:
-            prices = GERMAN_SHOWERS[slug][3].values()
+        if slug in variant_prices:
+            prices = variant_prices[slug].values()
             price_text = f"${min(prices):,}–${max(prices):,}"
         return (f'<a class="hero mixer-product" href="/{slug}/">'
                 f'{picture(photos[0], f"{label} {model_name} · {finish}")}'
@@ -302,8 +316,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     "price": price, "images": {color: images[0] for color, images in galleries.items()},
                     "defaultColor": default_color,
                     "category": group, "favoriteKey": "saad-saved-" + slug}
-        if slug in GERMAN_SHOWERS:
-            registry["prices"] = GERMAN_SHOWERS[slug][3]
+        if slug in variant_prices:
+            registry["prices"] = variant_prices[slug]
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
@@ -358,7 +372,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         country = country_of_origin(slug)
         origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>' if country else ""
         description_html = f'<p>{escape(GERMAN_SHOWERS[slug][4])}</p>' if slug in GERMAN_SHOWERS else ""
-        unit_price_attr = " data-unit-price" if slug in GERMAN_SHOWERS else ""
+        unit_price_attr = " data-unit-price" if slug in variant_prices else ""
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -469,8 +483,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         offer = {"@type": "Offer", "price": price, "priceCurrency": "USD", "url": f"{origin}/{slug}/"}
         if slug in GERMAN_SHOWERS:
             description = f"{title}{origin_text}. {GERMAN_SHOWERS[slug][4]}"
+        if slug in variant_prices:
             offer = [{"@type": "Offer", "name": color, "price": amount, "priceCurrency": "USD",
-                      "url": f"{origin}/{slug}/"} for color, amount in GERMAN_SHOWERS[slug][3].items()]
+                      "url": f"{origin}/{slug}/"} for color, amount in variant_prices[slug].items()]
         landing(slug, title, description,
                 photos, {"@type": "Product", "@id": f"{origin}/{slug}/#product", "sku": slug,
                          "color": finish, **country,
