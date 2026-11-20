@@ -96,7 +96,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     floor_galleries = {
         color: [f"/assets/st0047-{color.lower().replace(' ', '-')}-{index:02}.webp"
                 for index in range(1, count + 1)]
-        for color, count in (("Black", 10), ("White", 10), ("Brushed Gold", 10), ("Gray", 9))
+        for color, count in ((FINISH, 10), ("Black", 10), ("White", 10), ("Brushed Gold", 10), ("Gray", 9))
     }
     color_galleries[ST_0047] = floor_galleries
     models[ST_0047] = ("خلاط شاور من الأرض", 950,
