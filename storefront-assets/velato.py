@@ -521,13 +521,17 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         for group in headings:
             if group != SET_GROUP:
                 pattern = rf'(<section class="panel" id="{group}"[^>]*>\s*)<h1>.*?</h1>'
-                content = hero + mounted_card if group == "encastre" else grids.get(group, "")
+                content = hero if group == "encastre" else grids.get(group, "")
                 html, count = re.subn(pattern, lambda m: m[1].replace('class="panel"', 'class="panel concealed-gallery"')
                                       + collection_heading(group) + content, html, count=1, flags=re.S)
                 if count != 1:
                     raise ValueError(f"Missing concealed collection heading: {group}")
             if group in grids and group != SET_GROUP:
                 html = html.replace(f'href="#{group}"', f'href="/{group}/"')
+        catalog_link = r'(<a\b[^>]*\bhref="catalogs/saad-encastre\.pdf")'
+        html, count = re.subn(catalog_link, lambda match: mounted_card + match[0], html, count=1)
+        if count != 1:
+            raise ValueError("Missing Encastre catalog link")
         html = html.replace('href="#encastre"', 'href="/encastre/"')
         html = html.replace("</main>", f'<section class="panel concealed-gallery" id="{SET_GROUP}" data-nosnippet hidden>'
                             f'{collection_heading(SET_GROUP)}{grids[SET_GROUP]}</section>'
