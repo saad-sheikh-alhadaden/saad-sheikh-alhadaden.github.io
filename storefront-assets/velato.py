@@ -104,7 +104,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         for color, count in ((FINISH, 10), ("Black", 10), ("White", 10), ("Brushed Gold", 10), ("Gray", 9))
     }
     color_galleries[ST_0047] = floor_galleries
-    models[ST_0047] = ("خلاط شاور من الأرض", 950,
+    models[ST_0047] = ("خلاط بانيو أرضي", 950,
                        [photo for photos in floor_galleries.values() for photo in photos], MOUNTED_GROUP)
     basin_photos = [f"/assets/stw101-black-portrait-{index:02}.webp" for index in range(1, 5)]
     models[ST_W101] = ("خلاط مغسلة أرضي", 550, basin_photos, MOUNTED_GROUP)
