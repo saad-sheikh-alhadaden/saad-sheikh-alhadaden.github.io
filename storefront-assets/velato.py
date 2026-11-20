@@ -290,10 +290,15 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         if slug.startswith(CASCATA + "-"):
             return "Cascata Oro", "Gold"
         if slug.startswith("lunaire-"):
-            return "Lunaire Digital blus", "Chrome / Rose Gold / Gray / White"
+            name = "S.T 202" if slug == "lunaire-digital-blus-concealed-shower" else "Lunaire Digital blus"
+            return name, "Chrome / Rose Gold / Gray / White"
         if slug.startswith("eclipse-"):
-            return "Eclipse Flow", "Black / Chrome"
-        return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
+            name = "S.T M6245" if slug == "eclipse-flow-concealed-shower" else "Eclipse Flow"
+            return name, "Black / Chrome"
+        if slug.startswith("octagon-"):
+            name = "S.T 6766" if slug == "octagon-concealed-shower" else "OCTAGON"
+            return name, "Chrome"
+        return ("S.T 30008" if slug == "velato-concealed-shower" else "Velato"), FINISH
 
     def country_of_origin(slug):
         if slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
@@ -410,6 +415,10 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "Cube 2 Outlet": "كيوب مخرجين",
                        "Sphere 2 Outlet": "سفير مخرجين",
                        "S.T 80036": "اس تي 80036 st80036",
+                       "S.T 30008": "اس تي 30008 st30008",
+                       "S.T 6766": "اس تي 6766 st6766",
+                       "S.T 202": "اس تي 202 st202",
+                       "S.T M6245": "اس تي إم 6245 stm6245",
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_W101_NAME: "اس تي 27 بي st27b",
                        ST_W102_NAME: "اس تي 82366 st82366",
