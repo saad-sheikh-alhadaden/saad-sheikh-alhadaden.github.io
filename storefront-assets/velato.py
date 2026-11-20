@@ -309,6 +309,8 @@ display:flex;flex-direction:column;border-color:#d8c9b6;border-radius:8px}
 font-family:inherit;font-size:.72rem;font-weight:600;line-height:1.45;text-align:center}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
+.product-info .price-tag:has(+ .encastre-price-note){margin-bottom:.25rem!important}
+.product-info .encastre-price-note{display:block;margin:0 0 .85rem;color:#685740;font-size:.875rem;line-height:1.5}
 .product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
 border-inline-start:2px solid #a67a3d;background:#ebe3d4;color:#35291b;font-size:.86rem}
 .velato-warranty strong{color:#684a25}
@@ -407,6 +409,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>' if country else ""
         description_html = f'<p>{escape(GERMAN_SHOWERS[slug][4])}</p>' if slug in GERMAN_SHOWERS else ""
         unit_price_attr = " data-unit-price" if slug in variant_prices else ""
+        price_note = ""
+        if group in ("concealed-shower-mixer", "concealed-basin-mixer", "concealed-toilet-mixer"):
+            price_note = '<small class="encastre-price-note">السعر يشمل جسم الدفن الداخلي والقطع الخارجية الظاهرة</small>'
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
   <div class="product-image">{picture(photos[0], name)}
@@ -419,6 +424,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     {finishes}
     {description_html}
     <p class="price-tag" dir="ltr"{unit_price_attr}>${price:,}</p>
+    {price_note}
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
     <button class="action" data-add-cart type="button">{order} — ${price:,}</button>
     {related}
