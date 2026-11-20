@@ -321,6 +321,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def gallery_card(slug):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
+        kind_label = f'<small class="mixer-product-kind">{escape(label)}</small>' if group == MOUNTED_GROUP else ""
         price_text = f"${price:,}"
         if slug in variant_prices:
             prices = variant_prices[slug].values()
@@ -328,6 +329,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return (f'<a class="hero mixer-product" href="/{slug}/">'
                 f'{picture(photos[0], f"{label} {model_name} · {finish}")}'
                 f'<div class="mixer-product-copy"><strong><bdi lang="en" dir="ltr">{model_name}</bdi></strong>'
+                f'{kind_label}'
                 f'<small><bdi lang="en" dir="ltr">{finish}</bdi></small>'
                 f'<span dir="ltr">{price_text}</span></div></a>')
 
@@ -363,6 +365,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 .mounting-types{gap:0;border-top:1px solid #4f4033}
 .mounting-types span{text-align:center;padding:.65rem .25rem;color:#e4b58d}
 .mounting-types span+span{border-inline-start:1px solid #4f4033}
+#floor-ceiling-wall-mixers .mixer-product-copy .mixer-product-kind{grid-column:1/-1;color:inherit}
 .velato-parts-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
 .velato-strip img,.velato-card img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
 .velato-card{max-width:22rem;margin:.6rem 0 1rem}.velato-parts .velato-card>span{padding:.5rem;font-size:.8rem}
