@@ -281,14 +281,18 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         if slug in (ST_BL_BASIN, ST_R_BASIN):
             name = "S.T bl" if slug == ST_BL_BASIN else "S.T R"
             return name, " / ".join(color_galleries[slug])
+        if slug == f"{ST_GR}-concealed-shower":
+            return "S.T Y5279 Smart", "Gray"
         if slug.startswith(ST_GR + "-"):
             return "S.T Gr", " / ".join(color_galleries.get(slug, ("Gray",)))
         if slug == CASCATA_TOILET:
             return "S.T 80036", "Gold / Chrome"
         if slug.startswith(CASCATA_CHROME + "-"):
-            return "Cascata Oro", "Chrome"
+            name = "S.T 723702" if slug == f"{CASCATA_CHROME}-concealed-shower" else "Cascata Oro"
+            return name, "Chrome"
         if slug.startswith(CASCATA + "-"):
-            return "Cascata Oro", "Gold"
+            name = "S.T G369369" if slug == f"{CASCATA}-concealed-shower" else "Cascata Oro"
+            return name, "Gold"
         if slug.startswith("lunaire-"):
             name = "S.T 202" if slug == "lunaire-digital-blus-concealed-shower" else "Lunaire Digital blus"
             return name, "Chrome / Rose Gold / Gray / White"
@@ -418,6 +422,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T 30008": "اس تي 30008 st30008",
                        "S.T 6766": "اس تي 6766 st6766",
                        "S.T 202": "اس تي 202 st202",
+                       "S.T 723702": "اس تي 723702 st723702",
+                       "S.T G369369": "اس تي جي 369369 stg369369",
+                       "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
                        "S.T M6245": "اس تي إم 6245 stm6245",
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_W101_NAME: "اس تي 27 بي st27b",
