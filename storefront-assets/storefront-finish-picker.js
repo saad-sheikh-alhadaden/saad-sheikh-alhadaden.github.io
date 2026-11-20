@@ -12,10 +12,10 @@ for (const options of document.querySelectorAll(".options")) {
     }
   }
 
-  const picker = document.createElement("details");
+  const picker = document.createElement("div");
   picker.className = "finish-picker";
-  picker.open = true;
-  const summary = document.createElement("summary");
+  const summary = document.createElement("div");
+  summary.className = "finish-picker-summary";
   summary.innerHTML = '<span class="finish-picker-copy"><strong>الألوان المتاحة <span class="finish-picker-count"></span></strong><span class="finish-picker-selected"><bdi></bdi></span></span><span class="finish-picker-palette" aria-hidden="true"></span>';
   summary.querySelector(".finish-picker-count").textContent = `(${finishes.size})`;
   const selected = summary.querySelector("bdi");

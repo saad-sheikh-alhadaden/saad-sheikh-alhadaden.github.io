@@ -62,30 +62,13 @@ button.option[data-color]:has(> img)::before { content: none; }
   background: #f8f3e9;
   color: #322719;
 }
-.finish-picker > summary {
+.finish-picker-summary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto .55rem;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: .6rem;
   min-height: 54px;
   padding: .55rem .75rem;
-  cursor: pointer;
-  list-style: none;
-}
-.finish-picker > summary::-webkit-details-marker { display: none; }
-.finish-picker > summary::after {
-  content: "";
-  width: .4rem;
-  height: .4rem;
-  border: solid #72562e;
-  border-width: 0 1.5px 1.5px 0;
-  transform: rotate(45deg);
-}
-.finish-picker[open] > summary::after { transform: rotate(225deg); }
-.finish-picker > summary:focus-visible {
-  outline: 2px solid #81591f;
-  outline-offset: 2px;
-  border-radius: 13px;
 }
 .finish-picker-copy { display: grid; gap: .15rem; }
 .finish-picker-copy strong { font-size: .9rem; }
@@ -99,7 +82,7 @@ button.option[data-color]:has(> img)::before { content: none; }
   border-radius: 50%;
 }
 .finish-picker-more { font-size: .75rem; color: #695332; }
-.finish-picker[open] > .options {
+.finish-picker > .options {
   margin: 0;
   padding: .65rem .75rem .75rem;
   border-top: 1px solid #dfd1bc;
