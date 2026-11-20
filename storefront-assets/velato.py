@@ -13,13 +13,16 @@ SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 ST_GR = "st-gr"
 ST_GR_BASIN = f"{ST_GR}-concealed-basin"
+ST_GR_TOILET = f"{ST_GR}-concealed-toilet"
+SET_PRICES = {SET: 1975, f"{ST_GR}-concealed-set": 1000}
 ST_GU = "st-gu-concealed-toilet"
 ST_GU_PRICES = {"Brushed Gold": 300, "Gray": 300, "Black": 275, "Chrome": 250}
-COORDINATED_FIXTURES = (
-    "cube-2-outlet-concealed-shower", "cube-3-outlet-concealed-shower", ST_GR_BASIN, ST_GU,
-)
 ST_BL_BASIN = "st-bl-concealed-basin"
 ST_R_BASIN = "st-r-concealed-basin"
+COORDINATED_GROUPS = (
+    ("cube-2-outlet-concealed-shower", "cube-3-outlet-concealed-shower", ST_GR_BASIN, ST_GU),
+    ("sphere-2-outlet-concealed-shower", ST_R_BASIN, ST_GR_TOILET),
+)
 GERMAN_SHOWERS = {
     "cube-3-outlet-concealed-shower": (
         "Cube 3 Outlet", "شاور دفن بثلاثة مخارج", "cube-shower",
@@ -95,11 +98,10 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     label, price, gold_photos, group = models[CASCATA_TOILET]
     color_galleries[CASCATA_TOILET] = {"Gold": gold_photos, "Chrome": chrome_photos["toilet"]}
     models[CASCATA_TOILET] = (label, price, gold_photos + chrome_photos["toilet"], group)
-    for kind, price, count in (("shower", 500, 5), ("toilet", 200, 3)):
-        photos = [f"/assets/stgr-{kind}-{i}.webp" for i in range(1, count + 1)]
-        models[f"{ST_GR}-concealed-{kind}"] = (
-            PARTS[kind][0], price, photos, f"concealed-{kind}-mixer"
-        )
+    models[f"{ST_GR}-concealed-shower"] = (
+        PARTS["shower"][0], 500, [f"/assets/stgr-shower-{i}.webp" for i in range(1, 6)],
+        "concealed-shower-mixer",
+    )
     st_gr_prices = {"Gray": 300, "Brushed Gold": 300, "Black": 275, "Chrome": 250}
     st_gr_galleries = {
         "Gray": ["/assets/stgr-basin-gray-water.webp"],
@@ -118,7 +120,15 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     color_galleries[ST_GU] = st_gu_galleries
     models[ST_GU] = (PARTS["toilet"][0], next(iter(ST_GU_PRICES.values())),
                      [images[0] for images in st_gu_galleries.values()], "concealed-toilet-mixer")
-    variant_prices = {ST_GR_BASIN: st_gr_prices, ST_GU: ST_GU_PRICES}
+    st_gr_toilet_galleries = {
+        color: [f"/assets/stgr-toilet-{color.lower().replace(' ', '-')}.webp"]
+        for color in st_gr_prices
+    }
+    color_galleries[ST_GR_TOILET] = st_gr_toilet_galleries
+    models[ST_GR_TOILET] = (PARTS["toilet"][0], st_gr_prices["Gray"],
+                            [images[0] for images in st_gr_toilet_galleries.values()],
+                            "concealed-toilet-mixer")
+    variant_prices = {ST_GR_BASIN: st_gr_prices, ST_GR_TOILET: st_gr_prices, ST_GU: ST_GU_PRICES}
     for slug, folder, count, finishes in (
         (ST_BL_BASIN, "stbl", 3, ("Black", "Gray", "Brushed Gold")),
         (ST_R_BASIN, "str", 5, ("Black", "Gray", "Gold", "Rose Gold", "Chrome")),
@@ -170,7 +180,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             photos = [photo for gallery in galleries.values() for photo in gallery]
         else:
             photos = [models[part][2][0] for part in parts]
-        price = 1975 if slug == SET else sum(models[part][1] for part in parts)
+        price = SET_PRICES.get(slug, sum(models[part][1] for part in parts))
         label = "طقم دفن كامل" if len(parts) == 3 else "طقم شاور ومغسلة دفن"
         models[slug] = (label, price, photos, SET_GROUP)
     chrome_set = f"{CASCATA_CHROME}-concealed-set"
@@ -229,10 +239,10 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
     def country_of_origin(slug):
-        if slug == ST_GU or slug in GERMAN_SHOWERS:
+        if slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
         if slug.startswith(ST_GR + "-"):
-            return ("Germany", "ألمانيا") if slug.endswith("-basin") else None
+            return None
         if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
             return ("Italy", "إيطاليا")
         return None
@@ -383,9 +393,10 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                 other = next(part for part in sets[set_slug] if part != slug)
                 related += (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
                             '<span aria-hidden="true">‹</span></a>')
-        if slug in COORDINATED_FIXTURES:
+        coordinated = next((group for group in COORDINATED_GROUPS if slug in group), ())
+        if coordinated:
             links = []
-            for target in COORDINATED_FIXTURES:
+            for target in coordinated:
                 if target != slug:
                     target_name, _ = identity(target)
                     links.append(f'<a class="velato-link" href="/{target}/">'
