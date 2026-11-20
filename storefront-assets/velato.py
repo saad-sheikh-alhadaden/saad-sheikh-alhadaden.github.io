@@ -15,11 +15,11 @@ MOUNTED_GROUP = "floor-ceiling-wall-mixers"
 MOUNTED_TITLE = "خلاطات من الأرض والسقف والحائط"
 MOUNTED_SUBTITLE = "Floor, Ceiling & Wall Mixers"
 ST_0047 = "st-0047"
-ST_0047_NAME = "S.T 0047"
+ST_0047_NAME = "S.T 9965"
 ST_W101 = "st-w101"
-ST_W101_NAME = "S.T W101"
+ST_W101_NAME = "S.T 27B"
 ST_W102 = "st-w102"
-ST_W102_NAME = "S.T W102"
+ST_W102_NAME = "S.T 82366"
 ST_GR = "st-gr"
 ST_GR_BASIN = f"{ST_GR}-concealed-basin"
 ST_GR_TOILET = f"{ST_GR}-concealed-toilet"
@@ -410,9 +410,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "Cube 2 Outlet": "كيوب مخرجين",
                        "Sphere 2 Outlet": "سفير مخرجين",
                        "S.T 80036": "اس تي 80036 st80036",
-                       ST_0047_NAME: "اس تي 0047 st0047",
-                       ST_W101_NAME: "اس تي دبليو 101 stw101",
-                       ST_W102_NAME: "اس تي دبليو 102 stw102",
+                       ST_0047_NAME: "اس تي 9965 st9965",
+                       ST_W101_NAME: "اس تي 27 بي st27b",
+                       ST_W102_NAME: "اس تي 82366 st82366",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
         galleries = color_galleries.get(slug, {finish: photos})
