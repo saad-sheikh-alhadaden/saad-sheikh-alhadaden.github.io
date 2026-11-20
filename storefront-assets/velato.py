@@ -13,6 +13,11 @@ SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 ST_GR = "st-gr"
 ST_GR_BASIN = f"{ST_GR}-concealed-basin"
+ST_GU = "st-gu-concealed-toilet"
+ST_GU_PRICES = {"Brushed Gold": 300, "Gray": 300, "Black": 275, "Chrome": 250}
+COORDINATED_FIXTURES = (
+    "cube-2-outlet-concealed-shower", "cube-3-outlet-concealed-shower", ST_GR_BASIN, ST_GU,
+)
 ST_BL_BASIN = "st-bl-concealed-basin"
 ST_R_BASIN = "st-r-concealed-basin"
 GERMAN_SHOWERS = {
@@ -106,7 +111,14 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models[ST_GR_BASIN] = (PARTS["basin"][0], st_gr_prices["Gray"],
                           [photo for images in st_gr_galleries.values() for photo in images],
                           "concealed-basin-mixer")
-    variant_prices = {ST_GR_BASIN: st_gr_prices}
+    st_gu_galleries = {
+        color: [f"/assets/stgu-toilet-{color.lower().replace(' ', '-')}.webp"]
+        for color in ST_GU_PRICES
+    }
+    color_galleries[ST_GU] = st_gu_galleries
+    models[ST_GU] = (PARTS["toilet"][0], next(iter(ST_GU_PRICES.values())),
+                     [images[0] for images in st_gu_galleries.values()], "concealed-toilet-mixer")
+    variant_prices = {ST_GR_BASIN: st_gr_prices, ST_GU: ST_GU_PRICES}
     for slug, folder, count, finishes in (
         (ST_BL_BASIN, "stbl", 3, ("Black", "Gray", "Brushed Gold")),
         (ST_R_BASIN, "str", 5, ("Black", "Gray", "Gold", "Rose Gold", "Chrome")),
@@ -168,7 +180,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
-    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere"):
+    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
@@ -194,6 +206,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == ST_GU:
+            return "S.T GU", " / ".join(ST_GU_PRICES)
         if slug in GERMAN_SHOWERS:
             name, _, _, prices, _ = GERMAN_SHOWERS[slug]
             return name, " / ".join(prices)
@@ -215,7 +229,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return ("OCTAGON", "Chrome") if slug.startswith("octagon-") else ("Velato", FINISH)
 
     def country_of_origin(slug):
-        if slug in GERMAN_SHOWERS:
+        if slug == ST_GU or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
         if slug.startswith(ST_GR + "-"):
             return ("Germany", "ألمانيا") if slug.endswith("-basin") else None
@@ -302,6 +316,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو",
                        "Cascata Oro": "كاسكاتا أورو",
                        "S.T Gr": "اس تي جي آر st gr",
+                       "S.T GU": "اس تي جي يو st gu",
                        "S.T bl": "اس تي بي إل st bl",
                        "S.T R": "اس تي آر st r",
                        "Cube 3 Outlet": "كيوب ٣ مخارج",
@@ -368,6 +383,14 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                 other = next(part for part in sets[set_slug] if part != slug)
                 related += (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
                             '<span aria-hidden="true">‹</span></a>')
+        if slug in COORDINATED_FIXTURES:
+            links = []
+            for target in COORDINATED_FIXTURES:
+                if target != slug:
+                    target_name, _ = identity(target)
+                    links.append(f'<a class="velato-link" href="/{target}/">'
+                                 f'<span>{models[target][0]} <bdi>{escape(target_name)}</bdi></span></a>')
+            related += '<h2>قطع متناسقة</h2>' + "".join(links)
         order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
         country = country_of_origin(slug)
         origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>' if country else ""
