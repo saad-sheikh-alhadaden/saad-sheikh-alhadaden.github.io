@@ -108,7 +108,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                        [photo for photos in floor_galleries.values() for photo in photos], MOUNTED_GROUP)
     basin_photos = [f"/assets/stw101-black-portrait-{index:02}.webp" for index in range(1, 5)]
     models[ST_W101] = ("خلاط مغسلة أرضي", 550, basin_photos, MOUNTED_GROUP)
-    tub_photos = [f"/assets/stw102-black-{index:02}.webp" for index in range(1, 5)]
+    tub_photos = [f"/assets/stw102-black-{index:02}.webp" for index in range(1, 6)]
     models[ST_W102] = ("خلاط بانيو أرضي", 650, tub_photos, MOUNTED_GROUP)
     for kind, price, count in [("shower", 700, 5), ("basin", 350, 2)]:
         slug = f"eclipse-flow-concealed-{kind}"
