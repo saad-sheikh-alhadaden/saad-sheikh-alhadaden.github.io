@@ -284,7 +284,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         if slug == f"{ST_GR}-concealed-shower":
             return "S.T Y5279 Smart", "Gray"
         if slug == ST_GR_BASIN:
-            return "S.T M2YH", " / ".join(color_galleries[slug])
+            return "S.T 20019", " / ".join(color_galleries[slug])
         if slug.startswith(ST_GR + "-"):
             return "S.T Gr", " / ".join(color_galleries.get(slug, ("Gray",)))
         if slug == CASCATA_TOILET:
@@ -430,6 +430,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T GU": "اس تي جي يو st gu",
                        "S.T 10088": "اس تي 10088 st10088",
                        "S.T M2YH": "اس تي إم 2 واي إتش stm2yh",
+                       "S.T 20019": "اس تي 20019 st20019",
                        "S.T 222": "اس تي 222 st222",
                        "S.T AZ-003": "اس تي اي زد 003 staz003",
                        "S.T 108003": "اس تي 108003 st108003",
