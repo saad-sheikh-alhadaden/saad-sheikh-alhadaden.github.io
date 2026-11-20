@@ -279,30 +279,45 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             name, _, _, prices, _ = GERMAN_SHOWERS[slug]
             return name, " / ".join(prices)
         if slug in (ST_BL_BASIN, ST_R_BASIN):
-            name = "S.T bl" if slug == ST_BL_BASIN else "S.T R"
+            name = "S.T bl" if slug == ST_BL_BASIN else "S.T 10088"
             return name, " / ".join(color_galleries[slug])
         if slug == f"{ST_GR}-concealed-shower":
             return "S.T Y5279 Smart", "Gray"
+        if slug == ST_GR_BASIN:
+            return "S.T M2YH", " / ".join(color_galleries[slug])
         if slug.startswith(ST_GR + "-"):
             return "S.T Gr", " / ".join(color_galleries.get(slug, ("Gray",)))
         if slug == CASCATA_TOILET:
             return "S.T 80036", "Gold / Chrome"
         if slug.startswith(CASCATA_CHROME + "-"):
-            name = "S.T 723702" if slug == f"{CASCATA_CHROME}-concealed-shower" else "Cascata Oro"
+            name = {
+                f"{CASCATA_CHROME}-concealed-shower": "S.T 723702",
+                f"{CASCATA_CHROME}-concealed-basin": "S.T 222",
+            }.get(slug, "Cascata Oro")
             return name, "Chrome"
         if slug.startswith(CASCATA + "-"):
-            name = "S.T G369369" if slug == f"{CASCATA}-concealed-shower" else "Cascata Oro"
+            name = {
+                f"{CASCATA}-concealed-shower": "S.T G369369",
+                f"{CASCATA}-concealed-basin": "S.T AZ-003",
+            }.get(slug, "Cascata Oro")
             return name, "Gold"
         if slug.startswith("lunaire-"):
             name = "S.T 202 Smart" if slug == "lunaire-digital-blus-concealed-shower" else "Lunaire Digital blus"
             return name, "Chrome / Rose Gold / Gray / White"
         if slug.startswith("eclipse-"):
-            name = "S.T M6245" if slug == "eclipse-flow-concealed-shower" else "Eclipse Flow"
+            name = {
+                "eclipse-flow-concealed-shower": "S.T M6245",
+                "eclipse-flow-concealed-basin": "S.T 108003",
+            }.get(slug, "Eclipse Flow")
             return name, "Black / Chrome"
         if slug.startswith("octagon-"):
-            name = "S.T 6766" if slug == "octagon-concealed-shower" else "OCTAGON"
+            name = {
+                "octagon-concealed-shower": "S.T 6766",
+                "octagon-concealed-basin": "S.T 2132",
+            }.get(slug, "OCTAGON")
             return name, "Chrome"
-        return ("S.T 30008" if slug == "velato-concealed-shower" else "Velato"), FINISH
+        name = {"velato-concealed-shower": "S.T 30008", "velato-concealed-basin": "S.T 30000RU"}.get(slug, "Velato")
+        return name, FINISH
 
     def country_of_origin(slug):
         if slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
@@ -414,7 +429,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T Gr": "اس تي جي آر st gr",
                        "S.T GU": "اس تي جي يو st gu",
                        "S.T bl": "اس تي بي إل st bl",
-                       "S.T R": "اس تي آر st r",
+                       "S.T 10088": "اس تي 10088 st10088",
+                       "S.T M2YH": "اس تي إم 2 واي إتش stm2yh",
+                       "S.T 222": "اس تي 222 st222",
+                       "S.T AZ-003": "اس تي اي زد 003 staz003",
+                       "S.T 108003": "اس تي 108003 st108003",
+                       "S.T 2132": "اس تي 2132 st2132",
+                       "S.T 30000RU": "اس تي 30000 آر يو st30000ru",
                        "Cube 3 Outlet": "كيوب ٣ مخارج",
                        "Cube 2 Outlet": "كيوب مخرجين",
                        "Sphere 2 Outlet": "سفير مخرجين",
