@@ -16,6 +16,8 @@ MOUNTED_TITLE = "خلاطات من الأرض والسقف والحائط"
 MOUNTED_SUBTITLE = "Floor, Ceiling & Wall Mixers"
 ST_0047 = "st-0047"
 ST_0047_NAME = "S.T 0047"
+ST_W101 = "st-w101"
+ST_W101_NAME = "S.T W101"
 ST_GR = "st-gr"
 ST_GR_BASIN = f"{ST_GR}-concealed-basin"
 ST_GR_TOILET = f"{ST_GR}-concealed-toilet"
@@ -101,6 +103,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     color_galleries[ST_0047] = floor_galleries
     models[ST_0047] = ("خلاط شاور من الأرض", 950,
                        [photo for photos in floor_galleries.values() for photo in photos], MOUNTED_GROUP)
+    basin_photos = [f"/assets/stw101-black-{index:02}.webp" for index in range(1, 5)]
+    models[ST_W101] = ("خلاط مغسلة من الأرض", 550, basin_photos, MOUNTED_GROUP)
     for kind, price, count in [("shower", 700, 5), ("basin", 350, 2)]:
         slug = f"eclipse-flow-concealed-{kind}"
         galleries = {
@@ -231,7 +235,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
-    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu", "st0047"):
+    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu", "st0047", "stw101"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
@@ -258,6 +262,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == ST_W101:
+            return ST_W101_NAME, "Black"
         if slug == ST_0047:
             return ST_0047_NAME, " / ".join(color_galleries[slug])
         if slug == ST_GU:
@@ -395,6 +401,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "Sphere 2 Outlet": "سفير مخرجين",
                        "S.T 80036": "اس تي 80036 st80036",
                        ST_0047_NAME: "اس تي 0047 st0047",
+                       ST_W101_NAME: "اس تي دبليو 101 stw101",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
         name = f"{model_name} · {label}"
         galleries = color_galleries.get(slug, {finish: photos})
