@@ -294,7 +294,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             name = "S.T G369369" if slug == f"{CASCATA}-concealed-shower" else "Cascata Oro"
             return name, "Gold"
         if slug.startswith("lunaire-"):
-            name = "S.T 202" if slug == "lunaire-digital-blus-concealed-shower" else "Lunaire Digital blus"
+            name = "S.T 202 Smart" if slug == "lunaire-digital-blus-concealed-shower" else "Lunaire Digital blus"
             return name, "Chrome / Rose Gold / Gray / White"
         if slug.startswith("eclipse-"):
             name = "S.T M6245" if slug == "eclipse-flow-concealed-shower" else "Eclipse Flow"
@@ -421,7 +421,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T 80036": "اس تي 80036 st80036",
                        "S.T 30008": "اس تي 30008 st30008",
                        "S.T 6766": "اس تي 6766 st6766",
-                       "S.T 202": "اس تي 202 st202",
+                       "S.T 202 Smart": "اس تي 202 سمارت st202",
                        "S.T 723702": "اس تي 723702 st723702",
                        "S.T G369369": "اس تي جي 369369 stg369369",
                        "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
