@@ -50,6 +50,34 @@ PARTS = {
 }
 
 
+# Add a product here only when its price is confirmed to include both parts.
+PRICE_INCLUDES_BOTH_PARTS = {
+    "cascata-oro-chrome-concealed-basin",
+    "cascata-oro-chrome-concealed-shower",
+    "cascata-oro-concealed-basin",
+    "cascata-oro-concealed-shower",
+    "cascata-oro-concealed-toilet",
+    "cube-2-outlet-concealed-shower",
+    "cube-3-outlet-concealed-shower",
+    "eclipse-flow-concealed-basin",
+    "eclipse-flow-concealed-shower",
+    "lunaire-digital-blus-concealed-basin",
+    "lunaire-digital-blus-concealed-shower",
+    "octagon-concealed-basin",
+    "octagon-concealed-shower",
+    "sphere-2-outlet-concealed-shower",
+    "st-bl-concealed-basin",
+    "st-gr-concealed-basin",
+    "st-gr-concealed-shower",
+    "st-gr-concealed-toilet",
+    "st-gu-concealed-toilet",
+    "st-r-concealed-basin",
+    "velato-concealed-basin",
+    "velato-concealed-shower",
+    "velato-concealed-toilet",
+}
+
+
 def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models = {}
     for kind, (label, price, count) in PARTS.items():
@@ -410,7 +438,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         description_html = f'<p>{escape(GERMAN_SHOWERS[slug][4])}</p>' if slug in GERMAN_SHOWERS else ""
         unit_price_attr = " data-unit-price" if slug in variant_prices else ""
         price_note = ""
-        if group in ("concealed-shower-mixer", "concealed-basin-mixer", "concealed-toilet-mixer"):
+        if slug in PRICE_INCLUDES_BOTH_PARTS:
             price_note = '<small class="encastre-price-note">السعر يشمل جسم الدفن الداخلي والقطع الخارجية الظاهرة</small>'
         details.append(f"""
 <section id="{slug}" class="vanity-detail" data-nosnippet hidden>
