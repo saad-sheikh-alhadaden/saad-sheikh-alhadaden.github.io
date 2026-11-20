@@ -11,6 +11,9 @@ FINISH = "Brushed Rose Gold"
 WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</strong><span>كفالة 5 سنوات. تبديل فوري خلال أول سنتين، وصيانة خلال السنوات الثلاث التالية.</span></p>'
 SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
+MOUNTED_GROUP = "floor-ceiling-wall-mixers"
+MOUNTED_TITLE = "خلاطات من الأرض والسقف والحائط"
+MOUNTED_SUBTITLE = "Floor, Ceiling & Wall Mixers"
 ST_GR = "st-gr"
 ST_GR_BASIN = f"{ST_GR}-concealed-basin"
 ST_GR_TOILET = f"{ST_GR}-concealed-toilet"
@@ -314,11 +317,27 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             '<div class="velato-strip">' + "".join(
                 picture(models[slug][2][0], models[slug][0]) for slug in sets[SET]
             ) + '</div></a>')
+    mounted_card = (
+        f'<a class="velato-feature" href="/{MOUNTED_GROUP}/"><span>{MOUNTED_TITLE}'
+        f'<br><bdi lang="en" dir="ltr">{escape(MOUNTED_SUBTITLE)}</bdi></span>'
+        '<div class="velato-strip mounting-types" aria-hidden="true">'
+        '<span>الأرض</span><span>السقف</span><span>الحائط</span></div></a>'
+    )
+    mounted_panel = (
+        f'<section class="panel concealed-gallery" id="{MOUNTED_GROUP}" data-nosnippet hidden>'
+        f'<header class="cabinet-heading"><h1><small>{MOUNTED_TITLE}</small>'
+        f'<bdi lang="en" dir="ltr">{escape(MOUNTED_SUBTITLE)}</bdi></h1></header>'
+        '<p class="mounting-status">ستُضاف موديلات هذه المجموعة قريباً.</p></section>'
+    )
     styles = """<style>
 .velato-feature,.velato-card{display:block;color:#f6ebdc;background:#201c19;border:1px solid #9c7656;border-radius:14px;overflow:hidden;text-decoration:none}
 .velato-feature{margin:1rem 0}.velato-feature>span,.velato-card>span{display:block;padding:.75rem 1rem}
 .velato-feature small{display:block;margin-top:.35rem;color:#e4b58d}
 .velato-strip,.velato-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
+.mounting-types{gap:0;border-top:1px solid #4f4033}
+.mounting-types span{text-align:center;padding:.65rem .25rem;color:#e4b58d}
+.mounting-types span+span{border-inline-start:1px solid #4f4033}
+.mounting-status{text-align:center;color:#c5bbae}
 .velato-parts-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
 .velato-strip img,.velato-card img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
 .velato-card{max-width:22rem;margin:.6rem 0 1rem}.velato-parts .velato-card>span{padding:.5rem;font-size:.8rem}
@@ -467,7 +486,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     js = js.replace("const products = {", "const products = {\n" + "\n".join(registry_additions), 1)
     if registry_additions[0] not in js:
         raise ValueError("Missing storefront product registry")
-    js = js.replace('const encastreScreens = new Set([', f'const encastreScreens = new Set(["{SET_GROUP}", ', 1)
+    js = js.replace('const encastreScreens = new Set([', f'const encastreScreens = new Set(["{SET_GROUP}", "{MOUNTED_GROUP}", ', 1)
     quantity_listener = '  for (const button of screen.querySelectorAll("[data-quantity-change]")) {'
     if quantity_listener not in js:
         raise ValueError("Missing storefront quantity controls")
@@ -502,7 +521,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         for group in headings:
             if group != SET_GROUP:
                 pattern = rf'(<section class="panel" id="{group}"[^>]*>\s*)<h1>.*?</h1>'
-                content = hero if group == "encastre" else grids.get(group, "")
+                content = hero + mounted_card if group == "encastre" else grids.get(group, "")
                 html, count = re.subn(pattern, lambda m: m[1].replace('class="panel"', 'class="panel concealed-gallery"')
                                       + collection_heading(group) + content, html, count=1, flags=re.S)
                 if count != 1:
@@ -512,7 +531,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         html = html.replace('href="#encastre"', 'href="/encastre/"')
         html = html.replace("</main>", f'<section class="panel concealed-gallery" id="{SET_GROUP}" data-nosnippet hidden>'
                             f'{collection_heading(SET_GROUP)}{grids[SET_GROUP]}</section>'
-                            + "".join(details) + "</main>", 1)
+                            + mounted_panel + "".join(details) + "</main>", 1)
         path.write_text(html)
 
     def landing(slug, title, description, photos, data):
@@ -531,7 +550,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         for key, value in {"description": description, "og:title": full_title, "og:description": description,
                            "og:url": url, "twitter:title": full_title, "twitter:description": description}.items():
             page = meta(page, key, value)
-        page = preview(page, title, origin + photos[0])
+        if photos:
+            page = preview(page, title, origin + photos[0])
         data.update({"@context": "https://schema.org", "url": url, "name": title, "description": description})
         page = schema_pattern.sub(lambda _: json_script(data), page, count=1)
         target = root / slug
@@ -560,13 +580,16 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                          "image": [origin + photo for photo in photos],
                          "offers": offer})
     for slug, label in labels.items():
-        children = (list(labels)[1:] if slug == "encastre" else
+        children = ([*list(labels)[1:], MOUNTED_GROUP] if slug == "encastre" else
                     [model for model, data in models.items() if data[3] == slug])
         cover = next((data[2] for data in models.values() if data[3] == slug), models[SET][2])
         landing(slug, label, f"تصفّح {label} وشاهد الموديلات والتشطيبات والأسعار.", cover,
                 {"@type": "CollectionPage", "mainEntity": {"@type": "ItemList", "itemListElement": [
                     {"@type": "ListItem", "position": index, "url": f"{origin}/{child}/"}
                     for index, child in enumerate(children, 1)]}})
+
+    landing(MOUNTED_GROUP, MOUNTED_TITLE, "خلاطات تُركّب من الأرض أو السقف أو الحائط.", [],
+            {"@type": "CollectionPage"})
 
     sitemap = root / "sitemap.xml"
     tree = ET.parse(sitemap)
