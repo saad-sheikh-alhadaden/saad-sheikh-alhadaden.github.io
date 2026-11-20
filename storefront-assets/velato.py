@@ -476,11 +476,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         else:
             set_slug = part_sets[slug]
             kind = slug.rsplit("-", 1)[1]
+            set_name, _ = identity(set_slug)
             related = (f'<a class="velato-link" data-related-set href="/{set_slug}/?from={kind}">'
-                       f'<span>شوف طقم {model_name} الكامل</span><span aria-hidden="true">‹</span></a>')
+                       f'<span>شوف طقم {set_name} الكامل</span><span aria-hidden="true">‹</span></a>')
             if len(sets[set_slug]) == 2:
                 other = next(part for part in sets[set_slug] if part != slug)
-                related += (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {model_name}</span>'
+                other_name, _ = identity(other)
+                related += (f'<a class="velato-link" href="/{other}/"><span>شوف {models[other][0]} {other_name}</span>'
                             '<span aria-hidden="true">‹</span></a>')
         coordinated = next((group for group in COORDINATED_GROUPS if slug in group), ())
         if coordinated:
