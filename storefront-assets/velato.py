@@ -279,7 +279,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             name, _, _, prices, _ = GERMAN_SHOWERS[slug]
             return name, " / ".join(prices)
         if slug in (ST_BL_BASIN, ST_R_BASIN):
-            name = "S.T bl" if slug == ST_BL_BASIN else "S.T 10088"
+            name = "S.T M2YH" if slug == ST_BL_BASIN else "S.T 10088"
             return name, " / ".join(color_galleries[slug])
         if slug == f"{ST_GR}-concealed-shower":
             return "S.T Y5279 Smart", "Gray"
@@ -428,7 +428,6 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "Cascata Oro": "كاسكاتا أورو",
                        "S.T Gr": "اس تي جي آر st gr",
                        "S.T GU": "اس تي جي يو st gu",
-                       "S.T bl": "اس تي بي إل st bl",
                        "S.T 10088": "اس تي 10088 st10088",
                        "S.T M2YH": "اس تي إم 2 واي إتش stm2yh",
                        "S.T 222": "اس تي 222 st222",
