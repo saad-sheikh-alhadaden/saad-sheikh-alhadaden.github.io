@@ -25,7 +25,7 @@ ST_56560_NAME = "S.T 56560"
 ST_56570 = "st-56570"
 ST_56570_NAME = "S.T 56570"
 ST_111000 = "st-111000"
-ST_111000_NAME = "S.T 111000"
+ST_111000_NAME = "S.T 118088"
 ST_GR = "st-gr"
 ST_GR_BASIN = f"{ST_GR}-concealed-basin"
 ST_GR_TOILET = f"{ST_GR}-concealed-toilet"
@@ -473,7 +473,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_56560_NAME: "اس تي 56560 st56560 رمادي فاتح",
                        ST_56570_NAME: "اس تي 56570 st56570 ذهبي مصقول",
-                       ST_111000_NAME: "اس تي 111000 st111000 خلاط مغسلة من السقف أسود كروم",
+                       ST_111000_NAME: "اس تي 118088 st118088 خلاط مغسلة من السقف أسود كروم",
                        ST_W101_NAME: "اس تي 27 بي st27b",
                        ST_W102_NAME: "اس تي 82366 st82366",
                        "Lunaire Digital blus": "لونير ديجيتال بلوس"}[model_name]
