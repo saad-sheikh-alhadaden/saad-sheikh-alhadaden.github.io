@@ -166,7 +166,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models[GROHE_FLUSH_PLATE] = ("كبسة لخزان دفن", next(iter(GROHE_FLUSH_PLATE_FINISHES.values()))[1],
                                 [gallery[0] for gallery in plate_galleries.values()], ACCESSORIES_GROUP)
 
-    models[HEAD_SHOWER] = ("رأس دش علوي", 200, ["/assets/headshower-gold.webp"], ACCESSORIES_GROUP)
+    models[HEAD_SHOWER] = ("رأس دش علوي", 200,
+                         ["/assets/headshower-gold-rain.webp", "/assets/headshower-gold-waterfall.webp"],
+                         ACCESSORIES_GROUP)
 
     ferrari_head_galleries = {finish: [f"/assets/ferrarihead-{finish.lower()}.webp"]
                              for finish in ("Black", "Chrome")}
@@ -368,7 +370,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
-    photo_sizes["headshower-gold.webp"] = (790, 988)
+    for photo in models[HEAD_SHOWER][2]:
+        photo_sizes[Path(photo).name] = (790, 988)
     photo_sizes["c7head-black.webp"] = (790, 988)
     for slug in (FERRARI_HEAD_SHOWER, A3_HEAD_SHOWER, *PHOTO_ACCESSORIES):
         for photos in color_galleries[slug].values():
