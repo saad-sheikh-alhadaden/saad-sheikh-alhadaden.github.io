@@ -768,6 +768,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             if slug == family.SMARTCONTROL:
                 related = ('<div class="grohe-related"><h2>قلب الدفن الداخلي · يُباع منفصلاً</h2>'
                            + gallery_card(family.SMARTBOX) + '</div>')
+            elif slug == family.SMARTBOX:
+                related = ('<div class="grohe-related"><h2>واجهة التحكّم الخارجية · تُباع منفصلة</h2>'
+                           + gallery_card(family.SMARTCONTROL) + '</div>')
             details.append(family.detail(slug, registry, warranty, origin_label(slug), related))
             continue
         arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو",
