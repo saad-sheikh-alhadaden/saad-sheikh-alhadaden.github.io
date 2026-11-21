@@ -416,13 +416,16 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
         if group == ACCESSORIES_GROUP:
-            alt = escape(f"{model_name} · {label}")
-            return (f'<article class="concealed-accessory-card"><a class="concealed-accessory-photo" '
-                    f'href="{photos[0]}" target="_blank" rel="noopener" aria-label="تكبير صورة {alt}">'
-                    f'{picture(photos[0], alt)}</a>'
-                    f'<a class="concealed-accessory-copy" href="/{slug}/">'
-                    f'<span><strong>{escape(label)} <bdi>{model_name}</bdi></strong><small>صُنع في ألمانيا</small></span>'
-                    f'<bdi dir="ltr">${min(GROHE_PACKAGES.values())}–${max(GROHE_PACKAGES.values())}</bdi></a></article>')
+            options = "".join(
+                f'<span class="concealed-accessory-price"><span>{escape(package)}</span>'
+                f'<bdi dir="ltr">${amount:,}</bdi></span>'
+                for package, amount in variant_prices[slug].items()
+            )
+            return (f'<a class="concealed-accessory-card" href="/{slug}/">'
+                    f'<span class="concealed-accessory-photo">{picture(photos[0], "")}</span>'
+                    f'<span class="concealed-accessory-copy"><strong>{escape(label)} <bdi>{model_name}</bdi></strong>'
+                    f'<small>صُنع في ألمانيا</small><span class="concealed-accessory-prices">{options}</span>'
+                    '<span class="concealed-accessory-detail">تفاصيل المنتج</span></span></a>')
         kind_label = f'<small class="mixer-product-kind">{escape(label)}</small>' if group == MOUNTED_GROUP else ""
         price_text = f"${price:,}"
         if slug in variant_prices:
@@ -469,12 +472,16 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 .encastre-category-name>span{font-weight:600;color:#f6ebdc}
 .encastre-category-name>bdi{font-size:.875rem;color:#d5c4b0;text-align:right}
 #concealed-accessory .concealed-accessory-list{display:grid;gap:1rem;padding:1rem 0}
-.concealed-accessory-card{border:1px solid #5e4c3a;border-radius:14px;overflow:hidden;background:#201c19}
-.concealed-accessory-photo{display:block;aspect-ratio:4/3;background:#181818;cursor:zoom-in}
-.concealed-accessory-photo img{display:block;width:100%;height:100%;object-fit:contain}
-.concealed-accessory-copy{display:flex;justify-content:space-between;align-items:start;gap:.75rem;padding:1rem;color:inherit;text-decoration:none}
-.concealed-accessory-copy small{display:block;margin-top:.3rem;color:#d5c4b0}
-.concealed-accessory-copy>bdi{color:#e4b58d;white-space:nowrap}
+.concealed-accessory-card{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:center;gap:.75rem;padding:.65rem;border:1px solid #5e4c3a;border-radius:14px;background:#201c19;color:inherit;text-decoration:none}
+.concealed-accessory-photo{display:block;border-radius:9px;overflow:hidden;background:#181818}
+.concealed-accessory-photo img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:contain}
+.concealed-accessory-copy{display:grid;gap:.4rem;min-width:0;line-height:1.4}
+.concealed-accessory-copy strong{font-size:1rem}
+.concealed-accessory-copy small{color:#d5c4b0}
+.concealed-accessory-prices{display:grid;gap:.3rem;margin-top:.2rem;padding-top:.55rem;border-top:1px solid #4f4033}
+.concealed-accessory-price{display:flex;justify-content:space-between;align-items:baseline;gap:.35rem;font-size:.875rem}
+.concealed-accessory-price>bdi,.concealed-accessory-detail{color:#e4b58d}
+.concealed-accessory-detail{font-size:.875rem;margin-top:.2rem}
 #grohe-concealed-cistern .velato-gallery{display:none}
 .velato-feature small{display:block;margin-top:.35rem;color:#e4b58d}
 .velato-strip,.velato-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
