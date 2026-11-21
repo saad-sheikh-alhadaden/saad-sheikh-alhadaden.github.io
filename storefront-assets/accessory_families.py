@@ -39,6 +39,7 @@ FAMILIES = {
                       finish_photos={finish: f"smartactive-{finish}" for finish in ("brushed-gold", "black", "chrome")},
                       finish_prices={"brushed-gold": 750, "black": 450, "chrome": None},
                       card_note="قطر 30 سم · السعر يشمل ساعد الدش",
+                      detail_photo="smartactive-face",
                       description="رأس دش دائري بقطر 30 سم، بتصميم نحيف وعصري. السعر يشمل ساعد الدش.",
                       sprays={
                           "PureRain": "رذاذ مطري ناعم وواسع ينساب من الفوّهات الخارجية ليغطّي الجسم بالكامل.",
@@ -236,6 +237,16 @@ def detail(slug, registry, warranty, origin_label, related=""):
         )
         spray_details = (f'<p><strong>نمطان للرش</strong></p><ul>{spray_items}</ul>'
                          f'<p>{escape(spec["control_note"])}</p>')
+    detail_photo = ""
+    if "detail_photo" in spec:
+        detail_photo = f"""
+        <figure class="family-detail-photo">
+          <img src="/assets/{spec['detail_photo']}.webp" alt="لقطة مقرّبة لوجه طاسة الدش تُظهر الفوّهات الخارجية وفتحات الرش الوسطى"
+               width="774" height="1000" loading="lazy" decoding="async">
+          <figcaption><strong>تفاصيل وجه الطاسة</strong>
+            <span>لقطة مقرّبة لفوّهات الرش الخارجية والفتحات الطولية في المنتصف.</span>
+          </figcaption>
+        </figure>"""
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
     outlets = outlet_label(spec)
     outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
@@ -244,7 +255,7 @@ def detail(slug, registry, warranty, origin_label, related=""):
   <div class="product-image"><img src="{registry["images"][selected]}" alt="{spec["label"]} · {label}" width="790" height="988" loading="lazy" decoding="async">
     <button class="circle" data-save type="button" aria-label="إضافة إلى المفضّلة" aria-pressed="false">♡</button></div>
   <div class="product-info"><p class="category">{spec["label"]}</p><h1><bdi dir="ltr">{spec["name"]}</bdi></h1>
-    {origin}<p>{spec["description"]}</p>{outlet_note}{spray_details}{controls}
+    {origin}<p>{spec["description"]}</p>{outlet_note}{spray_details}{detail_photo}{controls}
     <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>سعر القطعة</strong><span data-family-summary>{label}</span></div>
     <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
@@ -262,6 +273,8 @@ def product_data(slug, registry, origin, country):
                "url": url if "photo" in spec else url + "?" + urlencode(dict(zip(axes, key.split("|"))))}
               for key, amount in registry["prices"].items() if amount is not None]
     images = dict.fromkeys([cover(slug), *registry["images"].values()])
+    if "detail_photo" in spec:
+        images[f'/assets/{spec["detail_photo"]}.webp'] = None
     data = {"@type": "Product", "@id": url + "#product", "sku": slug,
             "image": [origin + path for path in images], "offers": offers}
     if country:

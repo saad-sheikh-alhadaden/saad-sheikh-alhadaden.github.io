@@ -721,6 +721,14 @@ display:flex;flex-direction:column;border-color:#d8c9b6;border-radius:8px}
 .velato-set-thumbnails img{aspect-ratio:4/5;object-fit:cover}
 .velato-set-thumbnails .velato-thumb-caption{width:100%;padding:.3rem .1rem .15rem;color:#5b462c;
 font-family:inherit;font-size:.72rem;font-weight:600;line-height:1.45;text-align:center}
+.family-detail-photo{display:grid;grid-template-columns:minmax(0,10rem) minmax(0,1fr);align-items:center;
+  gap:clamp(.8rem,3vw,1.5rem);margin:1.25rem 0 1.5rem;padding:.6rem;border:1px solid #6c593d;
+  border-radius:1rem;background:#211e19;color:#f4ede1}
+.family-detail-photo img{display:block;width:100%;height:auto;border-radius:.55rem}
+.family-detail-photo figcaption{padding-inline-end:.5rem;line-height:1.6}
+.family-detail-photo figcaption strong{display:block;color:#f7e3bd;font-size:1.05rem}
+.family-detail-photo figcaption span{display:block;margin-top:.25rem;color:#d7cbbc;font-size:.875rem}
+@media(max-width:520px){.family-detail-photo{grid-template-columns:minmax(0,44%) minmax(0,1fr)}}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
 #shower-arm .diameter-picker{min-inline-size:0;margin:1.25rem 0 .85rem;padding:0;border:0}
