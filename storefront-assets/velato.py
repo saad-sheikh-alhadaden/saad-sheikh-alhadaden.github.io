@@ -601,6 +601,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T G369369": "اس تي جي 369369 stg369369",
                        "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
                        "S.T M6245": "اس تي إم 6245 stm6245",
+                       "Head Shower": "راس دش علوي شلال مطري ذهبي",
                        GROHE_NAME: "غروهي كروهي خزان دفن شاسيه كبسة المانيا ألمانيا",
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_56560_NAME: "اس تي 56560 st56560 رمادي فاتح",
