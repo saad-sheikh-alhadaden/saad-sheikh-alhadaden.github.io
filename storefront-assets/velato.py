@@ -47,6 +47,8 @@ GROHE_CONFIGURATIONS = {
                         {"مع كبسة الدفن": 125, "بدون كبسة الدفن": 100}),
 }
 ACCESSORIES_GROUP = "concealed-accessory"
+HEAD_SHOWER = "head-shower"
+HEAD_SHOWER_DESCRIPTION = "رأس دش علوي بتصميم عصري، يجمع بين تدفّق الشلال ورذاذ المطر."
 ST_122DG = "st-122dg"
 ST_122DG_NAME = "S.T 122FG"
 ST_307840 = "st-307840"
@@ -139,6 +141,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     color_galleries[GROHE_FLUSH_PLATE] = plate_galleries
     models[GROHE_FLUSH_PLATE] = ("كبسة لخزان دفن", next(iter(GROHE_FLUSH_PLATE_FINISHES.values()))[1],
                                 [gallery[0] for gallery in plate_galleries.values()], ACCESSORIES_GROUP)
+
+    models[HEAD_SHOWER] = ("رأس دش علوي", 200, ["/assets/headshower-gold.webp"], ACCESSORIES_GROUP)
 
     floor_galleries = {
         color: [f"/assets/st0047-{color.lower().replace(' ', '-')}-{index:02}.webp"
@@ -313,6 +317,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
+    photo_sizes["headshower-gold.webp"] = (790, 988)
     for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu", "st0047", "stw101", "stw102", "st56560", "st56570", "st111000", "st307840", "st122dg"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
@@ -354,6 +359,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == HEAD_SHOWER:
+            return "Head Shower", "Gold"
         if slug == GROHE_FLUSH_PLATE:
             return GROHE_NAME, " / ".join(GROHE_FLUSH_PLATE_FINISHES)
         if slug in GROHE_CONFIGURATIONS:
@@ -421,6 +428,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return name, FINISH
 
     def country_of_origin(slug):
+        if slug == HEAD_SHOWER:
+            return "Italy", "إيطاليا"
         if slug in GROHE_CONFIGURATIONS or slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
         if slug in (ST_W102, GROHE_FLUSH_PLATE) or slug.startswith(ST_GR + "-"):
@@ -447,11 +456,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
         if group == ACCESSORIES_GROUP:
-            origin_badge = "<small>صُنع في ألمانيا</small>" if slug in GROHE_CONFIGURATIONS else ""
+            country = country_of_origin(slug)
+            origin_badge = f"<small>صُنع في {country[1]}</small>" if country else ""
             options = "".join(
                 f'<span class="concealed-accessory-price"><span>{escape(package)}</span>'
                 f'<bdi dir="ltr">${amount:,}</bdi></span>'
-                for package, amount in variant_prices[slug].items()
+                for package, amount in variant_prices.get(slug, {finish: price}).items()
             )
             if slug == GROHE_FLUSH_PLATE:
                 prices = variant_prices[slug].values()
@@ -678,6 +688,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         country = country_of_origin(slug)
         origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>' if country else ""
         description_html = f'<p>{escape(GERMAN_SHOWERS[slug][4])}</p>' if slug in GERMAN_SHOWERS else ""
+        if slug == HEAD_SHOWER:
+            description_html = f"<p>{HEAD_SHOWER_DESCRIPTION}</p>"
         unit_price_attr = " data-unit-price" if slug in variant_prices else ""
         price_note = ""
         if slug in PRICE_INCLUDES_BOTH_PARTS:
@@ -801,6 +813,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         if slug.startswith(CASCATA_CHROME + "-"):
             title += " · Chrome"
         description = f"{label} {model_name} بتشطيب {finish}{origin_text}. ${price:,}.{contents}"
+        if slug == HEAD_SHOWER:
+            description = f"{HEAD_SHOWER_DESCRIPTION} تشطيب ذهبي، صُنع في إيطاليا. ${price:,}."
         offer = {"@type": "Offer", "price": price, "priceCurrency": "USD", "url": f"{origin}/{slug}/"}
         if slug in GERMAN_SHOWERS:
             description = f"{title}{origin_text}. {GERMAN_SHOWERS[slug][4]}"
