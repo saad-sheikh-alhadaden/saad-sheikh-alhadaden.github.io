@@ -36,3 +36,8 @@
 .plate-choice[aria-pressed="true"]::after {content:"✓";position:absolute;inset-block-start:5px;inset-inline-end:5px;font:700 10px/13px system-ui;color:#75582c}
 .plate-choice:focus-visible {outline:3px solid #6d4818;outline-offset:2px}
 @media(max-width:350px){.plate-choice{gap:5px}.plate-selection span{font-size:12px}.plate-selection bdi{font-size:22px}}
+
+#grohe-flush-plate[data-collection-view="grohe"] .product-image,
+#grohe-flush-plate[data-collection-view="grohe"] .plate-choice img {background:#091a34}
+#grohe-flush-plate :is([data-plate-origin],.velato-warranty)[hidden] {display:none}
+#grohe-flush-plate [data-plate-origin] {margin:0 0 .75rem}

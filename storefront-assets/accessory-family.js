@@ -42,6 +42,20 @@ function bindAccessoryOptions(screen, product, select) {
   update();
 }
 
+function prepareFlushPlateView(screen, product, image, choices) {
+  const collection = new URLSearchParams(location.search).get("from");
+  if (location.pathname.replaceAll("/", "") !== screen.id || !Object.hasOwn(product.collectionImages, collection)) {
+    return product.images;
+  }
+  screen.dataset.collectionView = collection;
+  const images = product.collectionImages[collection];
+  image.src = images[product.defaultColor];
+  for (const choice of choices) choice.querySelector("img").src = images[choice.dataset.color];
+  const warranty = screen.querySelector(".velato-warranty");
+  if (warranty) warranty.hidden = true;
+  return images;
+}
+
 function migrateAccessoryCart(items, families) {
   const result = [];
   for (const item of items) {

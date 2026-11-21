@@ -42,6 +42,10 @@ GROHE_FLUSH_PLATE_FINISHES = {
     "White": ("white", "أبيض", 50),
     "مخفية قابلة للتبليط": ("tileable", "قابلة للتبليط", 155),
 }
+GROHE_PLATE_NAVY_IMAGES = {
+    finish: f"/assets/grohe-flush-plate-{suffix}-navy.webp"
+    for finish, (suffix, _, _) in GROHE_FLUSH_PLATE_FINISHES.items()
+}
 ACCESSORIES_GROUP = "concealed-accessory"
 HEAD_SHOWER = "head-shower"
 FERRARI_HEAD_SHOWER = "head-shower-ferrari"
@@ -143,7 +147,7 @@ def purchase_controls(order, price):
     <button class="action" data-add-cart type="button">{order} — ${price:,}</button>"""
 
 
-def flush_plate_detail(registry, warranty, origin_badge):
+def flush_plate_detail(registry, warranty):
     selected = registry["defaultColor"]
     options = []
     for finish, (suffix, label, price) in GROHE_FLUSH_PLATE_FINISHES.items():
@@ -169,7 +173,7 @@ def flush_plate_detail(registry, warranty, origin_badge):
     </div>
   </div>
   <div class="product-info">
-    {origin_badge}
+    <p class="velato-origin" data-plate-origin aria-live="polite" hidden>صُنع في ألمانيا</p>
     <div class="plate-heading"><h2 id="plate-choices-title">اختر الكبسة</h2>
       <button class="circle" data-save type="button" aria-label="إضافة GROHE إلى المفضّلة" aria-pressed="false">♡</button></div>
     <div class="plate-grid" role="group" aria-labelledby="plate-choices-title">{"".join(options)}</div>
@@ -418,7 +422,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     photo_sizes.update(json.loads(Path(__file__).with_name("showerarm").joinpath("sizes.json").read_text()))
     all_photos = dict.fromkeys(photo for model in models.values() for photo in model[2])
     collection_photos = dict.fromkeys(families[family.TANK]["collectionImages"][GROHE_GROUP].values())
-    for photo in (*all_photos, *ACCESSORY_COVERS.values(), *collection_photos, GROHE_CISTERN_COVER):
+    for photo in (*all_photos, *ACCESSORY_COVERS.values(), *collection_photos, *GROHE_PLATE_NAVY_IMAGES.values(), GROHE_CISTERN_COVER):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
@@ -591,8 +595,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                 prices = variant_prices[slug].values()
                 options = (f'<span class="concealed-accessory-price"><span>٨ خيارات</span>'
                            f'<bdi dir="ltr">${min(prices)}–${max(prices)}</bdi></span>')
-            cover = ACCESSORY_COVERS.get(slug, photos[0])
-            return (f'<a class="concealed-accessory-card" href="/{slug}/">'
+            cover = cover_photo or ACCESSORY_COVERS.get(slug, photos[0])
+            link = f"/{slug}/" + (f"?from={collection}" if collection else "")
+            return (f'<a class="concealed-accessory-card" href="{link}">'
                     f'<span class="concealed-accessory-photo">{picture(cover, "")}</span>'
                     f'<span class="concealed-accessory-copy"><strong>{escape(label)} <bdi>{model_name}</bdi></strong>'
                     f'{origin_badge}<span class="concealed-accessory-prices">{options}</span>'
@@ -643,11 +648,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         f'<a class="velato-feature grohe-collection-card" href="/{GROHE_GROUP}/">'
         '<bdi lang="en" dir="ltr">GROHE</bdi></a>'
     )
-    grohe_members = [slug for slug, model in models.items() if model[3] == GROHE_GROUP and slug != family.TANK]
-    grohe_members.append(family.TANK)
+    grohe_covers = {family.TANK: GROHE_CISTERN_COVER, GROHE_FLUSH_PLATE: GROHE_PLATE_NAVY_IMAGES["مخفية قابلة للتبليط"]}
+    grohe_members = [slug for slug, model in models.items() if model[3] == GROHE_GROUP and slug not in grohe_covers]
+    grohe_members.extend(grohe_covers)
     grohe_cards = "".join(
-        gallery_card(slug, cover_photo=GROHE_CISTERN_COVER, collection=GROHE_GROUP)
-        if slug == family.TANK else gallery_card(slug)
+        gallery_card(slug, cover_photo=grohe_covers[slug], collection=GROHE_GROUP)
+        if slug in grohe_covers else gallery_card(slug)
         for slug in grohe_members
     )
     grohe_panel = (
@@ -851,13 +857,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                             registry["images"][key] = photo
                             registry["prices"][key] = amount
                             registry["colorLabels"][key] = f"{mount_label} · {shape_label} · {color.upper()} · {length} سم"
+        if slug == GROHE_FLUSH_PLATE:
+            registry["collectionImages"] = {GROHE_GROUP: GROHE_PLATE_NAVY_IMAGES}
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
         if slug == GROHE_FLUSH_PLATE:
-            plate_origin = origin_label(slug)
-            badge = f'<span class="velato-origin">{plate_origin}</span>' if plate_origin else ""
-            details.append(flush_plate_detail(registry, warranty, badge))
+            details.append(flush_plate_detail(registry, warranty))
             continue
         parts = sets.get(slug, [])
         gallery_class = " velato-set-thumbnails" if parts else ""
@@ -1030,8 +1036,14 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     '  const orderColor = () => diameter ? (product.armPhotos ? armOption() : color) + " / " + diameter + " cm" : (box?.checked ? color + "-BOX" : color);', 1)
     js = js.replace("if (photoControls.length > 1) {",
                     f'if (photoControls.length > 1 && id !== "{GROHE_FLUSH_PLATE}") {{', 1)
+    js = js.replace("  for (const choice of choices) {\n    choice.addEventListener", """  const plateImages = product.collectionImages && screen.querySelector("[data-plate-origin]")
+    ? prepareFlushPlateView(screen, product, image, choices)
+    : product.images;
+  for (const choice of choices) {
+    choice.addEventListener""", 1)
     js = js.replace(color_price, '      if (choice.dataset.finishLabel) {\n'
                     '        screen.querySelector("[data-plate-finish]").textContent = choice.dataset.finishLabel;\n'
+                    '        screen.querySelector("[data-plate-origin]").hidden = color !== "Chrome";\n'
                     '      }\n'
                     '      const price = unitPrice(product, diameter ? orderColor() : color);', 1)
     js = js.replace('        image.src = product.images[color];', '''        if (product.armPhotos) {
@@ -1043,7 +1055,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             screen.querySelector("[data-arm-mount][aria-pressed=true]").textContent + " · " +
             screen.querySelector("[data-arm-shape][aria-pressed=true]").textContent + " · " + color.toUpperCase();
         } else {
-          image.src = product.images[color];
+          image.src = plateImages[color];
         }''', 1)
     js = js.replace(quantity_listener, '''  for (const attribute of ["mount", "shape"]) {
     const options = [...screen.querySelectorAll("[data-arm-" + attribute + "]")];
