@@ -29,7 +29,7 @@ ST_111000_NAME = "S.T 118088"
 GROHE_CISTERN = "grohe-concealed-cistern"
 GROHE_NAME = "GROHE"
 GROHE_PHOTO = "/assets/grohe-cistern.webp"
-GROHE_PACKAGES = {"مع كبسة الدف": 140, "بدون كبسة الدف": 115}
+GROHE_PACKAGES = {"مع كبسة الدفن": 140, "بدون كبسة الدفن": 115}
 ACCESSORIES_GROUP = "concealed-accessory"
 ST_122DG = "st-122dg"
 ST_122DG_NAME = "S.T 122FG"
@@ -326,7 +326,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 
     def identity(slug):
         if slug == GROHE_CISTERN:
-            return GROHE_NAME, "مع كبسة الدف أو بدونها"
+            return GROHE_NAME, "مع كبسة الدفن أو بدونها"
         if slug == ST_122DG:
             return ST_122DG_NAME, " / ".join(color_galleries[slug])
         if slug == ST_307840:
@@ -546,7 +546,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T G369369": "اس تي جي 369369 stg369369",
                        "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
                        "S.T M6245": "اس تي إم 6245 stm6245",
-                       GROHE_NAME: "غروهي كروهي خزان دفن دف شاسيه كبسة المانيا ألمانيا",
+                       GROHE_NAME: "غروهي كروهي خزان دفن شاسيه كبسة المانيا ألمانيا",
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_56560_NAME: "اس تي 56560 st56560 رمادي فاتح",
                        ST_56570_NAME: "اس تي 56570 st56570 ذهبي مصقول",
