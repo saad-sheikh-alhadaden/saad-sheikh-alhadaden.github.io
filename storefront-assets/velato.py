@@ -470,7 +470,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             return GROHE_NAME, " / ".join(GROHE_FLUSH_PLATE_FINISHES)
         if slug in families:
             spec = family.FAMILIES[slug]
-            return spec["name"], " / ".join(spec.get("colors", spec["forms"].values()))
+            return spec["name"], " / ".join(spec.get("colors", spec.get("forms", {}).values()))
         if slug == ST_122DG:
             return ST_122DG_NAME, " / ".join(color_galleries[slug])
         if slug == ST_307840:
@@ -641,10 +641,11 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         f'<a class="velato-feature grohe-collection-card" href="/{GROHE_GROUP}/">'
         '<bdi lang="en" dir="ltr">GROHE</bdi></a>'
     )
+    grohe_cards = "".join(gallery_card(slug) for slug, model in models.items() if model[3] == GROHE_GROUP)
     grohe_panel = (
         f'<section class="panel concealed-gallery" id="{GROHE_GROUP}" data-nosnippet hidden>'
         '<header class="cabinet-heading"><h1><bdi lang="en" dir="ltr">GROHE</bdi></h1></header>'
-        + (grids[GROHE_GROUP] if any(model[3] == GROHE_GROUP for model in models.values()) else
+        + (f'<div class="grohe-product-list">{grohe_cards}</div>' if grohe_cards else
            '<p class="grohe-empty">لا توجد موديلات معروضة حالياً.</p>')
         + '</section>'
     )
@@ -677,6 +678,14 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 .grohe-collection-card{box-sizing:border-box;display:flex;align-items:center;justify-content:center;
 min-height:44px;height:var(--grohe-card-height,4rem);font-size:1.15rem;font-weight:600}
 .grohe-empty{text-align:center;color:#d5c4b0}
+.grohe-product-list{display:grid;gap:1rem;padding:1rem 0}
+.grohe-product-list .concealed-accessory-photo,.grohe-related .concealed-accessory-photo,
+:is(#grohtherm-smartcontrol,#rapido-smartbox) .product-image{background:#091a34}
+#grohtherm-smartcontrol [data-axis="form"] .family-choices{grid-template-columns:repeat(3,minmax(0,1fr))}
+#grohtherm-smartcontrol .family-summary > bdi{font-size:clamp(1rem,4vw,1.55rem)}
+#grohtherm-smartcontrol [data-add-cart]:disabled{opacity:.65;cursor:default}
+.grohe-related{margin-top:1.25rem;color:#f6ebdc}
+.grohe-related h2{margin:0 0 .6rem;font-size:1.05rem;color:#443b2e}
 .mounting-types{gap:0;border-top:1px solid #4f4033}
 .mounting-types span{text-align:center;padding:.65rem .25rem;color:#e4b58d}
 .mounting-types span+span{border-inline-start:1px solid #4f4033}
@@ -755,7 +764,11 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
             search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{registry["name"]}</a>'
             saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{registry["name"]}</a>'
-            details.append(family.detail(slug, registry, warranty, origin_label(slug)))
+            related = ""
+            if slug == family.SMARTCONTROL:
+                related = ('<div class="grohe-related"><h2>قلب الدفن الداخلي · يُباع منفصلاً</h2>'
+                           + gallery_card(family.SMARTBOX) + '</div>')
+            details.append(family.detail(slug, registry, warranty, origin_label(slug), related))
             continue
         arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو",
                        "Cascata Oro": "كاسكاتا أورو",
@@ -983,6 +996,18 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     '  }\n' + quantity_listener, 1)
     js = js.replace('addButton.textContent = `أضف إلى السلة — ${money(quantity * unitPrice(product, orderColor()))}`;',
                     'addButton.textContent = `${product.category === "concealed-sets" ? "أضف الطقم للسلة" : "أضف إلى السلة"} — ${money(quantity * unitPrice(product, orderColor()))}`;')
+    js = js.replace("    confirmation.clear();", """    confirmation.clear();
+    const pendingPrice = product.prices?.[orderColor()] === null;
+    addButton.disabled = pendingPrice;
+    for (const button of screen.querySelectorAll("[data-quantity-change]")) button.disabled = pendingPrice;
+    if (pendingPrice) {
+      addButton.textContent = "الطلب متاح بعد تحديث السعر";
+      return;
+    }""", 1)
+    js = js.replace('    if (addButton.hasAttribute("data-cart-added")) return;',
+                    '    if (addButton.disabled || addButton.hasAttribute("data-cart-added")) return;', 1)
+    js = js.replace("(products[itemProduct(item)].images ?",
+                    "products[itemProduct(item)].prices?.[item.color] !== null &&\n      (products[itemProduct(item)].images ?", 1)
     order_variant = '  const orderColor = () => box?.checked ? color + "-BOX" : color;'
     color_price = '      const price = unitPrice(product, color);'
     if order_variant not in js or color_price not in js:
