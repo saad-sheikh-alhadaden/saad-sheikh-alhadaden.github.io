@@ -55,12 +55,16 @@ C7_HEAD_DESCRIPTION = "رأس دش جداري بتصميم أسطواني عصر
 RAIN_SHOWER_ROUND = "rain-shower-round"
 RAIN_SHOWER_CUBE = "rain-shower-cube"
 ROUND_SHOWER_OUTLET = "round-shower-outlet"
+CUBE_SHOWER_OUTLET = "cube-shower-outlet"
 PHOTO_ACCESSORIES = {
     RAIN_SHOWER_ROUND: ("Rain Shower Round", "rainround", "طقم دش يدوي يضمّ سماعة الدش، وخرطومًا مرنًا، وقاعدة تثبيت جدارية للسماعة.", "سماعة دش", 50, ("Black", "Gold", "Chrome")),
     RAIN_SHOWER_CUBE: ("Rain Shower Cube", "raincube", "طقم دش يدوي بتصميم مستطيل عصري، يضمّ سماعة الدش وخرطومًا مرنًا وقاعدة تثبيت جدارية للسماعة.", "سماعة دش", 50, ("Black", "Gold", "Chrome")),
     ROUND_SHOWER_OUTLET: ("Round Shower Outlet with Holder", "roundoutlet",
                           "مخرج مياه جداري بتصميم دائري، يجمع بين وصلة لخرطوم الدش وحامل مدمج للسماعة.",
                           "مخرج دائري مع قاعدة سماعة دش", 40, ("Gold", "Black", "Chrome")),
+    CUBE_SHOWER_OUTLET: ("Cube Shower Outlet with Holder", "cubeoutlet",
+                         "مخرج مياه جداري بتصميم مربع، يجمع بين وصلة لخرطوم الدش وحامل مدمج للسماعة.",
+                         "مخرج مع قاعدة سماعة كيوب", 50, ("Gold", "Black", "Chrome")),
 }
 ACCESSORY_COVERS = {
     A3_HEAD_SHOWER: "/assets/a3head-cover.webp",
@@ -668,6 +672,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
                        "S.T M6245": "اس تي إم 6245 stm6245",
                        "Rain Shower Round": "سماعة دش يدوي نربيش خرطوم قاعدة اسود ذهبي كروم",
+                       "Cube Shower Outlet with Holder": "مخرج مربع كيوب قاعدة سماعة دش وصلة نربيش خرطوم ذهبي اسود كروم",
                        "Round Shower Outlet with Holder": "مخرج دائري قاعدة سماعة دش وصلة نربيش خرطوم ذهبي اسود كروم",
                        "Rain Shower Cube": "سماعة دش مستطيلة كيوب نربيش خرطوم قاعدة اسود ذهبي كروم",
                        "Head Shower C7": "راس دش جداري اسطواني سي 7 اسود",
