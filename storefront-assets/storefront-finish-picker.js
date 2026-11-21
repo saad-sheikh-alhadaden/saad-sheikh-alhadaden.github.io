@@ -1,4 +1,4 @@
-for (const options of document.querySelectorAll(".options")) {
+for (const options of document.querySelectorAll(".options:not([data-package-options])")) {
   const choices = [...options.querySelectorAll(":scope > button[data-color][aria-pressed]")];
   if (choices.length < 2) continue;
 

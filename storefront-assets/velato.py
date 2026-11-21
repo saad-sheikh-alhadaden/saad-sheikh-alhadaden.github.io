@@ -26,6 +26,11 @@ ST_56570 = "st-56570"
 ST_56570_NAME = "S.T 56570"
 ST_111000 = "st-111000"
 ST_111000_NAME = "S.T 118088"
+GROHE_CISTERN = "grohe-concealed-cistern"
+GROHE_NAME = "GROHE"
+GROHE_PHOTO = "/assets/grohe-cistern.webp"
+GROHE_PACKAGES = {"مع كبسة الدف": 140, "بدون كبسة الدف": 115}
+ACCESSORIES_GROUP = "concealed-accessory"
 ST_122DG = "st-122dg"
 ST_122DG_NAME = "S.T 122FG"
 ST_307840 = "st-307840"
@@ -108,6 +113,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         photos = [f"/assets/octagon-{kind}-{i}.webp" for i in range(1, 5)]
         models[f"octagon-concealed-{kind}"] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
     color_galleries = {}
+    models[GROHE_CISTERN] = ("خزان دفن مع شاسيه", 140, [GROHE_PHOTO], ACCESSORIES_GROUP)
+    color_galleries[GROHE_CISTERN] = {package: [GROHE_PHOTO] for package in GROHE_PACKAGES}
     floor_galleries = {
         color: [f"/assets/st0047-{color.lower().replace(' ', '-')}-{index:02}.webp"
                 for index in range(1, count + 1)]
@@ -215,7 +222,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models[ST_GR_TOILET] = (PARTS["toilet"][0], st_gr_prices["Gray"],
                             [images[0] for images in st_gr_toilet_galleries.values()],
                             "concealed-toilet-mixer")
-    variant_prices = {ST_GR_BASIN: st_gr_prices, ST_GR_TOILET: st_gr_prices, ST_GU: ST_GU_PRICES}
+    variant_prices = {GROHE_CISTERN: GROHE_PACKAGES, ST_GR_BASIN: st_gr_prices, ST_GR_TOILET: st_gr_prices, ST_GU: ST_GU_PRICES}
     for slug, folder, count, finishes in (
         (ST_BL_BASIN, "stbl", 3, ("Black", "Gray", "Brushed Gold")),
         (ST_R_BASIN, "str", 5, ("Black", "Gray", "Gold", "Rose Gold", "Chrome")),
@@ -285,6 +292,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
     labels = {"encastre": "خلاطات الدفن", SET_GROUP: "أطقم الدفن الكاملة"}
     labels.update({group: label for slug, (label, price, photos, group) in models.items() if slug not in sets})
+    labels[ACCESSORIES_GROUP] = "إكسسوارات الدفن"
     labels[MOUNTED_GROUP] = MOUNTED_TITLE
     headings = {
         "encastre": "Encastre",
@@ -317,6 +325,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == GROHE_CISTERN:
+            return GROHE_NAME, "مع كبسة الدف أو بدونها"
         if slug == ST_122DG:
             return ST_122DG_NAME, " / ".join(color_galleries[slug])
         if slug == ST_307840:
@@ -380,7 +390,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return name, FINISH
 
     def country_of_origin(slug):
-        if slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
+        if slug in (GROHE_CISTERN, ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
         if slug == ST_W102 or slug.startswith(ST_GR + "-"):
             return None
@@ -405,6 +415,14 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def gallery_card(slug):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
+        if group == ACCESSORIES_GROUP:
+            alt = escape(f"{model_name} · {label}")
+            return (f'<article class="concealed-accessory-card"><a class="concealed-accessory-photo" '
+                    f'href="{photos[0]}" target="_blank" rel="noopener" aria-label="تكبير صورة {alt}">'
+                    f'{picture(photos[0], alt)}</a>'
+                    f'<a class="concealed-accessory-copy" href="/{slug}/">'
+                    f'<span><strong>{escape(label)} <bdi>{model_name}</bdi></strong><small>صُنع في ألمانيا</small></span>'
+                    f'<bdi dir="ltr">${min(GROHE_PACKAGES.values())}–${max(GROHE_PACKAGES.values())}</bdi></a></article>')
         kind_label = f'<small class="mixer-product-kind">{escape(label)}</small>' if group == MOUNTED_GROUP else ""
         price_text = f"${price:,}"
         if slug in variant_prices:
@@ -423,6 +441,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         ) + '</div>'
         for group in labels if group != "encastre"
     }
+
+    grids[ACCESSORIES_GROUP] = grids[ACCESSORIES_GROUP].replace('class="cabinet-gallery"',
+                                                               'class="concealed-accessory-list"', 1)
 
     hero = (f'<a class="velato-feature" href="/{SET_GROUP}/"><span>أطقم الدفن الكاملة'
             '<br><bdi lang="en">Concealed Sets</bdi><small>استعرض الأطقم</small></span>'
@@ -447,6 +468,14 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 .encastre-category-link .encastre-category-name{display:grid;gap:.16rem;min-width:0;line-height:1.35;text-align:start}
 .encastre-category-name>span{font-weight:600;color:#f6ebdc}
 .encastre-category-name>bdi{font-size:.875rem;color:#d5c4b0;text-align:right}
+#concealed-accessory .concealed-accessory-list{display:grid;gap:1rem;padding:1rem 0}
+.concealed-accessory-card{border:1px solid #5e4c3a;border-radius:14px;overflow:hidden;background:#201c19}
+.concealed-accessory-photo{display:block;aspect-ratio:4/3;background:#181818;cursor:zoom-in}
+.concealed-accessory-photo img{display:block;width:100%;height:100%;object-fit:contain}
+.concealed-accessory-copy{display:flex;justify-content:space-between;align-items:start;gap:.75rem;padding:1rem;color:inherit;text-decoration:none}
+.concealed-accessory-copy small{display:block;margin-top:.3rem;color:#d5c4b0}
+.concealed-accessory-copy>bdi{color:#e4b58d;white-space:nowrap}
+#grohe-concealed-cistern .velato-gallery{display:none}
 .velato-feature small{display:block;margin-top:.35rem;color:#e4b58d}
 .velato-strip,.velato-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
 .mounting-types{gap:0;border-top:1px solid #4f4033}
@@ -510,6 +539,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T G369369": "اس تي جي 369369 stg369369",
                        "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
                        "S.T M6245": "اس تي إم 6245 stm6245",
+                       GROHE_NAME: "غروهي كروهي خزان دفن دف شاسيه كبسة المانيا ألمانيا",
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_56560_NAME: "اس تي 56560 st56560 رمادي فاتح",
                        ST_56570_NAME: "اس تي 56570 st56570 ذهبي مصقول",
@@ -554,10 +584,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         if slug in color_galleries:
             options = "".join(
                 f'<button class="option" type="button" data-color="{color}" '
-                f'aria-pressed="{str(color == default_color).lower()}"><bdi>{color}</bdi></button>'
+                f'aria-pressed="{str(color == default_color).lower()}"><bdi>{color}</bdi>'
+                + (f' <bdi dir="ltr">${GROHE_PACKAGES[color]}</bdi>' if slug == GROHE_CISTERN else "") + "</button>"
                 for color in galleries
             )
-            finishes = f'<div class="options" role="group" aria-label="التشطيب">{options}</div>'
+            option_label = "خيارات الخزان" if slug == GROHE_CISTERN else "التشطيب"
+            package_attr = " data-package-options" if slug == GROHE_CISTERN else ""
+            finishes = f'<div class="options"{package_attr} role="group" aria-label="{option_label}">{options}</div>'
         if slug in sets:
             part_cards = "".join(card(part, slug) for part in parts)
             return_links = "".join(
