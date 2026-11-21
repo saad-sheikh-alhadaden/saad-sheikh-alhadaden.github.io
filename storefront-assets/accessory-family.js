@@ -62,7 +62,8 @@ function migrateAccessoryCart(items, families) {
     const family = families.find(([, product]) => item && Object.hasOwn(product.legacyOptions, item.product));
     if (!family) { result.push(item); continue; }
     const [slug, product] = family;
-    const variant = product.legacyOptions[item.product][item.color];
+    const variant = product.legacyOptions[item.product][item.color]
+      ?? (item.product === slug && Object.hasOwn(product.images, item.color) ? item.color : undefined);
     if (variant && Number.isSafeInteger(item.qty) && item.qty > 0) {
       const existing = result.find(row => row?.product === slug && row.color === variant);
       if (existing) existing.qty += item.qty;
@@ -78,34 +79,4 @@ function addCatalogItem(id, color, quantity) {
   else cart.push({product: id, color, qty: quantity});
   persistCart();
   renderCart();
-}
-
-function requiredBodyQuantity(id) {
-  return cart.reduce((total, item) => itemProduct(item) === id ? total + item.qty : total, 0);
-}
-
-function refreshRequiredBodies() {
-  for (const card of document.querySelectorAll(".family-required-body")) {
-    const button = card.querySelector("[data-add-required-body]");
-    const quantity = requiredBodyQuantity(button.dataset.addRequiredBody);
-    const inCart = quantity > 0;
-    button.disabled = inCart;
-    button.querySelector("[data-required-body-add]").hidden = inCart;
-    button.querySelector("[data-required-body-added]").hidden = !inCart;
-    card.querySelector("[data-required-body-cart]").hidden = !inCart;
-    const status = card.querySelector("[data-required-body-status]");
-    const message = inCart ? `الكمية في السلة: ${quantity}` : "";
-    if (status.textContent !== message) status.textContent = message;
-  }
-}
-
-function bindRequiredBody(screen) {
-  const button = screen.querySelector("[data-add-required-body]");
-  if (!button) return;
-  const id = button.dataset.addRequiredBody;
-  const body = products[id];
-  button.addEventListener("click", () => {
-    if (requiredBodyQuantity(id) > 0) return;
-    addCatalogItem(id, body.defaultColor, 1);
-  });
 }

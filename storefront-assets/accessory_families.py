@@ -22,6 +22,7 @@ GROHE_TOILET_BODY = "grohe-concealed-toilet-mixer-body"
 SIZES = {"20": 25, "25": 50, "30": 75, "40": 100}
 SHAPES = {"round": "دائري", "cube": "مربّع"}
 PACKAGES = {"without-plate": "بدون كبسة الدفن", "with-plate": "مع كبسة الدفن"}
+BODY_PACKAGES = {"without-body": "بدون قلب الدفن", "with-body": "مع قلب الدفن"}
 
 SMARTCONTROL_OUTLETS = {"1": "مخرج واحد", "2": "مخرجان", "3": "٣ مخارج"}
 
@@ -167,6 +168,18 @@ def build_family(slug):
     spec = FAMILIES[slug]
     if "photo" in spec:
         return {"standard": (spec["price"], f'/assets/{spec["photo"]}.webp', spec["label"])}, {}
+    if body_slug := spec.get("required_body"):
+        body_price = FAMILIES[body_slug]["price"]
+        variants = {
+            f"{finish}|{package}": (
+                spec["finish_prices"][finish] + (body_price if package == "with-body" else 0),
+                f'/assets/{spec["finish_photos"][finish]}.webp',
+                f"{label} · {package_label}",
+            )
+            for finish, label in finish_options(spec).items()
+            for package, package_label in BODY_PACKAGES.items()
+        }
+        return variants, {slug: {finish: f"{finish}|without-body" for finish in finish_options(spec)}}
     if "finish_photos" in spec:
         return {
             finish: (spec["finish_prices"][finish], f'/assets/{spec["finish_photos"][finish]}.webp', label)
@@ -289,6 +302,15 @@ def detail(slug, registry, warranty, origin_label, related=""):
             controls += options(slug, "diverter", "التحويلة", DIVERTERS, DIVERTER_PRICES)
     elif "finish_photos" in spec:
         controls = options(slug, "finish", "التشطيب", finish_options(spec))
+    body_note = ""
+    if body_slug := spec.get("required_body"):
+        finish = selected.split("|")[0]
+        prices = {package: registry["prices"][f"{finish}|{package}"] for package in BODY_PACKAGES}
+        controls += options(slug, "package", "قلب الدفن", BODY_PACKAGES, prices)
+        body_note = (
+            f'<p class="family-body-note"><a href="/{body_slug}/">قلب الدفن</a> ضروري للتركيب. '
+            'اختَر «بدون قلب الدفن» إذا كان القلب المتوافق متوفّر عندك.</p>'
+        )
     spray_details = ""
     if "sprays" in spec:
         spray_items = "".join(
@@ -313,39 +335,14 @@ def detail(slug, registry, warranty, origin_label, related=""):
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
     outlets = outlet_label(spec)
     outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
-    price_title = "سعر القطعة"
-    body_card = ""
-    if body_slug := spec.get("required_body"):
-        body = FAMILIES[body_slug]
-        price_title = "سعر البياض · الجزء الظاهر"
-        body_card = f"""
-    <aside class="family-required-body" aria-label="قلب الدفن المطلوب">
-      <h2>قلب الدفن ضروري للتركيب</h2>
-      <p>سعر البياض للجزء الظاهر فقط. قلب الدفن يُباع بشكل منفصل.</p>
-      <div class="family-required-item">
-        <a href="/{body_slug}/"><img src="{cover(body_slug)}" alt="قلب دفن خلاط المغسلة"
-            width="790" height="988" loading="lazy" decoding="async"></a>
-        <div>
-          <a class="family-required-name" href="/{body_slug}/"><bdi lang="en" dir="ltr">{body['name']}</bdi></a>
-          <button class="action" data-add-required-body="{body_slug}" type="button">
-            <span data-required-body-add>أضف قلب الدفن · <bdi dir="ltr">${body['price']:,}</bdi></span>
-            <span data-required-body-added hidden>✓ موجود بالسلة</span>
-          </button>
-          <div class="family-required-cart">
-            <span data-required-body-status role="status"></span>
-            <a href="#cart" data-required-body-cart hidden>عرض السلة</a>
-          </div>
-        </div>
-      </div>
-    </aside>"""
     return f"""
 <section id="{slug}" class="vanity-detail family-product" data-nosnippet hidden>
   <div class="product-image"><img src="{registry["images"][selected]}" alt="{spec["label"]} · {label}" width="790" height="988" loading="lazy" decoding="async">
     <button class="circle" data-save type="button" aria-label="إضافة إلى المفضّلة" aria-pressed="false">♡</button></div>
   <div class="product-info"><p class="category">{spec["label"]}</p><h1><bdi dir="ltr">{spec["name"]}</bdi></h1>
-    {origin}<p>{spec["description"]}</p>{outlet_note}{spray_details}{detail_photo}{controls}
-    <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>{price_title}</strong><span data-family-summary>{label}</span></div>
-    <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>{body_card}
+    {origin}<p>{spec["description"]}</p>{outlet_note}{spray_details}{detail_photo}{controls}{body_note}
+    <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>سعر القطعة</strong><span data-family-summary>{label}</span></div>
+    <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
     <button class="action" data-add-cart type="button">أضف إلى السلة — ${price:,}</button>{related}{warranty}
   </div></section>"""
@@ -356,7 +353,7 @@ def product_data(slug, registry, origin, country):
     url = f"{origin}/{slug}/"
     axes = ["form", "package" if slug == TANK else "finish", "diverter" if slug == SPOUT else "size"]
     if "finish_photos" in spec:
-        axes = ["finish"]
+        axes = ["finish", "package"] if "required_body" in spec else ["finish"]
     offers = [{"@type": "Offer", "name": registry["colorLabels"][key], "price": amount, "priceCurrency": "USD",
                "url": url if "photo" in spec else url + "?" + urlencode(dict(zip(axes, key.split("|"))))}
               for key, amount in registry["prices"].items() if amount is not None]

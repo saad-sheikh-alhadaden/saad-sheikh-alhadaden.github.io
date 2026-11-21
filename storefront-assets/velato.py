@@ -1106,15 +1106,10 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     });
   }
 ''' + quantity_listener, 1)
-    cart_count_update = '  document.querySelector("#cart-count").textContent = String(count);'
-    if cart_count_update not in js:
-        raise ValueError("Missing storefront cart count update")
-    js = js.replace(cart_count_update, cart_count_update + "\n  refreshRequiredBodies();", 1)
     # Family selections feed the existing quantity, cart, favourites and order handlers.
     js = js.replace("cart = stored.filter(", "cart = migrateAccessoryCart(stored, Object.entries(products).filter(([, p]) => p.legacyOptions)).filter(", 1)
     js = js.replace(quantity_listener, """  if (product.legacyOptions) {
     bindAccessoryOptions(screen, product, key => { color = key; syncOrder(); });
-    bindRequiredBody(screen);
   }
 """ + quantity_listener, 1)
     js = js.replace('favorite = localStorage.getItem(product.favoriteKey) === "1";', """const savedValue = localStorage.getItem(product.favoriteKey);

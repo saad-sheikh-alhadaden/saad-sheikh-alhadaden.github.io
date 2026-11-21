@@ -28,21 +28,5 @@
 
 .swatch-brushed-gold {background:linear-gradient(130deg,#f3e4c0,#baa475)}
 
-.family-required-body {
-  margin: 1rem 0 1.35rem;
-  padding: clamp(.8rem, 3vw, 1.15rem);
-  border: 1px solid #927449;
-  border-radius: 1rem;
-  background: #241e18;
-  color: #fff4df;
-}
-.family-required-body h2 {margin: 0; color: #f2d3a6; font-size: 1.12rem}
-.family-required-body p {margin: .35rem 0 .9rem; color: #e5d7c3; font-size: .94rem}
-.family-required-item {display: grid; grid-template-columns: clamp(4rem, 26%, 7rem) minmax(0, 1fr); align-items: center; gap: .75rem}
-.family-required-item img {display: block; width: 100%; height: auto; border-radius: .55rem}
-.family-required-name {display: block; color: inherit; font-size: .95rem; margin-bottom: .45rem; overflow-wrap: anywhere}
-.family-required-item .action {width: auto; min-height: 44px; margin: 0; padding: .5rem .7rem; font-size: .88rem}
-.family-required-item .action:disabled {background: #383b2d; border-color: #90977a; color: #f4f2dc; cursor: default; opacity: 1}
-.family-required-cart {display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .75rem; color: #e5d7c3; font-size: .83rem}
-.family-required-cart:not(:has(a[hidden])) {margin-top: .35rem}
-.family-required-cart a {color: #f2d3a6; padding-block: .35rem; text-underline-offset: .2em}
+.family-body-note {margin: -.35rem 0 1rem; color: #67543e; font-size: .9rem}
+.family-body-note a {color: #785524; text-underline-offset: .2em}
