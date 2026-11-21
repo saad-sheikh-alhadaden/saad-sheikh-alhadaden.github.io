@@ -10,6 +10,7 @@ TANK = "grohe-cistern"
 SPOUT = "shower-spout"
 JET = "shower-jet"
 SMARTACTIVE_CUBE = "concealed-shower-smartactive-cube"
+SMARTACTIVE_ROUND = "concealed-shower-smartactive-round"
 ESSENCE = "grohe-essence-basin-mixer"
 ESSENCE_BODY = "grohe-universal-concealed-body"
 SMARTCONTROL = "grohtherm-smartcontrol"
@@ -55,6 +56,29 @@ FAMILIES = {
             ("smartcube-sprays-navy", "شرح نمطَي الرش في الطاسة"),
         ),
         search="كروهي غروهي جروهي شاور دفن سمارت مربع كيوب كروم rainshower thermostat smartcontrol cube",
+    ),
+    SMARTACTIVE_ROUND: dict(
+        name="Concealed Shower SmartActive Round", label="شاور دفن سمارت دائري",
+        category="grohe", cover="smartactive-round-navy", photo="family-smartactive-round-navy",
+        price=1275, finish_label="Chrome", outlets=3,
+        description="طقم شاور دفن بتشطيب كروم وتصميم دائري، يجمع بين التحكّم الحراري والدش المطري العلوي والسماعة اليدوية.",
+        included_parts=(
+            ("خلاط حراري دائري بثلاثة أزرار",
+             "يثبّت درجة حرارة المياه ويتيح اختيار المخارج الثلاثة وضبط تدفّقها، مع صندوق التأسيس المدفون GROHE Rapido SmartBox."),
+            ("طاسة مطرية Rainshower SmartActive 310",
+             "طاسة دائرية بقطر 31 سم، بنمطَي رش PureRain وActiveRain، مع ذراع جداري بطول 43 سم وصندوق التأسيس الخاص بالطاسة."),
+            ("سماعة يدوية Rainshower SmartActive 130",
+             "سماعة دائرية بثلاثة أنماط للرش، مع مخرج جداري دائري بحامل مدمج وخرطوم بطول 150 سم."),
+        ),
+        package_note="الطقم يأتي من دون مصب بانيو. تظهر وحدة التحكّم اللاسلكية في صور الشرح للتوضيح فقط.",
+        gallery=(
+            ("family-smartactive-round-navy", "طقم SmartActive Round بتشطيب كروم"),
+            ("smartround-thermostat-navy", "أزرار الخلاط الحراري الدائري"),
+            ("smartround-head-navy", "الدش المطري الدائري أثناء التشغيل"),
+            ("smartround-hand-navy", "السماعة اليدوية أثناء التشغيل"),
+            ("smartround-sprays-navy", "رسم توضيحي لأنماط رش الطاسة الدائرية"),
+        ),
+        search="كروهي غروهي جروهي شاور دفن سمارت دائري مدور كروم rainshower thermostat smartcontrol round",
     ),
     ESSENCE: dict(
         name="GROHE Essence Basin Mixer", label="خلاط مغسلة دفن", cover="essence-mixer",

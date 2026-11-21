@@ -703,7 +703,7 @@ min-height:44px;height:var(--grohe-card-height,4rem);font-size:1.15rem;font-weig
 .grohe-empty{text-align:center;color:#d5c4b0}
 .grohe-product-list{display:grid;gap:1rem;padding:1rem 0}
 .grohe-product-list .concealed-accessory-photo,.grohe-related .concealed-accessory-photo,
-:is(#grohe-cistern[data-collection-view="grohe"],#grohtherm-smartcontrol,#rainshower-smartactive,#rainshower-smartactive-hand-shower,#grohe-wall-outlet,#concealed-shower-smartactive-cube,#grohe-essence-basin-mixer,#grohe-universal-concealed-body,#grohe-bath-spout,#rapido-smartbox,#grohe-concealed-toilet-mixer-body,#grohe-concealed-shower-mixer-body) .product-image{background:#091a34}
+:is(#grohe-cistern[data-collection-view="grohe"],#grohtherm-smartcontrol,#rainshower-smartactive,#rainshower-smartactive-hand-shower,#grohe-wall-outlet,#concealed-shower-smartactive-cube,#concealed-shower-smartactive-round,#grohe-essence-basin-mixer,#grohe-universal-concealed-body,#grohe-bath-spout,#rapido-smartbox,#grohe-concealed-toilet-mixer-body,#grohe-concealed-shower-mixer-body) .product-image{background:#091a34}
 #grohtherm-smartcontrol [data-axis="form"] .family-choices{grid-template-columns:repeat(3,minmax(0,1fr))}
 #grohtherm-smartcontrol .family-summary > bdi{font-size:clamp(1rem,4vw,1.55rem)}
 #grohtherm-smartcontrol [data-add-cart]:disabled{opacity:.65;cursor:default}
