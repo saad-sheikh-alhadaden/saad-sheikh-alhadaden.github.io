@@ -31,14 +31,14 @@ ST_111000_NAME = "S.T 118088"
 GROHE_NAME = "GROHE"
 GROHE_FLUSH_PLATE = "grohe-flush-plate"
 GROHE_FLUSH_PLATE_FINISHES = {
-    "مخفية قابلة للتبليط": ("tileable", 155),
-    "Brushed Gold": ("brushed-gold", 100),
-    "Rose Gold": ("rose-gold", 100),
-    "Gray": ("gray", 100),
-    "Gold": ("gold", 65),
-    "Black": ("black", 65),
-    "White": ("white", 50),
-    "Chrome": ("chrome", 25),
+    "Gold": ("gold", "ذهبي لامع", 65),
+    "Brushed Gold": ("brushed-gold", "ذهبي مفرّش", 100),
+    "Chrome": ("chrome", "كروم", 25),
+    "Black": ("black", "أسود", 65),
+    "Rose Gold": ("rose-gold", "روز غولد", 100),
+    "Gray": ("gray", "رمادي", 100),
+    "White": ("white", "أبيض", 50),
+    "مخفية قابلة للتبليط": ("tileable", "قابلة للتبليط", 155),
 }
 ACCESSORIES_GROUP = "concealed-accessory"
 HEAD_SHOWER = "head-shower"
@@ -57,6 +57,7 @@ PHOTO_ACCESSORIES = {
 }
 ACCESSORY_COVERS = {
     A3_HEAD_SHOWER: "/assets/a3head-cover.webp",
+    GROHE_FLUSH_PLATE: "/assets/grohe-flush-plate-tileable.webp",
     **{slug: family.cover(slug) for slug in family.FAMILIES},
     **{slug: f"/assets/{prefix}-cover.webp" for slug, (_, prefix, *_) in PHOTO_ACCESSORIES.items()},
 }
@@ -135,6 +136,46 @@ PRICE_INCLUDES_BOTH_PARTS = {
 }
 
 
+def purchase_controls(order, price):
+    return f"""<div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
+    <button class="action" data-add-cart type="button">{order} — ${price:,}</button>"""
+
+
+def flush_plate_detail(registry):
+    selected = registry["defaultColor"]
+    options = []
+    for finish, (suffix, label, price) in GROHE_FLUSH_PLATE_FINISHES.items():
+        name = "مخفية للتبليط" if suffix == "tileable" else finish
+        direction = "rtl" if suffix == "tileable" else "ltr"
+        options.append(
+            f'<button type="button" class="plate-choice" data-color="{finish}" data-finish-label="{label}" '
+            f'aria-pressed="{str(finish == selected).lower()}"><img src="{registry["images"][finish]}" '
+            f'alt="" width="790" height="988" loading="lazy" decoding="async">'
+            f'<span><bdi dir="{direction}">{name}</bdi><bdi dir="ltr">${price}</bdi></span></button>'
+        )
+    price = registry["prices"][selected]
+    return f"""
+<section id="{GROHE_FLUSH_PLATE}" class="vanity-detail" data-nosnippet hidden>
+  <div class="plate-hero">
+    <div class="product-image"><img src="{registry["images"][selected]}" alt="{registry["name"]} · {selected}"
+      width="790" height="988" loading="lazy" decoding="async"></div>
+    <div class="plate-identity">
+      <h1><bdi lang="en" dir="ltr">GROHE</bdi>كبسة خزان<br>دفن</h1>
+      <div class="plate-selection" aria-live="polite" aria-atomic="true">
+        <span data-plate-finish>{GROHE_FLUSH_PLATE_FINISHES[selected][1]}</span><bdi dir="ltr" data-unit-price>${price}</bdi>
+      </div>
+    </div>
+  </div>
+  <div class="product-info">
+    <div class="plate-heading"><h2 id="plate-choices-title">اختر الكبسة</h2>
+      <button class="circle" data-save type="button" aria-label="إضافة GROHE إلى المفضّلة" aria-pressed="false">♡</button></div>
+    <div class="plate-grid" role="group" aria-labelledby="plate-choices-title">{"".join(options)}</div>
+    {purchase_controls("أضف إلى السلة", price)}
+    {WARRANTY}
+  </div>
+</section>"""
+
+
 def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     models = {}
     for kind, (label, price, count) in PARTS.items():
@@ -148,10 +189,10 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     families = {slug: family.family_registry(slug, ACCESSORIES_GROUP) for slug in family.FAMILIES}
     plate_galleries = {
         finish: [f"/assets/grohe-flush-plate-{suffix}.webp"]
-        for finish, (suffix, _) in GROHE_FLUSH_PLATE_FINISHES.items()
+        for finish, (suffix, _, _) in GROHE_FLUSH_PLATE_FINISHES.items()
     }
     color_galleries[GROHE_FLUSH_PLATE] = plate_galleries
-    models[GROHE_FLUSH_PLATE] = ("كبسة لخزان دفن", next(iter(GROHE_FLUSH_PLATE_FINISHES.values()))[1],
+    models[GROHE_FLUSH_PLATE] = ("كبسة لخزان دفن", next(iter(GROHE_FLUSH_PLATE_FINISHES.values()))[2],
                                 [gallery[0] for gallery in plate_galleries.values()], ACCESSORIES_GROUP)
 
     models[HEAD_SHOWER] = ("رأس دش علوي", 200,
@@ -299,7 +340,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     variant_prices[FERRARI_HEAD_SHOWER] = {finish: models[FERRARI_HEAD_SHOWER][1] for finish in ferrari_head_galleries}
     variant_prices[A3_HEAD_SHOWER] = {finish: models[A3_HEAD_SHOWER][1] for finish in a3_head_galleries}
     variant_prices[GROHE_FLUSH_PLATE] = {
-        finish: price for finish, (_, price) in GROHE_FLUSH_PLATE_FINISHES.items()
+        finish: price for finish, (_, _, price) in GROHE_FLUSH_PLATE_FINISHES.items()
     }
     for slug, folder, count, finishes in (
         (ST_BL_BASIN, "stbl", 3, ("Black", "Gray", "Brushed Gold")),
@@ -677,6 +718,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
 .velato-link:focus-visible{outline:2px solid #81591f;outline-offset:3px}
 </style>"""
     styles = styles.replace("</style>", Path(__file__).with_name("accessory-family.css").read_text() + "</style>")
+    styles = styles.replace("</style>", Path(__file__).with_name("grohe-flush-plate.css").read_text() + "</style>")
     details = []
     registry_additions = []
     search_links = ""
@@ -763,6 +805,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
+        if slug == GROHE_FLUSH_PLATE:
+            details.append(flush_plate_detail(registry))
+            continue
         parts = sets.get(slug, [])
         gallery_class = " velato-set-thumbnails" if parts else ""
         gallery = ""
@@ -791,8 +836,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                 for color in galleries
             )
             option_label = "التشطيب"
-            package_attr = " data-package-options" if slug == GROHE_FLUSH_PLATE else ""
-            finishes = f'<div class="options"{package_attr} role="group" aria-label="{option_label}">{options}</div>'
+            finishes = f'<div class="options" role="group" aria-label="{option_label}">{options}</div>'
         if slug == SHOWER_ARM:
             controls = ""
             for attribute, heading, values in (("mount", "التركيب", ARM_MOUNTS), ("shape", "الشكل", ARM_SHAPES)):
@@ -885,8 +929,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     {description_html if slug != SHOWER_ARM else ""}
     {price_html}
     {price_note}
-    <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
-    <button class="action" data-add-cart type="button">{order} — ${price:,}</button>
+    {purchase_controls(order, price)}
     {related}
     {WARRANTY}
   </div>
@@ -919,7 +962,12 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     '  let armShape = "square";\n'
                     '  const armOption = () => armMount + "/" + armShape + "/" + color;\n'
                     '  const orderColor = () => diameter ? (product.armPhotos ? armOption() : color) + " / " + diameter + " cm" : (box?.checked ? color + "-BOX" : color);', 1)
-    js = js.replace(color_price, '      const price = unitPrice(product, diameter ? orderColor() : color);', 1)
+    js = js.replace("if (photoControls.length > 1) {",
+                    f'if (photoControls.length > 1 && id !== "{GROHE_FLUSH_PLATE}") {{', 1)
+    js = js.replace(color_price, '      if (choice.dataset.finishLabel) {\n'
+                    '        screen.querySelector("[data-plate-finish]").textContent = choice.dataset.finishLabel;\n'
+                    '      }\n'
+                    '      const price = unitPrice(product, diameter ? orderColor() : color);', 1)
     js = js.replace('        image.src = product.images[color];', '''        if (product.armPhotos) {
           const [photo, width, height] = product.armPhotos[armOption()];
           image.src = photo;
