@@ -10,10 +10,11 @@ a:has(> img), button:has(> img) {
 }
 
 /* Attribute screenshots of the product without intercepting gallery gestures. */
-.product-image, .hero:has(> img), .card:has(> img) {
+.product-image, .hero:has(> img), .card:has(> img), .concealed-accessory-photo {
   position: relative;
 }
-.product-image::after, .hero:has(> img)::after, .card:has(> img)::after {
+.product-image::after, .hero:has(> img)::after, .card:has(> img)::after,
+.concealed-accessory-photo::after {
   content: "";
   position: absolute;
   inset-block-start: 12px;
