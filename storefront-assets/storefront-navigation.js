@@ -10,9 +10,25 @@
     return shareOptions[id]?.path;
   }
 
-  function cardsIn(section) {
-    return Array.from(section.querySelectorAll("a.mixer-product"));
-  }
+  const cardSelector = "a.mixer-product, a.concealed-accessory-card";
+  const positionKey = "saad-collection-position";
+
+  // Preserve the card's position within the viewport, including partially visible cards.
+  // History is per entry (browser Back). Session storage bridges the explicit return link.
+  document.addEventListener("click", event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const card = event.target.closest(cardSelector);
+    const section = card?.closest("main > section.panel");
+    if (!section || section.hidden || card.origin !== location.origin) return;
+    const position = {
+      section: section.id,
+      href: card.pathname + card.search,
+      top: card.getBoundingClientRect().top,
+      band: new URL(card.href).searchParams.get("band"),
+    };
+    try { history.replaceState({...history.state, collectionPosition: position}, ""); } catch {}
+    try { sessionStorage.setItem(positionKey, JSON.stringify(position)); } catch {}
+  });
 
   function pagerLink(nav, href, direction) {
     if (!href) return;
@@ -62,7 +78,7 @@
     const collection = document.getElementById(filtered ? "washbasins" : group);
     if (!collection || !productPath(collection.id)) return;
     if (filtered) bandButton.click();
-    const cards = cardsIn(collection);
+    const cards = Array.from(collection.querySelectorAll("a.mixer-product"));
     const path = productPath(model);
     const target = new URL(productPath(collection.id), location.origin);
     target.searchParams.set("model", model);
@@ -99,7 +115,7 @@
   function linkFilteredCards() {
     const band = filter.querySelector('[aria-pressed="true"]')?.dataset.vanityBand;
     if (!band) return;
-    for (const card of cardsIn(filter)) {
+    for (const card of filter.querySelectorAll("a.mixer-product")) {
       const url = new URL(card.href);
       url.searchParams.set("band", band);
       card.href = url.href;
@@ -110,19 +126,42 @@
   function restoreCard() {
     const section = screen();
     const model = query.get("model");
-    if (!model || !Object.hasOwn(products, model) || !section?.classList.contains("panel")) return;
-    if (section.id === "washbasins" && bandButton) bandButton.click();
-    const cards = cardsIn(section);
-    const card = section.id === "java-mix"
-      ? cards.find(link => new URL(link.href).searchParams.get("color") === query.get("color"))
-      : cards.find(link => link.pathname === productPath(model));
-    if (card) {
-      card.focus({preventScroll: true});
-      card.scrollIntoView({block: "center"});
+    if (!section?.classList.contains("panel")) return;
+
+    const entry = history.state?.collectionPosition;
+    const returningInHistory = entry?.section === section.id;
+    if (!returningInHistory && (!model || !Object.hasOwn(products, model))) return;
+    let position = returningInHistory ? entry : null;
+    if (!position) {
+      try { position = JSON.parse(sessionStorage.getItem(positionKey)); } catch {}
+    }
+    const band = returningInHistory ? position.band : selectedBand;
+    if (section.id === "washbasins" && band) {
+      Array.from(filter?.querySelectorAll("[data-vanity-band]") || [])
+        .find(button => button.dataset.vanityBand === band)?.click();
+    }
+
+    const cards = Array.from(section.querySelectorAll(cardSelector));
+    const card = returningInHistory
+      ? cards.find(link => link.pathname + link.search === position.href)
+      : cards.find(link => section.id === "java-mix"
+          ? new URL(link.href).searchParams.get("color") === query.get("color")
+          : link.pathname === productPath(model));
+    if (!card) return;
+    card.focus({preventScroll: true});
+    if (position?.section === section.id && position.href === card.pathname + card.search
+        && Number.isFinite(position.top) && position.top < window.innerHeight
+        && position.top + card.getBoundingClientRect().height > 0) {
+      window.scrollBy({top: card.getBoundingClientRect().top - position.top, behavior: "instant"});
+    } else {
+      card.scrollIntoView({block: "center", behavior: "instant"});
     }
   }
 
   updateNavigation();
-  requestAnimationFrame(restoreCard);
-  window.addEventListener("hashchange", updateNavigation);
+  window.addEventListener("pageshow", () => requestAnimationFrame(restoreCard));
+  window.addEventListener("hashchange", () => {
+    updateNavigation();
+    requestAnimationFrame(restoreCard);
+  });
 })();
