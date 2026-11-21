@@ -11,6 +11,7 @@ SPOUT = "shower-spout"
 JET = "shower-jet"
 SMARTCONTROL = "grohtherm-smartcontrol"
 SMARTBOX = "rapido-smartbox"
+GROHE_TOILET_BODY = "grohe-concealed-toilet-mixer-body"
 SIZES = {"20": 25, "25": 50, "30": 75, "40": 100}
 SHAPES = {"round": "دائري", "cube": "مربّع"}
 PACKAGES = {"without-plate": "بدون كبسة الدفن", "with-plate": "مع كبسة الدفن"}
@@ -35,6 +36,10 @@ FAMILIES = {
                    category="grohe", price=130, photo="family-smartbox",
                    description="قلب الدفن الداخلي لنظام Grohtherm SmartControl. يُباع بشكل منفصل عن واجهة التحكّم.",
                    search="كروهي غروهي جروهي سواد داخلي قلب دفن رابيدو grohe smart box"),
+    GROHE_TOILET_BODY: dict(name="GROHE Concealed Toilet Mixer Body", label="قلب خلاط تواليت دفن",
+                            cover="grohe-toilet-body", category="grohe", price=75, photo="family-grohe-toilet-body",
+                            description="الجسم الداخلي لخلاط التواليت الدفن، يُركّب داخل الحائط.",
+                            search="قلب خلاط تواليت دفن سواد كروهي غروهي جروهي concealed toilet mixer rough-in"),
     JET: dict(name="Shower Jet", label="بخّاخ مساج جانبي", cover="jet",
               description="بخّاخ جداري يوجّه نفثات الماء إلى الجسم من الجانب لتجربة مساج مائي أثناء الاستحمام. يتوفّر بتصميم مدوّر أو مربّع.",
               forms={"round": "مدوّر", "cube": "مربّع"}, colors=("Chrome", "Black", "Brushed Gold"),
