@@ -295,6 +295,19 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         "concealed-accessory": "Concealed Accessories",
     }
 
+    encastre_links = {
+        "concealed-shower-mixer": "خلاط شاور دفن",
+        "concealed-basin-mixer": "خلاط مغسلة دفن",
+        "concealed-toilet-mixer": "خلاط تواليت دفن",
+        "concealed-accessory": "إكسسوارات الدفن",
+    }
+
+    def bilingual_collection_link(match):
+        group = match["group"]
+        return (f'<a class="encastre-category-link" href="{match["href"]}">'
+                f'<span class="encastre-category-name"><span lang="ar">{encastre_links[group]}</span>'
+                f'<bdi lang="en" dir="ltr">{headings[group]}</bdi></span></a>')
+
     def collection_heading(group):
         label = labels.get(group, "إكسسوارات الدفن")
         return (f'<header class="cabinet-heading"><h1><small>{label}</small>'
@@ -431,6 +444,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     styles = """<style>
 .velato-feature,.velato-card{display:block;color:#f6ebdc;background:#201c19;border:1px solid #9c7656;border-radius:14px;overflow:hidden;text-decoration:none}
 .velato-feature{margin:1rem 0}.velato-feature>span,.velato-card>span{display:block;padding:.75rem 1rem}
+.encastre-category-link .encastre-category-name{display:grid;gap:.16rem;min-width:0;line-height:1.35;text-align:start}
+.encastre-category-name>span{font-weight:600;color:#f6ebdc}
+.encastre-category-name>bdi{font-size:.875rem;color:#d5c4b0;text-align:right}
 .velato-feature small{display:block;margin-top:.35rem;color:#e4b58d}
 .velato-strip,.velato-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
 .mounting-types{gap:0;border-top:1px solid #4f4033}
@@ -650,6 +666,12 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     raise ValueError(f"Missing concealed collection heading: {group}")
             if group in grids and group != SET_GROUP:
                 html = html.replace(f'href="#{group}"', f'href="/{group}/"')
+        category_links = "|".join(map(re.escape, encastre_links))
+        html = re.sub(
+            rf'<a href="(?P<href>(?:/|#)(?P<group>{category_links})/?)">'
+            r'<bdi dir="ltr">Concealed [^<]+</bdi></a>',
+            bilingual_collection_link, html, flags=re.I,
+        )
         catalog_link = r'(<a\b[^>]*\bhref="catalogs/saad-encastre\.pdf")'
         html, count = re.subn(catalog_link, lambda match: mounted_card + match[0], html, count=1)
         if count != 1:
