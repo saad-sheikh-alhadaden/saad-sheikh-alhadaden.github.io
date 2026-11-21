@@ -676,6 +676,22 @@ border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;lett
 #shower-arm .diameter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 #shower-arm [data-arm-summary]{display:block;margin-block-start:.2rem}
 #shower-arm .product-image img{object-fit:contain;background:#242424}
+/* Ceiling arms are tall, narrow crops. Fit their full length in a compact preview. */
+#shower-arm:has([data-arm-mount="ceiling"][aria-pressed="true"]) .product-image{
+  align-self:start;
+  background:#242424;
+}
+#shower-arm:has([data-arm-mount="ceiling"][aria-pressed="true"]) .product-image img{
+  display:block;
+  width:100%;
+  height:clamp(180px,32svh,260px);
+  max-height:260px;
+  aspect-ratio:auto;
+  object-fit:contain;
+  object-position:center;
+  padding-block:8px;
+  box-sizing:border-box;
+}
 .product-info .price-tag:has(+ .encastre-price-note){margin-bottom:.25rem!important}
 .product-info .encastre-price-note{display:block;margin:0 0 .85rem;color:#685740;font-size:.875rem;line-height:1.5}
 .product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
