@@ -38,11 +38,11 @@ FAMILIES = {
                    description="قلب الدفن الداخلي لنظام Grohtherm SmartControl. يُباع بشكل منفصل عن واجهة التحكّم.",
                    search="كروهي غروهي جروهي سواد داخلي قلب دفن رابيدو grohe smart box"),
     GROHE_SHOWER_BODY: dict(name="GROHE Concealed Shower Mixer Body", label="قلب خلاط شاور دفن",
-                            cover="grohe-shower-body", category="grohe", price=100, photo="family-grohe-shower-body",
+                            cover="grohe-shower-body", category="grohe", price=100, photo="family-grohe-shower-body", outlets=2,
                             description="الجسم الداخلي لخلاط الشاور الدفن، يُركّب داخل الحائط.",
                             search="قلب خلاط شاور دش دفن سواد كروهي غروهي جروهي concealed shower mixer rough-in"),
     GROHE_TOILET_BODY: dict(name="GROHE Concealed Toilet Mixer Body", label="قلب خلاط تواليت دفن",
-                            cover="grohe-toilet-body", category="grohe", price=75, photo="family-grohe-toilet-body",
+                            cover="grohe-toilet-body", category="grohe", price=75, photo="family-grohe-toilet-body", outlets=1,
                             description="الجسم الداخلي لخلاط التواليت الدفن، يُركّب داخل الحائط.",
                             search="قلب خلاط تواليت دفن سواد كروهي غروهي جروهي concealed toilet mixer rough-in"),
     JET: dict(name="Shower Jet", label="بخّاخ مساج جانبي", cover="jet",
@@ -144,6 +144,13 @@ def family_registry(slug, category):
     }
 
 
+def fixed_outlet_label(spec):
+    count = spec.get("outlets")
+    if count is None:
+        return ""
+    return f'{SMARTCONTROL_OUTLETS[str(count)]} · <bdi lang="en" dir="ltr">{count} Outlet</bdi>'
+
+
 def family_card(slug, registry, origin_label):
     spec = FAMILIES[slug]
     amounts = {amount for amount in registry["prices"].values() if amount is not None}
@@ -153,10 +160,12 @@ def family_card(slug, registry, origin_label):
     name = f'<bdi lang="en" dir="ltr">{spec["name"]}</bdi>'
     heading = (f'<strong>{name}</strong><span>{spec["label"]}</span>' if registry["category"] == "grohe"
                else f'<strong>{spec["label"]}</strong>{name}')
+    outlets = fixed_outlet_label(spec)
     return (f'<a class="concealed-accessory-card family-listing" href="/{slug}/">'
             f'<span class="concealed-accessory-photo"><img loading="lazy" decoding="async" src="{cover(slug)}" alt=""></span>'
             f'<span class="concealed-accessory-copy">{heading}'
             + (f'<small>{escape(origin_label)}</small>' if origin_label else '')
+            + (f'<span class="family-card-forms">{outlets}</span>' if outlets else "")
             + (f'<span class="family-card-forms">{" · ".join(spec["forms"].values())}</span>' if "forms" in spec else "")
             + f'<span class="concealed-accessory-prices"><span class="concealed-accessory-price"><b>{price}</b>'
             '<span class="concealed-accessory-detail">تفاصيل المنتج</span></span></span></span></a>')
@@ -192,12 +201,14 @@ def detail(slug, registry, warranty, origin_label, related=""):
         if slug == SPOUT:
             controls += options(slug, "diverter", "التحويلة", DIVERTERS, DIVERTER_PRICES)
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
+    outlets = fixed_outlet_label(spec)
+    outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
     return f"""
 <section id="{slug}" class="vanity-detail family-product" data-nosnippet hidden>
   <div class="product-image"><img src="{registry["images"][selected]}" alt="{spec["label"]} · {label}" width="790" height="988" loading="lazy" decoding="async">
     <button class="circle" data-save type="button" aria-label="إضافة إلى المفضّلة" aria-pressed="false">♡</button></div>
   <div class="product-info"><p class="category">{spec["label"]}</p><h1><bdi dir="ltr">{spec["name"]}</bdi></h1>
-    {origin}<p>{spec["description"]}</p>{controls}
+    {origin}<p>{spec["description"]}</p>{outlet_note}{controls}
     <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>سعر القطعة</strong><span data-family-summary>{label}</span></div>
     <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
