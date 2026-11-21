@@ -419,7 +419,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
     labels = {"encastre": "خلاطات الدفن", SET_GROUP: "أطقم الدفن الكاملة"}
     labels.update({group: label for slug, (label, price, photos, group) in models.items() if slug not in sets})
-    labels[ACCESSORIES_GROUP] = "إكسسوارات الدفن"
+    labels[ACCESSORIES_GROUP] = "ملحقات الدفن"
     labels[MOUNTED_GROUP] = MOUNTED_TITLE
     headings = {
         "encastre": "Encastre",
@@ -434,7 +434,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         "concealed-shower-mixer": "خلاط شاور دفن",
         "concealed-basin-mixer": "خلاط مغسلة دفن",
         "concealed-toilet-mixer": "خلاط تواليت دفن",
-        "concealed-accessory": "إكسسوارات الدفن",
+        "concealed-accessory": "ملحقات الدفن",
     }
 
     def bilingual_collection_link(match):
@@ -444,7 +444,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                 f'<bdi lang="en" dir="ltr">{headings[group]}</bdi></span></a>')
 
     def collection_heading(group):
-        label = labels.get(group, "إكسسوارات الدفن")
+        label = labels.get(group, "ملحقات الدفن")
         return (f'<header class="cabinet-heading"><h1><small>{label}</small>'
                 f'<bdi lang="en" dir="ltr">{headings[group]}</bdi></h1></header>')
 
