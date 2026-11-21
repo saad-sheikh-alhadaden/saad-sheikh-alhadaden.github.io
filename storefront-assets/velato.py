@@ -67,7 +67,7 @@ PHOTO_ACCESSORIES = {
     CUBE_SHOWER_OUTLET: ("Cube Shower Outlet with Holder", "cubeoutlet",
                          "مخرج مياه جداري بتصميم مربع، يجمع بين وصلة لخرطوم الدش وحامل مدمج للسماعة.",
                          "مخرج مع قاعدة سماعة كيوب", 50, ("Gold", "Black", "Chrome")),
-    SHOWER_304: ("Shower Head 304", "shower304",
+    SHOWER_304: ("Shower Head Round 304", "shower304",
                  "رأس دش مطري دائري مصنوع من الستانلس ستيل 304، بفوهات مقاومة لتراكم الكلس.",
                  "رأس دش مطري دائري", 25, ("Chrome", "Black", "Gold")),
 }
@@ -643,6 +643,19 @@ display:flex;flex-direction:column;border-color:#d8c9b6;border-radius:8px}
 font-family:inherit;font-size:.72rem;font-weight:600;line-height:1.45;text-align:center}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
+#shower-head-304 .diameter-picker{min-inline-size:0;margin:1.25rem 0 .85rem;padding:0;border:0}
+#shower-head-304 .diameter-picker legend{padding:0;margin-block-end:.65rem;font-size:1rem;font-weight:750}
+#shower-head-304 .diameter-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+#shower-head-304 .diameter-card{display:grid;justify-items:center;gap:.25rem;padding:.6rem .35rem;min-height:4rem;border:1px solid #b6a17d;border-radius:.7rem;background:#faf6ed;color:#231d15;font:inherit;cursor:pointer}
+#shower-head-304 .diameter-card[aria-pressed="true"]{background:#211b14;color:#fff7ea;border-color:#a77b3a;box-shadow:inset 0 0 0 1px #c59a57}
+#shower-head-304 .diameter-card:focus-visible{outline:2px solid #8b6028;outline-offset:2px}
+#shower-head-304 .diameter-size{font-size:1.05rem;font-weight:750}
+#shower-head-304 .diameter-price{color:#745025;font-size:.9rem;font-weight:650}
+#shower-head-304 .diameter-card[aria-pressed="true"] .diameter-price{color:#ebc78e}
+#shower-head-304 .diameter-summary{display:flex;align-items:center;justify-content:space-between;gap:.65rem;padding:.65rem .8rem;margin-block-end:1rem;border-block:1px solid #d7c6a8;font-weight:750}
+#shower-head-304 [data-selected-diameter]{display:block;margin-block-start:.15rem;color:#715b40;font-size:.9rem;font-weight:500}
+#shower-head-304 .diameter-unit-price{color:#795323;font-size:1.45rem}
+@media(min-width:650px){#shower-head-304 .diameter-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .product-info .price-tag:has(+ .encastre-price-note){margin-bottom:.25rem!important}
 .product-info .encastre-price-note{display:block;margin:0 0 .85rem;color:#685740;font-size:.875rem;line-height:1.5}
 .product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
@@ -683,7 +696,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
                        "S.T M6245": "اس تي إم 6245 stm6245",
                        "Rain Shower Round": "سماعة دش يدوي نربيش خرطوم قاعدة اسود ذهبي كروم",
-                       "Shower Head 304": "راس دش مطري دائري ستانلس ستيل مقاوم للتكلس كروم اسود ذهبي 20 25 30 40",
+                       "Shower Head Round 304": "راس دش مطري دائري ستانلس ستيل مقاوم للتكلس كروم اسود ذهبي 20 25 30 40",
                        "Cube Shower Outlet with Holder": "مخرج مربع كيوب قاعدة سماعة دش وصلة نربيش خرطوم ذهبي اسود كروم",
                        "Round Shower Outlet with Holder": "مخرج دائري قاعدة سماعة دش وصلة نربيش خرطوم ذهبي اسود كروم",
                        "Rain Shower Cube": "سماعة دش مستطيلة كيوب نربيش خرطوم قاعدة اسود ذهبي كروم",
@@ -755,12 +768,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             finishes = f'<div class="options"{package_attr} role="group" aria-label="{option_label}">{options}</div>'
         if slug == SHOWER_304:
             diameter_options = "".join(
-                f'<button class="option" type="button" data-diameter="{diameter}" '
-                f'aria-pressed="{str(index == 0).lower()}"><bdi>{diameter} cm</bdi> '
-                f'<bdi dir="ltr">${amount}</bdi></button>'
+                f'<button class="diameter-card" type="button" data-diameter="{diameter}" '
+                f'aria-pressed="{str(index == 0).lower()}"><bdi class="diameter-size">{diameter} سم</bdi>'
+                f'<bdi class="diameter-price" dir="ltr">${amount}</bdi></button>'
                 for index, (diameter, amount) in enumerate(SHOWER_304_DIAMETERS.items())
             )
-            finishes += f'<p>القطر</p><div class="options" role="group" aria-label="القطر">{diameter_options}</div>'
+            finishes += (f'<fieldset class="diameter-picker"><legend>اختر القطر</legend>'
+                         f'<div class="diameter-grid">{diameter_options}</div></fieldset>')
         if slug in sets:
             part_cards = "".join(card(part, slug) for part in parts)
             return_links = "".join(
@@ -807,6 +821,15 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         if slug in PHOTO_ACCESSORIES:
             description_html = f"<p>{PHOTO_ACCESSORIES[slug][2]}</p>"
         unit_price_attr = " data-unit-price" if slug in variant_prices or slug == SHOWER_304 else ""
+        price_html = f'<p class="price-tag" dir="ltr"{unit_price_attr}>${price:,}</p>'
+        if slug == SHOWER_304:
+            default_diameter = next(iter(SHOWER_304_DIAMETERS))
+            price_html = (
+                '<div class="diameter-summary" aria-live="polite" aria-atomic="true">'
+                '<span>سعر القطعة <bdi data-selected-diameter>'
+                f'قطر {default_diameter} سم</bdi></span>'
+                f'<bdi class="diameter-unit-price" dir="ltr" data-unit-price>${price:,}</bdi></div>'
+            )
         price_note = ""
         if slug in PRICE_INCLUDES_BOTH_PARTS:
             price_note = '<small class="encastre-price-note">السعر يشمل جسم الدفن الداخلي والقطع الخارجية الظاهرة</small>'
@@ -819,9 +842,10 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     <p class="category">{label}</p><h1><bdi>{model_name}</bdi></h1>
     {origin_badge}
     <div class="velato-gallery{gallery_class}" aria-label="صور المنتج">{gallery}</div>
+    {description_html if slug == SHOWER_304 else ""}
     {finishes}
-    {description_html}
-    <p class="price-tag" dir="ltr"{unit_price_attr}>${price:,}</p>
+    {description_html if slug != SHOWER_304 else ""}
+    {price_html}
     {price_note}
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
     <button class="action" data-add-cart type="button">{order} — ${price:,}</button>
@@ -859,6 +883,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
   for (const button of diameters) {
     button.addEventListener("click", () => {
       diameter = button.dataset.diameter;
+      screen.querySelector("[data-selected-diameter]").textContent = "قطر " + diameter + " سم";
       for (const option of diameters) option.setAttribute("aria-pressed", String(option === button));
       unitPriceOutput.textContent = money(unitPrice(product, orderColor()));
       syncOrder();
