@@ -69,26 +69,73 @@ html .app:has(#cabinet-luxury:not([hidden])) > header.top { background: #191713;
 html .app:has(#cabinet-luxury:not([hidden])) .top .brand-name { color: #f5f0e7; }
 html .app:has(#cabinet-luxury:not([hidden])) .top #back { color: #efd9ad; border-color: #b99a64; }
 
-[data-add-cart][data-cart-added] { position: relative; }
-[data-add-cart][data-cart-added]::after {
-  content: attr(data-cart-added);
-  position: absolute;
-  inset: -1px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #ac8d59;
-  border-radius: inherit;
-  background: #282219;
-  color: #f5dfb6;
-  font-size: .94em;
+#home > .hero[data-featured] > img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  background: #080807;
+}
+
+#cart-feedback {
+  position: fixed;
+  z-index: 8;
+  inset-inline: 14px;
+  top: calc(64px + env(safe-area-inset-top, 0px));
+  max-width: 432px;
+  margin-inline: auto;
   pointer-events: none;
 }
-#cart-feedback {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+#cart-feedback:not(:empty) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 3px 14px;
+  align-items: center;
+  padding: 13px 17px;
+  background: #211e19;
+  color: #faf4e9;
+  border: 1px solid #806c4a;
+  border-radius: 14px;
+  box-shadow: 0 5px 16px #100c0733;
+  text-align: start;
+  line-height: 1.4;
+}
+.cart-notice-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .92rem;
+  color: #e6cf9e;
+}
+.cart-notice-heading::before {
+  content: "";
+  width: 10px;
+  height: 5px;
+  border: solid currentColor;
+  border-width: 0 0 2px 2px;
+  transform: rotate(-45deg);
+}
+.cart-notice-product, .cart-notice-finish {
+  grid-column: 1;
+  justify-self: start;
+  overflow-wrap: anywhere;
+}
+.cart-notice-product { font-size: .99rem; font-weight: 600; }
+.cart-notice-finish { color: #decfb9; font-size: .88rem; }
+.cart-notice-price {
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  display: grid;
+  justify-items: end;
+  font-variant-numeric: tabular-nums;
+}
+.cart-notice-price small { color: #decfb9; font-size: .81rem; }
+.cart-notice-price bdi { color: #f0d7a8; font-size: 1.13rem; font-weight: 700; }
+@media (prefers-reduced-motion: no-preference) {
+  #cart-feedback:not(:empty) { animation: cart-notice-in .16s ease-out; }
+  @keyframes cart-notice-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }

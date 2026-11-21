@@ -169,6 +169,7 @@ finish_picker = publish_asset(ROOT, Path(__file__).with_name("storefront-finish-
 photo_css = publish_asset(ROOT, Path(__file__).with_name("storefront-photos.css"))
 photo_js = publish_asset(ROOT, Path(__file__).with_name("storefront-photos.js"))
 photo_controls = f'<link rel="stylesheet" href="{photo_css}"><script defer src="{photo_js}"></script>'
+home_cover_js = Path(__file__).with_name("storefront-home-cover.js").read_text()
 
 # The catalog generator supplies one cart handler shared by all product screens.
 home = (ROOT / "index.html").read_text()
@@ -181,7 +182,7 @@ cart_hooks = {
     '  addButton.addEventListener("click", () => {': '''  addButton.addEventListener("click", () => {
     if (addButton.hasAttribute("data-cart-added")) return;''',
     '    renderCart();\n    location.hash = "#cart";': '''    renderCart();
-    confirmation.show(product.name, quantity);''',
+    confirmation.show(product, orderColor(), quantity);''',
 }
 for original, replacement in cart_hooks.items():
     if cart_js.count(original) != 1:
@@ -195,8 +196,14 @@ for page in ROOT.rglob("index.html"):
     markup = page.read_text()
     if cart_script in markup:
         markup = markup.replace(f'<script src="/{cart_script}"',
-                                '<span id="cart-feedback" role="status" aria-atomic="true"></span>\n'
+                                '<div id="cart-feedback" role="status" aria-atomic="true"></div>\n'
                                 f'<script src="/{updated_cart_script}"')
+        # Select the cover as soon as its link is parsed, before the main catalog script.
+        markup, count = re.subn(r'(<a class="hero" href="/cobra-plus-2027/">.*?</a>)',
+                                lambda m: m[0] + f'\n<script>{home_cover_js}</script>',
+                                markup, count=1, flags=re.S)
+        if not count:
+            raise ValueError(f"Missing home cover in {page}")
     if not re.search(r"<img\b", markup, re.I):
         continue
     markup = markup.replace("<span>أول سنتين تبديل</span>", "<span>تبديل فوري خلال أول سنتين، وصيانة خلال السنوات الثلاث التالية.</span>")
