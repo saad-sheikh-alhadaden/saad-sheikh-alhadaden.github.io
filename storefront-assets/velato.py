@@ -30,6 +30,17 @@ GROHE_CISTERN = "grohe-concealed-cistern"
 GROHE_NAME = "GROHE"
 GROHE_PHOTO = "/assets/grohe-cistern.webp"
 GROHE_FEET_CISTERN = "grohe-concealed-cistern-with-feet"
+GROHE_FLUSH_PLATE = "grohe-flush-plate"
+GROHE_FLUSH_PLATE_FINISHES = {
+    "مخفية قابلة للتبليط": ("tileable", 155),
+    "Brushed Gold": ("brushed-gold", 100),
+    "Rose Gold": ("rose-gold", 100),
+    "Gray": ("gray", 100),
+    "Gold": ("gold", 65),
+    "Black": ("black", 65),
+    "White": ("white", 50),
+    "Chrome": ("chrome", 25),
+}
 GROHE_CONFIGURATIONS = {
     GROHE_CISTERN: ("خزان دفن مع شاسيه", GROHE_PHOTO, {"مع كبسة الدفن": 140, "بدون كبسة الدفن": 115}),
     GROHE_FEET_CISTERN: ("خزان دفن مع قواعد تثبيت", "/assets/grohe-cistern-with-feet.webp",
@@ -121,6 +132,14 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     for slug, (label, photo, prices) in GROHE_CONFIGURATIONS.items():
         models[slug] = (label, next(iter(prices.values())), [photo], ACCESSORIES_GROUP)
         color_galleries[slug] = {package: [photo] for package in prices}
+    plate_galleries = {
+        finish: [f"/assets/grohe-flush-plate-{suffix}.webp"]
+        for finish, (suffix, _) in GROHE_FLUSH_PLATE_FINISHES.items()
+    }
+    color_galleries[GROHE_FLUSH_PLATE] = plate_galleries
+    models[GROHE_FLUSH_PLATE] = ("كبسة لخزان دفن", next(iter(GROHE_FLUSH_PLATE_FINISHES.values()))[1],
+                                [gallery[0] for gallery in plate_galleries.values()], ACCESSORIES_GROUP)
+
     floor_galleries = {
         color: [f"/assets/st0047-{color.lower().replace(' ', '-')}-{index:02}.webp"
                 for index in range(1, count + 1)]
@@ -230,6 +249,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                             "concealed-toilet-mixer")
     variant_prices = {ST_GR_BASIN: st_gr_prices, ST_GR_TOILET: st_gr_prices, ST_GU: ST_GU_PRICES}
     variant_prices.update({slug: prices for slug, (_, _, prices) in GROHE_CONFIGURATIONS.items()})
+    variant_prices[GROHE_FLUSH_PLATE] = {
+        finish: price for finish, (_, price) in GROHE_FLUSH_PLATE_FINISHES.items()
+    }
     for slug, folder, count, finishes in (
         (ST_BL_BASIN, "stbl", 3, ("Black", "Gray", "Brushed Gold")),
         (ST_R_BASIN, "str", 5, ("Black", "Gray", "Gold", "Rose Gold", "Chrome")),
@@ -332,6 +354,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == GROHE_FLUSH_PLATE:
+            return GROHE_NAME, " / ".join(GROHE_FLUSH_PLATE_FINISHES)
         if slug in GROHE_CONFIGURATIONS:
             return GROHE_NAME, "مع كبسة الدفن أو بدونها"
         if slug == ST_122DG:
@@ -399,7 +423,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def country_of_origin(slug):
         if slug in GROHE_CONFIGURATIONS or slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
-        if slug == ST_W102 or slug.startswith(ST_GR + "-"):
+        if slug in (ST_W102, GROHE_FLUSH_PLATE) or slug.startswith(ST_GR + "-"):
             return None
         if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
             return ("Italy", "إيطاليا")
@@ -423,15 +447,20 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
         if group == ACCESSORIES_GROUP:
+            origin_badge = "<small>صُنع في ألمانيا</small>" if slug in GROHE_CONFIGURATIONS else ""
             options = "".join(
                 f'<span class="concealed-accessory-price"><span>{escape(package)}</span>'
                 f'<bdi dir="ltr">${amount:,}</bdi></span>'
                 for package, amount in variant_prices[slug].items()
             )
+            if slug == GROHE_FLUSH_PLATE:
+                prices = variant_prices[slug].values()
+                options = (f'<span class="concealed-accessory-price"><span>٨ خيارات</span>'
+                           f'<bdi dir="ltr">${min(prices)}–${max(prices)}</bdi></span>')
             return (f'<a class="concealed-accessory-card" href="/{slug}/">'
                     f'<span class="concealed-accessory-photo">{picture(photos[0], "")}</span>'
                     f'<span class="concealed-accessory-copy"><strong>{escape(label)} <bdi>{model_name}</bdi></strong>'
-                    f'<small>صُنع في ألمانيا</small><span class="concealed-accessory-prices">{options}</span>'
+                    f'{origin_badge}<span class="concealed-accessory-prices">{options}</span>'
                     '<span class="concealed-accessory-detail">تفاصيل المنتج</span></span></a>')
         kind_label = f'<small class="mixer-product-kind">{escape(label)}</small>' if group == MOUNTED_GROUP else ""
         price_text = f"${price:,}"
@@ -489,7 +518,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 .concealed-accessory-price{display:flex;justify-content:space-between;align-items:baseline;gap:.35rem;font-size:.875rem}
 .concealed-accessory-price>bdi,.concealed-accessory-detail{color:#e4b58d}
 .concealed-accessory-detail{font-size:.875rem;margin-top:.2rem}
-#grohe-concealed-cistern .velato-gallery,#grohe-concealed-cistern-with-feet .velato-gallery{display:none}
+#grohe-concealed-cistern .velato-gallery,#grohe-concealed-cistern-with-feet .velato-gallery,#grohe-flush-plate .velato-gallery{display:none}
 .velato-feature small{display:block;margin-top:.35rem;color:#e4b58d}
 .velato-strip,.velato-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
 .mounting-types{gap:0;border-top:1px solid #4f4033}
@@ -599,11 +628,11 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             options = "".join(
                 f'<button class="option" type="button" data-color="{color}" '
                 f'aria-pressed="{str(color == default_color).lower()}"><bdi>{color}</bdi>'
-                + (f' <bdi dir="ltr">${variant_prices[slug][color]}</bdi>' if slug in GROHE_CONFIGURATIONS else "") + "</button>"
+                + (f' <bdi dir="ltr">${variant_prices[slug][color]}</bdi>' if group == ACCESSORIES_GROUP else "") + "</button>"
                 for color in galleries
             )
             option_label = "خيارات الخزان" if slug in GROHE_CONFIGURATIONS else "التشطيب"
-            package_attr = " data-package-options" if slug in GROHE_CONFIGURATIONS else ""
+            package_attr = " data-package-options" if group == ACCESSORIES_GROUP else ""
             finishes = f'<div class="options"{package_attr} role="group" aria-label="{option_label}">{options}</div>'
         if slug in sets:
             part_cards = "".join(card(part, slug) for part in parts)
