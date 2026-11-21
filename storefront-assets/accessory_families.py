@@ -8,6 +8,7 @@ HAND = "hand-shower-set"
 OUTLET = "shower-outlet-with-holder"
 TANK = "grohe-cistern"
 SPOUT = "shower-spout"
+JET = "shower-jet"
 SIZES = {"20": 25, "25": 50, "30": 75, "40": 100}
 SHAPES = {"round": "دائري", "cube": "مربّع"}
 PACKAGES = {"without-plate": "بدون كبسة الدفن", "with-plate": "مع كبسة الدفن"}
@@ -17,6 +18,12 @@ DIVERTER_PRICES = {"without-diverter": 50, "with-diverter": 75}
 
 # The first entry in each group is the initial selection.
 FAMILIES = {
+    JET: dict(name="Shower Jet", label="بخّاخ مساج جانبي", cover="jet",
+              description="بخّاخ جداري يوجّه نفثات الماء إلى الجسم من الجانب لتجربة مساج مائي أثناء الاستحمام. يتوفّر بتصميم مدوّر أو مربّع.",
+              forms={"round": "مدوّر", "cube": "مربّع"}, colors=("Chrome", "Black", "Brushed Gold"),
+              photos={"round": "jet-round", "cube": "jet-cube"}, old={},
+              finish_prices={"chrome": 35, "black": 50, "brushed-gold": 50},
+              search="بخاخ مساج جانبي دوش دش شاور body spray shower jet"),
     TANK: dict(name="GROHE", label="خزان دفن", cover="cistern",
                description="خزان دفن بتركيبين، مع قواعد تثبيت أو مع شاسيه. يتوفّر مع كبسة الدفن أو بدونها.",
                forms={"feet": "مع قواعد تثبيت", "frame": "مع شاسيه"},
@@ -49,9 +56,13 @@ def size_text(form, size):
     return f"قطر {size} سم" if form == "round" else f"{size} × {size} سم"
 
 
+def finish_options(spec):
+    return {color.lower().replace(" ", "-"): color for color in spec["colors"]}
+
+
 def build_family(slug):
     spec = FAMILIES[slug]
-    secondary = PACKAGES if slug == TANK else {color.lower(): color for color in spec["colors"]}
+    secondary = PACKAGES if slug == TANK else finish_options(spec)
     variants = {}
     legacy = {}
     third_axis = {HEAD: SIZES, SPOUT: DIVERTERS}.get(slug, ("",))
@@ -72,6 +83,8 @@ def build_family(slug):
                 price = DIVERTER_PRICES[option]
                 labels.append(DIVERTERS[option])
                 photo += "-" + option
+            elif "finish_prices" in spec:
+                price = spec["finish_prices"][choice]
             else:
                 price = spec["prices"][form]
         key = "|".join(parts)
@@ -137,7 +150,7 @@ def detail(slug, registry, warranty):
     if tank:
         controls += options(slug, "package", "كبسة الدفن", PACKAGES, spec["prices"]["feet"])
     else:
-        controls += options(slug, "finish", "التشطيب", {c.lower(): c for c in spec["colors"]})
+        controls += options(slug, "finish", "التشطيب", finish_options(spec), spec.get("finish_prices"))
     if slug == HEAD:
         controls += options(slug, "size", "مقاس رأس الدش", {s: size_text("round", s) for s in SIZES}, SIZES)
     if slug == SPOUT:

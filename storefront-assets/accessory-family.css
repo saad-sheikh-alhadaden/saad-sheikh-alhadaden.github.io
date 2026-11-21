@@ -25,3 +25,5 @@
 .family-summary [data-family-summary] {display:block;margin-top:.2rem;font-size:.9rem;color:#67543e}
 .family-summary > bdi {font-size:1.55rem;font-weight:750;color:#785524}
 @media(min-width:650px){[data-axis="size"] .family-choices {grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+.swatch-brushed-gold {background:linear-gradient(130deg,#f3e4c0,#baa475)}
