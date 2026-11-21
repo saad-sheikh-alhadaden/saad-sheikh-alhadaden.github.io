@@ -10,6 +10,7 @@ TANK = "grohe-cistern"
 SPOUT = "shower-spout"
 JET = "shower-jet"
 SMARTCONTROL = "grohtherm-smartcontrol"
+SMARTACTIVE = "rainshower-smartactive"
 SMARTBOX = "rapido-smartbox"
 GROHE_SHOWER_BODY = "grohe-concealed-shower-mixer-body"
 GROHE_TOILET_BODY = "grohe-concealed-toilet-mixer-body"
@@ -33,6 +34,18 @@ FAMILIES = {
                                "3": {"brushed-gold": 1150, "black": 1050, "chrome": None}},
                        description="واجهة التحكّم الخارجية للدش. اختر التشطيب وعدد المخارج. قلب الدفن Rapido SmartBox يُباع بشكل منفصل.",
                        search="كروهي غروهي جروهي بياض سمارت grohe smart control"),
+    SMARTACTIVE: dict(name="Rainshower SmartActive", label="طاسة دش جروهي", cover="smartactive",
+                      category="grohe", colors=("Brushed Gold", "Black", "Chrome"),
+                      finish_photos={finish: f"smartactive-{finish}" for finish in ("brushed-gold", "black", "chrome")},
+                      finish_prices={"brushed-gold": 750, "black": 450, "chrome": None},
+                      card_note="قطر 30 سم · السعر يشمل ساعد الدش",
+                      description="رأس دش دائري بقطر 30 سم، بتصميم نحيف وعصري. السعر يشمل ساعد الدش.",
+                      sprays={
+                          "PureRain": "رذاذ مطري ناعم وواسع ينساب من الفوّهات الخارجية ليغطّي الجسم بالكامل.",
+                          "ActiveRain": "تدفّق قوي ومركّز من ثماني فتحات طولية في المنتصف، مناسب للتدليك المائي وشطف الشامبو بسرعة.",
+                      },
+                      control_note="لاختيار نمط الرش، يلزم خلاط SmartControl أو محوّل ثنائي المخارج (2-way diverter). يمكن تشغيل النمطين معًا إذا كانت وحدة التحكّم تدعم ذلك.",
+                      search="كروهي غروهي جروهي طاسة رأس راس دش مطري ساعد 30 cm rain shower pure rain active rain"),
     SMARTBOX: dict(name="Rapido SmartBox", label="قلب دفن سمارت", cover="smartbox",
                    category="grohe", price=130, photo="family-smartbox",
                    outlet_support="يدعم مخرجًا واحدًا أو مخرجين أو ثلاثة مخارج",
@@ -93,6 +106,11 @@ def build_family(slug):
     spec = FAMILIES[slug]
     if "photo" in spec:
         return {"standard": (spec["price"], f'/assets/{spec["photo"]}.webp', spec["label"])}, {}
+    if "finish_photos" in spec:
+        return {
+            finish: (spec["finish_prices"][finish], f'/assets/{spec["finish_photos"][finish]}.webp', label)
+            for finish, label in finish_options(spec).items()
+        }, {}
     secondary = PACKAGES if slug == TANK else finish_options(spec)
     variants = {}
     legacy = {}
@@ -167,13 +185,13 @@ def family_card(slug, registry, origin_label, *, cover_photo=None, collection=No
     name = f'<bdi lang="en" dir="ltr">{spec["name"]}</bdi>'
     heading = (f'<strong>{name}</strong><span>{spec["label"]}</span>' if registry["category"] == "grohe"
                else f'<strong>{spec["label"]}</strong>{name}')
-    outlets = outlet_label(spec)
+    note = outlet_label(spec) or escape(spec.get("card_note", ""))
     link = f"/{slug}/" + ("?" + urlencode({"from": collection}) if collection else "")
     return (f'<a class="concealed-accessory-card family-listing" href="{link}">'
             f'<span class="concealed-accessory-photo"><img loading="lazy" decoding="async" src="{cover_photo or cover(slug)}" alt=""></span>'
             f'<span class="concealed-accessory-copy">{heading}'
             + (f'<small>{escape(origin_label)}</small>' if origin_label else '')
-            + (f'<span class="family-card-forms">{outlets}</span>' if outlets else "")
+            + (f'<span class="family-card-forms">{note}</span>' if note else "")
             + (f'<span class="family-card-forms">{" · ".join(spec["forms"].values())}</span>' if "forms" in spec else "")
             + f'<span class="concealed-accessory-prices"><span class="concealed-accessory-price"><b>{price}</b>'
             '<span class="concealed-accessory-detail">تفاصيل المنتج</span></span></span></span></a>')
@@ -208,6 +226,16 @@ def detail(slug, registry, warranty, origin_label, related=""):
             controls += options(slug, "size", "مقاس رأس الدش", {s: size_text("round", s) for s in SIZES}, SIZES)
         if slug == SPOUT:
             controls += options(slug, "diverter", "التحويلة", DIVERTERS, DIVERTER_PRICES)
+    elif "finish_photos" in spec:
+        controls = options(slug, "finish", "التشطيب", finish_options(spec))
+    spray_details = ""
+    if "sprays" in spec:
+        spray_items = "".join(
+            f'<li><strong><bdi lang="en" dir="ltr">{escape(mode)}</bdi></strong> · {escape(description)}</li>'
+            for mode, description in spec["sprays"].items()
+        )
+        spray_details = (f'<p><strong>نمطان للرش</strong></p><ul>{spray_items}</ul>'
+                         f'<p>{escape(spec["control_note"])}</p>')
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
     outlets = outlet_label(spec)
     outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
@@ -216,7 +244,7 @@ def detail(slug, registry, warranty, origin_label, related=""):
   <div class="product-image"><img src="{registry["images"][selected]}" alt="{spec["label"]} · {label}" width="790" height="988" loading="lazy" decoding="async">
     <button class="circle" data-save type="button" aria-label="إضافة إلى المفضّلة" aria-pressed="false">♡</button></div>
   <div class="product-info"><p class="category">{spec["label"]}</p><h1><bdi dir="ltr">{spec["name"]}</bdi></h1>
-    {origin}<p>{spec["description"]}</p>{outlet_note}{controls}
+    {origin}<p>{spec["description"]}</p>{outlet_note}{spray_details}{controls}
     <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>سعر القطعة</strong><span data-family-summary>{label}</span></div>
     <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
@@ -228,6 +256,8 @@ def product_data(slug, registry, origin, country):
     spec = FAMILIES[slug]
     url = f"{origin}/{slug}/"
     axes = ["form", "package" if slug == TANK else "finish", "diverter" if slug == SPOUT else "size"]
+    if "finish_photos" in spec:
+        axes = ["finish"]
     offers = [{"@type": "Offer", "name": registry["colorLabels"][key], "price": amount, "priceCurrency": "USD",
                "url": url if "photo" in spec else url + "?" + urlencode(dict(zip(axes, key.split("|"))))}
               for key, amount in registry["prices"].items() if amount is not None]
