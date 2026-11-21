@@ -13,6 +13,7 @@ SMARTCONTROL = "grohtherm-smartcontrol"
 SMARTACTIVE = "rainshower-smartactive"
 SMARTACTIVE_HAND = "rainshower-smartactive-hand-shower"
 GROHE_WALL_OUTLET = "grohe-wall-outlet"
+GROHE_BATH_SPOUT = "grohe-bath-spout"
 SMARTBOX = "rapido-smartbox"
 GROHE_SHOWER_BODY = "grohe-concealed-shower-mixer-body"
 GROHE_TOILET_BODY = "grohe-concealed-toilet-mixer-body"
@@ -80,6 +81,14 @@ FAMILIES = {
         finish_prices={"brushed-gold": 150, "black": 125, "chrome": None},
         description="مخرج مياه جداري بتصميم انسيابي، يصل قلب الدفن داخل الجدار بخرطوم سماعة الدش أو الشطّاف.",
         search="كروهي غروهي جروهي مخرج دفن وصلة جداري سماعة دش مسكة شطاف hose connection wall outlet",
+    ),
+    GROHE_BATH_SPOUT: dict(
+        name="GROHE Bath Spout", label="مصب بانيو كروهي", cover="grohe-bath-spout",
+        category="grohe", colors=("Chrome", "Brushed Gold", "Black"),
+        finish_photos={finish: f"grohebathspout-{finish}" for finish in ("chrome", "brushed-gold", "black")},
+        finish_prices={"chrome": 125, "brushed-gold": 175, "black": 150},
+        description="مصبّ جداري لملء البانيو، بتصميم نحيف وقاعدة مربّعة.",
+        search="كروهي غروهي جروهي مصب بانيو حوض استحمام جداري bath spout tub filler",
     ),
     SMARTBOX: dict(name="Rapido SmartBox", label="قلب دفن سمارت", cover="smartbox",
                    category="grohe", price=130, photo="family-smartbox",
