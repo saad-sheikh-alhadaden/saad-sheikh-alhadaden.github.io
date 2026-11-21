@@ -15,6 +15,7 @@ SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 MOUNTED_GROUP = "floor-ceiling-wall-mixers"
 GROHE_GROUP = "grohe"
+GROHE_CISTERN_COVER = "/assets/family-grohe-cistern-navy.webp"
 MOUNTED_TITLE = "خلاطات من الأرض والسقف والحائط"
 MOUNTED_SUBTITLE = "Floor, Ceiling & Wall Mixers"
 ST_0047 = "st-0047"
@@ -416,7 +417,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     photo_sizes.update(json.loads(Path(__file__).with_name("showerarm").joinpath("sizes.json").read_text()))
     all_photos = dict.fromkeys(photo for model in models.values() for photo in model[2])
-    for photo in (*all_photos, *ACCESSORY_COVERS.values()):
+    for photo in (*all_photos, *ACCESSORY_COVERS.values(), GROHE_CISTERN_COVER):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
@@ -566,9 +567,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return (f'<a class="velato-card" href="{set_part_url(slug, set_slug)}">{picture(photo, f"{model_name} · {label} · {finish}")}'
                 f'<span><bdi>{model_name}</bdi><br>{label}<br><bdi>${price:,}</bdi></span></a>')
 
-    def gallery_card(slug):
+    def gallery_card(slug, *, cover_photo=None):
         if slug in families:
-            return family.family_card(slug, families[slug], origin_label(slug))
+            return family.family_card(slug, families[slug], origin_label(slug), cover_photo=cover_photo)
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
         if group in (ACCESSORIES_GROUP, GROHE_GROUP):
@@ -641,7 +642,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         f'<a class="velato-feature grohe-collection-card" href="/{GROHE_GROUP}/">'
         '<bdi lang="en" dir="ltr">GROHE</bdi></a>'
     )
-    grohe_cards = "".join(gallery_card(slug) for slug, model in models.items() if model[3] == GROHE_GROUP)
+    grohe_members = [slug for slug, model in models.items() if model[3] == GROHE_GROUP and slug != family.TANK]
+    grohe_members.append(family.TANK)
+    grohe_cards = "".join(
+        gallery_card(slug, cover_photo=GROHE_CISTERN_COVER if slug == family.TANK else None)
+        for slug in grohe_members
+    )
     grohe_panel = (
         f'<section class="panel concealed-gallery" id="{GROHE_GROUP}" data-nosnippet hidden>'
         '<header class="cabinet-heading"><h1><bdi lang="en" dir="ltr">GROHE</bdi></h1></header>'
@@ -1205,6 +1211,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     for slug, label in labels.items():
         children = (list(labels)[1:] if slug == "encastre" else
                     [model for model, data in models.items() if data[3] == slug])
+        if slug == GROHE_GROUP:
+            children = grohe_members
         cover = next((data[2] for data in models.values() if data[3] == slug), models[SET][2])
         description = f"تصفّح {label} وشاهد الموديلات والتشطيبات والأسعار."
         if slug == GROHE_GROUP and not children:

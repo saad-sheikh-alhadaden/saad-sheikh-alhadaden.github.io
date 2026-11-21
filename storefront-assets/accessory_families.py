@@ -152,7 +152,7 @@ def outlet_label(spec):
     return f'{SMARTCONTROL_OUTLETS[str(count)]} · <bdi lang="en" dir="ltr">{count} Outlet</bdi>'
 
 
-def family_card(slug, registry, origin_label):
+def family_card(slug, registry, origin_label, *, cover_photo=None):
     spec = FAMILIES[slug]
     amounts = {amount for amount in registry["prices"].values() if amount is not None}
     price = f'<bdi dir="ltr">${min(amounts)}</bdi>'
@@ -163,7 +163,7 @@ def family_card(slug, registry, origin_label):
                else f'<strong>{spec["label"]}</strong>{name}')
     outlets = outlet_label(spec)
     return (f'<a class="concealed-accessory-card family-listing" href="/{slug}/">'
-            f'<span class="concealed-accessory-photo"><img loading="lazy" decoding="async" src="{cover(slug)}" alt=""></span>'
+            f'<span class="concealed-accessory-photo"><img loading="lazy" decoding="async" src="{cover_photo or cover(slug)}" alt=""></span>'
             f'<span class="concealed-accessory-copy">{heading}'
             + (f'<small>{escape(origin_label)}</small>' if origin_label else '')
             + (f'<span class="family-card-forms">{outlets}</span>' if outlets else "")
