@@ -61,7 +61,7 @@ SHOWER_CUBE_304 = "shower-head-cube-304"
 SHOWER_ARM = "shower-arm"
 ARM_MOUNTS = {"wall": "جداري", "ceiling": "سقفي"}
 ARM_SHAPES = {"square": "مربع", "round": "دائري"}
-ARM_LENGTHS = {"30": 15, "40": 20, "60": 25}
+ARM_LENGTHS = {"30": 15, "40": 20, "50": 25}
 SIZED_SHOWER_HEADS = {SHOWER_304: "القطر", SHOWER_CUBE_304: "المقاس", SHOWER_ARM: "الطول"}
 SHOWER_304_SIZES = {"20": 25, "25": 50, "30": 75, "40": 100}
 PHOTO_ACCESSORIES = {
@@ -1065,7 +1065,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             offer = [{"@type": "Offer", "name": color, "price": amount, "priceCurrency": "USD",
                       "url": f"{origin}/{slug}/"} for color, amount in variant_prices[slug].items()]
         if slug == SHOWER_ARM:
-            description = f"{PHOTO_ACCESSORIES[slug][2]} {finish}. الأطوال 30 و40 و60 سم، من $15 إلى $25."
+            description = f"{PHOTO_ACCESSORIES[slug][2]} {finish}. الأطوال 30 و40 و50 سم، من $15 إلى $25."
             offer = [{"@type": "Offer", "name": f"{length} cm", "price": amount,
                       "priceCurrency": "USD", "url": f"{origin}/{slug}/"}
                      for length, amount in ARM_LENGTHS.items()]
