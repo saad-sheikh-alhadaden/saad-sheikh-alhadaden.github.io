@@ -57,7 +57,9 @@ RAIN_SHOWER_CUBE = "rain-shower-cube"
 ROUND_SHOWER_OUTLET = "round-shower-outlet"
 CUBE_SHOWER_OUTLET = "cube-shower-outlet"
 SHOWER_304 = "shower-head-304"
-SHOWER_304_DIAMETERS = {"20": 25, "25": 50, "30": 75, "40": 100}
+SHOWER_CUBE_304 = "shower-head-cube-304"
+SIZED_SHOWER_HEADS = {SHOWER_304: "القطر", SHOWER_CUBE_304: "المقاس"}
+SHOWER_304_SIZES = {"20": 25, "25": 50, "30": 75, "40": 100}
 PHOTO_ACCESSORIES = {
     RAIN_SHOWER_ROUND: ("Rain Shower Round", "rainround", "طقم دش يدوي يضمّ سماعة الدش، وخرطومًا مرنًا، وقاعدة تثبيت جدارية للسماعة.", "سماعة دش", 50, ("Black", "Gold", "Chrome")),
     RAIN_SHOWER_CUBE: ("Rain Shower Cube", "raincube", "طقم دش يدوي بتصميم مستطيل عصري، يضمّ سماعة الدش وخرطومًا مرنًا وقاعدة تثبيت جدارية للسماعة.", "سماعة دش", 50, ("Black", "Gold", "Chrome")),
@@ -70,6 +72,9 @@ PHOTO_ACCESSORIES = {
     SHOWER_304: ("Shower Head Round 304", "shower304",
                  "رأس دش مطري دائري مصنوع من الستانلس ستيل 304، بفوهات مقاومة لتراكم الكلس.",
                  "رأس دش مطري دائري", 25, ("Chrome", "Black", "Gold")),
+    SHOWER_CUBE_304: ("Shower Head Cube 304", "cubeshower304",
+                      "رأس دش مطري مربع مصنوع من الستانلس ستيل 304، بفوهات مقاومة لتراكم الكلس.",
+                      "رأس دش مطري مربع", 25, ("Chrome", "Black", "Gold")),
 }
 ACCESSORY_COVERS = {
     A3_HEAD_SHOWER: "/assets/a3head-cover.webp",
@@ -309,7 +314,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     variant_prices.update({slug: prices for slug, (_, _, prices) in GROHE_CONFIGURATIONS.items()})
     variant_prices[FERRARI_HEAD_SHOWER] = {finish: models[FERRARI_HEAD_SHOWER][1] for finish in ferrari_head_galleries}
     variant_prices[A3_HEAD_SHOWER] = {finish: models[A3_HEAD_SHOWER][1] for finish in a3_head_galleries}
-    for slug in PHOTO_ACCESSORIES.keys() - {SHOWER_304}:
+    for slug in PHOTO_ACCESSORIES.keys() - SIZED_SHOWER_HEADS.keys():
         variant_prices[slug] = dict.fromkeys(color_galleries[slug], models[slug][1])
     variant_prices[GROHE_FLUSH_PLATE] = {
         finish: price for finish, (_, price) in GROHE_FLUSH_PLATE_FINISHES.items()
@@ -540,7 +545,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             if slug in (FERRARI_HEAD_SHOWER, A3_HEAD_SHOWER, *PHOTO_ACCESSORIES):
                 options = (f'<span class="concealed-accessory-price"><bdi>{finish}</bdi>'
                            f'<bdi dir="ltr">${price:,}</bdi></span>')
-            if slug == SHOWER_304:
+            if slug in SIZED_SHOWER_HEADS:
                 options = (f'<span class="concealed-accessory-price"><bdi>{finish}</bdi>'
                            '<bdi dir="ltr">$25–$100</bdi></span>')
             if slug == GROHE_FLUSH_PLATE:
@@ -643,19 +648,19 @@ display:flex;flex-direction:column;border-color:#d8c9b6;border-radius:8px}
 font-family:inherit;font-size:.72rem;font-weight:600;line-height:1.45;text-align:center}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
-#shower-head-304 .diameter-picker{min-inline-size:0;margin:1.25rem 0 .85rem;padding:0;border:0}
-#shower-head-304 .diameter-picker legend{padding:0;margin-block-end:.65rem;font-size:1rem;font-weight:750}
-#shower-head-304 .diameter-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
-#shower-head-304 .diameter-card{display:grid;justify-items:center;gap:.25rem;padding:.6rem .35rem;min-height:4rem;border:1px solid #b6a17d;border-radius:.7rem;background:#faf6ed;color:#231d15;font:inherit;cursor:pointer}
-#shower-head-304 .diameter-card[aria-pressed="true"]{background:#211b14;color:#fff7ea;border-color:#a77b3a;box-shadow:inset 0 0 0 1px #c59a57}
-#shower-head-304 .diameter-card:focus-visible{outline:2px solid #8b6028;outline-offset:2px}
-#shower-head-304 .diameter-size{font-size:1.05rem;font-weight:750}
-#shower-head-304 .diameter-price{color:#745025;font-size:.9rem;font-weight:650}
-#shower-head-304 .diameter-card[aria-pressed="true"] .diameter-price{color:#ebc78e}
-#shower-head-304 .diameter-summary{display:flex;align-items:center;justify-content:space-between;gap:.65rem;padding:.65rem .8rem;margin-block-end:1rem;border-block:1px solid #d7c6a8;font-weight:750}
-#shower-head-304 [data-selected-diameter]{display:block;margin-block-start:.15rem;color:#715b40;font-size:.9rem;font-weight:500}
-#shower-head-304 .diameter-unit-price{color:#795323;font-size:1.45rem}
-@media(min-width:650px){#shower-head-304 .diameter-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-picker{min-inline-size:0;margin:1.25rem 0 .85rem;padding:0;border:0}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-picker legend{padding:0;margin-block-end:.65rem;font-size:1rem;font-weight:750}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-card{display:grid;justify-items:center;gap:.25rem;padding:.6rem .35rem;min-height:4rem;border:1px solid #b6a17d;border-radius:.7rem;background:#faf6ed;color:#231d15;font:inherit;cursor:pointer}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-card[aria-pressed="true"]{background:#211b14;color:#fff7ea;border-color:#a77b3a;box-shadow:inset 0 0 0 1px #c59a57}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-card:focus-visible{outline:2px solid #8b6028;outline-offset:2px}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-size{font-size:1.05rem;font-weight:750}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-price{color:#745025;font-size:.9rem;font-weight:650}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-card[aria-pressed="true"] .diameter-price{color:#ebc78e}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-summary{display:flex;align-items:center;justify-content:space-between;gap:.65rem;padding:.65rem .8rem;margin-block-end:1rem;border-block:1px solid #d7c6a8;font-weight:750}
+:is(#shower-head-304,#shower-head-cube-304) [data-selected-diameter]{display:block;margin-block-start:.15rem;color:#715b40;font-size:.9rem;font-weight:500}
+:is(#shower-head-304,#shower-head-cube-304) .diameter-unit-price{color:#795323;font-size:1.45rem}
+@media(min-width:650px){:is(#shower-head-304,#shower-head-cube-304) .diameter-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .product-info .price-tag:has(+ .encastre-price-note){margin-bottom:.25rem!important}
 .product-info .encastre-price-note{display:block;margin:0 0 .85rem;color:#685740;font-size:.875rem;line-height:1.5}
 .product-info .velato-warranty{display:grid;gap:.2rem;margin:1rem 0;padding:.65rem .85rem;
@@ -696,6 +701,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
                        "S.T M6245": "اس تي إم 6245 stm6245",
                        "Rain Shower Round": "سماعة دش يدوي نربيش خرطوم قاعدة اسود ذهبي كروم",
+                       "Shower Head Cube 304": "راس دش مطري مربع كيوب ستانلس ستيل مقاوم للتكلس كروم اسود ذهبي 20 25 30 40",
                        "Shower Head Round 304": "راس دش مطري دائري ستانلس ستيل مقاوم للتكلس كروم اسود ذهبي 20 25 30 40",
                        "Cube Shower Outlet with Holder": "مخرج مربع كيوب قاعدة سماعة دش وصلة نربيش خرطوم ذهبي اسود كروم",
                        "Round Shower Outlet with Holder": "مخرج دائري قاعدة سماعة دش وصلة نربيش خرطوم ذهبي اسود كروم",
@@ -723,16 +729,18 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     "category": group, "favoriteKey": "saad-saved-" + slug}
         if slug in variant_prices:
             registry["prices"] = variant_prices[slug]
-        if slug == SHOWER_304:
-            registry["defaultDiameter"] = next(iter(SHOWER_304_DIAMETERS))
+        size_labels = {size: (f"قطر {size} سم" if slug == SHOWER_304 else f"{size} × {size} سم")
+                       for size in SHOWER_304_SIZES} if slug in SIZED_SHOWER_HEADS else {}
+        if slug in SIZED_SHOWER_HEADS:
+            registry["defaultDiameter"] = next(iter(SHOWER_304_SIZES))
             registry["prices"] = {}
             registry["colorLabels"] = {}
             for color, images in galleries.items():
-                for diameter, amount in SHOWER_304_DIAMETERS.items():
+                for diameter, amount in SHOWER_304_SIZES.items():
                     variant = f"{color} / {diameter} cm"
                     registry["images"][variant] = images[0]
                     registry["prices"][variant] = amount
-                    registry["colorLabels"][variant] = f"{color} · قطر {diameter} سم"
+                    registry["colorLabels"][variant] = f"{color} · {size_labels[diameter]}"
         registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
@@ -766,14 +774,14 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             option_label = "خيارات الخزان" if slug in GROHE_CONFIGURATIONS else "التشطيب"
             package_attr = " data-package-options" if slug in GROHE_CONFIGURATIONS or slug == GROHE_FLUSH_PLATE else ""
             finishes = f'<div class="options"{package_attr} role="group" aria-label="{option_label}">{options}</div>'
-        if slug == SHOWER_304:
+        if slug in SIZED_SHOWER_HEADS:
             diameter_options = "".join(
-                f'<button class="diameter-card" type="button" data-diameter="{diameter}" '
-                f'aria-pressed="{str(index == 0).lower()}"><bdi class="diameter-size">{diameter} سم</bdi>'
+                f'<button class="diameter-card" type="button" data-diameter="{diameter}" data-size-label="{size_labels[diameter]}" '
+                f'aria-pressed="{str(index == 0).lower()}"><bdi class="diameter-size">{size_labels[diameter].removeprefix("قطر ")}</bdi>'
                 f'<bdi class="diameter-price" dir="ltr">${amount}</bdi></button>'
-                for index, (diameter, amount) in enumerate(SHOWER_304_DIAMETERS.items())
+                for index, (diameter, amount) in enumerate(SHOWER_304_SIZES.items())
             )
-            finishes += (f'<fieldset class="diameter-picker"><legend>اختر القطر</legend>'
+            finishes += (f'<fieldset class="diameter-picker"><legend>اختر {SIZED_SHOWER_HEADS[slug]}</legend>'
                          f'<div class="diameter-grid">{diameter_options}</div></fieldset>')
         if slug in sets:
             part_cards = "".join(card(part, slug) for part in parts)
@@ -820,14 +828,14 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             description_html = f"<p>{C7_HEAD_DESCRIPTION}</p>"
         if slug in PHOTO_ACCESSORIES:
             description_html = f"<p>{PHOTO_ACCESSORIES[slug][2]}</p>"
-        unit_price_attr = " data-unit-price" if slug in variant_prices or slug == SHOWER_304 else ""
+        unit_price_attr = " data-unit-price" if slug in variant_prices or slug in SIZED_SHOWER_HEADS else ""
         price_html = f'<p class="price-tag" dir="ltr"{unit_price_attr}>${price:,}</p>'
-        if slug == SHOWER_304:
-            default_diameter = next(iter(SHOWER_304_DIAMETERS))
+        if slug in SIZED_SHOWER_HEADS:
+            default_diameter = next(iter(SHOWER_304_SIZES))
             price_html = (
                 '<div class="diameter-summary" aria-live="polite" aria-atomic="true">'
                 '<span>سعر القطعة <bdi data-selected-diameter>'
-                f'قطر {default_diameter} سم</bdi></span>'
+                f'{size_labels[default_diameter]}</bdi></span>'
                 f'<bdi class="diameter-unit-price" dir="ltr" data-unit-price>${price:,}</bdi></div>'
             )
         price_note = ""
@@ -842,9 +850,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     <p class="category">{label}</p><h1><bdi>{model_name}</bdi></h1>
     {origin_badge}
     <div class="velato-gallery{gallery_class}" aria-label="صور المنتج">{gallery}</div>
-    {description_html if slug == SHOWER_304 else ""}
+    {description_html if slug in SIZED_SHOWER_HEADS else ""}
     {finishes}
-    {description_html if slug != SHOWER_304 else ""}
+    {description_html if slug not in SIZED_SHOWER_HEADS else ""}
     {price_html}
     {price_note}
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
@@ -883,7 +891,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
   for (const button of diameters) {
     button.addEventListener("click", () => {
       diameter = button.dataset.diameter;
-      screen.querySelector("[data-selected-diameter]").textContent = "قطر " + diameter + " سم";
+      screen.querySelector("[data-selected-diameter]").textContent = button.dataset.sizeLabel;
       for (const option of diameters) option.setAttribute("aria-pressed", String(option === button));
       unitPriceOutput.textContent = money(unitPrice(product, orderColor()));
       syncOrder();
@@ -989,11 +997,11 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         if slug in variant_prices:
             offer = [{"@type": "Offer", "name": color, "price": amount, "priceCurrency": "USD",
                       "url": f"{origin}/{slug}/"} for color, amount in variant_prices[slug].items()]
-        if slug == SHOWER_304:
-            description = f"{PHOTO_ACCESSORIES[slug][2]} {finish}. أقطار 20–40 سم، بأسعار من $25 إلى $100."
+        if slug in SIZED_SHOWER_HEADS:
+            description = f"{PHOTO_ACCESSORIES[slug][2]} {finish}. {SIZED_SHOWER_HEADS[slug]} من 20 إلى 40 سم، بأسعار من $25 إلى $100."
             offer = [{"@type": "Offer", "name": f"{color} / {diameter} cm",
                       "price": amount, "priceCurrency": "USD", "url": f"{origin}/{slug}/"}
-                     for color in color_galleries[slug] for diameter, amount in SHOWER_304_DIAMETERS.items()]
+                     for color in color_galleries[slug] for diameter, amount in SHOWER_304_SIZES.items()]
         landing(slug, title, description,
                 photos, {"@type": "Product", "@id": f"{origin}/{slug}/#product", "sku": slug,
                          "color": finish, **country,
