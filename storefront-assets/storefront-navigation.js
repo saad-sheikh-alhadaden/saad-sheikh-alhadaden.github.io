@@ -73,7 +73,8 @@
       }
     }
 
-    const group = products[model].category || "mixers";
+    const product = products[model];
+    const group = Object.hasOwn(product.collectionImages || {}, from) ? from : product.category || "mixers";
     const filtered = group === "cabinet-luxury" && bandButton;
     const collection = document.getElementById(filtered ? "washbasins" : group);
     if (!collection || !productPath(collection.id)) return;

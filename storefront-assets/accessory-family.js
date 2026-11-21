@@ -2,7 +2,12 @@
 function bindAccessoryOptions(screen, product, select) {
   const groups = [...screen.querySelectorAll("fieldset[data-axis]")];
   const query = new URLSearchParams(location.search);
-  if (location.pathname.replaceAll("/", "") === screen.id) {
+  const onProductPage = location.pathname.replaceAll("/", "") === screen.id;
+  const collection = query.get("from");
+  const collectionImages = onProductPage && Object.hasOwn(product.collectionImages || {}, collection)
+    ? product.collectionImages[collection] : undefined;
+  if (collectionImages) screen.dataset.collectionView = collection;
+  if (onProductPage) {
     for (const group of groups) {
       const match = [...group.querySelectorAll("input")].find(input => input.value === query.get(group.dataset.axis));
       if (match) match.checked = true;
@@ -16,7 +21,7 @@ function bindAccessoryOptions(screen, product, select) {
     const values = groups.map(group => group.querySelector("input:checked").value);
     const key = values.length ? values.join("|") : product.defaultColor;
     const label = product.colorLabels[key];
-    const src = product.images[key];
+    const src = collectionImages?.[key] ?? product.images[key];
     if (image.getAttribute("src") !== src) image.src = src;
     image.alt = product.name + " · " + label;
     summary.textContent = label;

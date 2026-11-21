@@ -417,7 +417,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     photo_sizes.update(json.loads(Path(__file__).with_name("showerarm").joinpath("sizes.json").read_text()))
     all_photos = dict.fromkeys(photo for model in models.values() for photo in model[2])
-    for photo in (*all_photos, *ACCESSORY_COVERS.values(), GROHE_CISTERN_COVER):
+    collection_photos = dict.fromkeys(families[family.TANK]["collectionImages"][GROHE_GROUP].values())
+    for photo in (*all_photos, *ACCESSORY_COVERS.values(), *collection_photos, GROHE_CISTERN_COVER):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
@@ -567,9 +568,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return (f'<a class="velato-card" href="{set_part_url(slug, set_slug)}">{picture(photo, f"{model_name} · {label} · {finish}")}'
                 f'<span><bdi>{model_name}</bdi><br>{label}<br><bdi>${price:,}</bdi></span></a>')
 
-    def gallery_card(slug, *, cover_photo=None):
+    def gallery_card(slug, *, cover_photo=None, collection=None):
         if slug in families:
-            return family.family_card(slug, families[slug], origin_label(slug), cover_photo=cover_photo)
+            return family.family_card(slug, families[slug], origin_label(slug), cover_photo=cover_photo, collection=collection)
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
         if group in (ACCESSORIES_GROUP, GROHE_GROUP):
@@ -645,7 +646,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     grohe_members = [slug for slug, model in models.items() if model[3] == GROHE_GROUP and slug != family.TANK]
     grohe_members.append(family.TANK)
     grohe_cards = "".join(
-        gallery_card(slug, cover_photo=GROHE_CISTERN_COVER if slug == family.TANK else None)
+        gallery_card(slug, cover_photo=GROHE_CISTERN_COVER, collection=GROHE_GROUP)
+        if slug == family.TANK else gallery_card(slug)
         for slug in grohe_members
     )
     grohe_panel = (
@@ -686,7 +688,7 @@ min-height:44px;height:var(--grohe-card-height,4rem);font-size:1.15rem;font-weig
 .grohe-empty{text-align:center;color:#d5c4b0}
 .grohe-product-list{display:grid;gap:1rem;padding:1rem 0}
 .grohe-product-list .concealed-accessory-photo,.grohe-related .concealed-accessory-photo,
-:is(#grohe-cistern,#grohtherm-smartcontrol,#rapido-smartbox,#grohe-concealed-toilet-mixer-body,#grohe-concealed-shower-mixer-body) .product-image{background:#091a34}
+:is(#grohe-cistern[data-collection-view="grohe"],#grohtherm-smartcontrol,#rapido-smartbox,#grohe-concealed-toilet-mixer-body,#grohe-concealed-shower-mixer-body) .product-image{background:#091a34}
 #grohtherm-smartcontrol [data-axis="form"] .family-choices{grid-template-columns:repeat(3,minmax(0,1fr))}
 #grohtherm-smartcontrol .family-summary > bdi{font-size:clamp(1rem,4vw,1.55rem)}
 #grohtherm-smartcontrol [data-add-cart]:disabled{opacity:.65;cursor:default}

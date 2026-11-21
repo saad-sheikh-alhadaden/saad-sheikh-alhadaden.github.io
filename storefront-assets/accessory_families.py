@@ -55,7 +55,8 @@ FAMILIES = {
     TANK: dict(name="GROHE", label="خزان دفن", cover="cistern",
                description="خزان دفن بتركيبين، مع قواعد تثبيت أو مع شاسيه. يتوفّر مع كبسة الدفن أو بدونها.",
                forms={"feet": "مع قواعد تثبيت", "frame": "مع شاسيه"},
-               photos={"feet": "grohe-cistern-feet-navy", "frame": "grohe-cistern-frame-navy"},
+               photos={"feet": "grohe-cistern-with-feet", "frame": "grohe-cistern"},
+               grohe_photos={"feet": "grohe-cistern-feet-navy", "frame": "grohe-cistern-frame-navy"},
                old={"feet": "grohe-concealed-cistern-with-feet", "frame": "grohe-concealed-cistern"},
                prices={"feet": {"without-plate": 100, "with-plate": 125}, "frame": {"without-plate": 115, "with-plate": 140}}, search="غروهي كروهي المانيا ألمانيا"),
     HAND: dict(name="Hand Shower Set", label="طقم دش يدوي", cover="hand",
@@ -134,7 +135,7 @@ def family_registry(slug, category):
     spec = FAMILIES[slug]
     variants, legacy = build_family(slug)
     words = " ".join(label for _, _, label in variants.values())
-    return {
+    registry = {
         "name": f'{spec["name"]} · {spec["label"]}', "price": min(v[0] for v in variants.values() if v[0] is not None),
         "category": category, "favoriteKey": "saad-saved-" + slug, "defaultColor": next(iter(variants)),
         "prices": {k: v[0] for k, v in variants.items()}, "images": {k: v[1] for k, v in variants.items()},
@@ -143,6 +144,11 @@ def family_registry(slug, category):
                             " ".join(s.replace("-", " ") for s in legacy),
                             "اسود أسود دهبي ذهبي كروم مربع كيوب" if slug != TANK else "")).lower(),
     }
+    if "grohe_photos" in spec:
+        registry["collectionImages"] = {
+            "grohe": {key: f'/assets/{spec["grohe_photos"][key.split("|")[0]]}.webp' for key in variants}
+        }
+    return registry
 
 
 def outlet_label(spec):
@@ -152,7 +158,7 @@ def outlet_label(spec):
     return f'{SMARTCONTROL_OUTLETS[str(count)]} · <bdi lang="en" dir="ltr">{count} Outlet</bdi>'
 
 
-def family_card(slug, registry, origin_label, *, cover_photo=None):
+def family_card(slug, registry, origin_label, *, cover_photo=None, collection=None):
     spec = FAMILIES[slug]
     amounts = {amount for amount in registry["prices"].values() if amount is not None}
     price = f'<bdi dir="ltr">${min(amounts)}</bdi>'
@@ -162,7 +168,8 @@ def family_card(slug, registry, origin_label, *, cover_photo=None):
     heading = (f'<strong>{name}</strong><span>{spec["label"]}</span>' if registry["category"] == "grohe"
                else f'<strong>{spec["label"]}</strong>{name}')
     outlets = outlet_label(spec)
-    return (f'<a class="concealed-accessory-card family-listing" href="/{slug}/">'
+    link = f"/{slug}/" + ("?" + urlencode({"from": collection}) if collection else "")
+    return (f'<a class="concealed-accessory-card family-listing" href="{link}">'
             f'<span class="concealed-accessory-photo"><img loading="lazy" decoding="async" src="{cover_photo or cover(slug)}" alt=""></span>'
             f'<span class="concealed-accessory-copy">{heading}'
             + (f'<small>{escape(origin_label)}</small>' if origin_label else '')
