@@ -996,7 +996,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                     '  }\n' + quantity_listener, 1)
     js = js.replace('addButton.textContent = `أضف إلى السلة — ${money(quantity * unitPrice(product, orderColor()))}`;',
                     'addButton.textContent = `${product.category === "concealed-sets" ? "أضف الطقم للسلة" : "أضف إلى السلة"} — ${money(quantity * unitPrice(product, orderColor()))}`;')
-    js = js.replace("    confirmation.clear();", """    confirmation.clear();
+    js = js.replace("  const syncOrder = () => {", """  const syncOrder = () => {
     const pendingPrice = product.prices?.[orderColor()] === null;
     addButton.disabled = pendingPrice;
     for (const button of screen.querySelectorAll("[data-quantity-change]")) button.disabled = pendingPrice;
@@ -1004,8 +1004,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
       addButton.textContent = "الطلب متاح بعد تحديث السعر";
       return;
     }""", 1)
-    js = js.replace('    if (addButton.hasAttribute("data-cart-added")) return;',
-                    '    if (addButton.disabled || addButton.hasAttribute("data-cart-added")) return;', 1)
+    js = js.replace("    const entry = cart.find(", "    if (addButton.disabled) return;\n    const entry = cart.find(", 1)
     js = js.replace("(products[itemProduct(item)].images ?",
                     "products[itemProduct(item)].prices?.[item.color] !== null &&\n      (products[itemProduct(item)].images ?", 1)
     order_variant = '  const orderColor = () => box?.checked ? color + "-BOX" : color;'
