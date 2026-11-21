@@ -52,7 +52,12 @@ FERRARI_HEAD_SHOWER = "head-shower-ferrari"
 A3_HEAD_SHOWER = "head-shower-a3"
 C7_HEAD_SHOWER = "head-shower-c7"
 C7_HEAD_DESCRIPTION = "رأس دش جداري بتصميم أسطواني عصري."
-A3_HEAD_COVER = "/assets/a3head-cover.webp"
+RAIN_SHOWER_ROUND = "rain-shower-round"
+RAIN_SHOWER_ROUND_DESCRIPTION = "طقم دش يدوي يضمّ سماعة الدش، وخرطومًا مرنًا، وقاعدة تثبيت جدارية للسماعة."
+ACCESSORY_COVERS = {
+    A3_HEAD_SHOWER: "/assets/a3head-cover.webp",
+    RAIN_SHOWER_ROUND: "/assets/rainround-cover.webp",
+}
 A3_HEAD_DESCRIPTION = "رأس دش سقفي بتصميم انسيابي مستوحى من قطرة الماء."
 FERRARI_HEAD_DESCRIPTION = "رأس دش علوي دائري بتصميم عصري."
 HEAD_SHOWER_DESCRIPTION = "رأس دش علوي بتصميم عصري، يجمع بين تدفّق الشلال ورذاذ المطر."
@@ -168,6 +173,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 
     models[C7_HEAD_SHOWER] = ("رأس دش جداري", 150, ["/assets/c7head-black.webp"], ACCESSORIES_GROUP)
 
+    rain_round_galleries = {finish: [f"/assets/rainround-{finish.lower()}.webp"]
+                            for finish in ("Black", "Gold", "Chrome")}
+    color_galleries[RAIN_SHOWER_ROUND] = rain_round_galleries
+    models[RAIN_SHOWER_ROUND] = ("سماعة دش", 50,
+                                [photos[0] for photos in rain_round_galleries.values()], ACCESSORIES_GROUP)
+
     floor_galleries = {
         color: [f"/assets/st0047-{color.lower().replace(' ', '-')}-{index:02}.webp"
                 for index in range(1, count + 1)]
@@ -279,6 +290,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     variant_prices.update({slug: prices for slug, (_, _, prices) in GROHE_CONFIGURATIONS.items()})
     variant_prices[FERRARI_HEAD_SHOWER] = {finish: models[FERRARI_HEAD_SHOWER][1] for finish in ferrari_head_galleries}
     variant_prices[A3_HEAD_SHOWER] = {finish: models[A3_HEAD_SHOWER][1] for finish in a3_head_galleries}
+    variant_prices[RAIN_SHOWER_ROUND] = {finish: models[RAIN_SHOWER_ROUND][1] for finish in rain_round_galleries}
     variant_prices[GROHE_FLUSH_PLATE] = {
         finish: price for finish, (_, price) in GROHE_FLUSH_PLATE_FINISHES.items()
     }
@@ -345,12 +357,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
     photo_sizes["headshower-gold.webp"] = (790, 988)
     photo_sizes["c7head-black.webp"] = (790, 988)
-    for photos in (*ferrari_head_galleries.values(), *a3_head_galleries.values()):
+    for photos in (*ferrari_head_galleries.values(), *a3_head_galleries.values(), *rain_round_galleries.values()):
         photo_sizes[Path(photos[0]).name] = (790, 988)
     for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu", "st0047", "stw101", "stw102", "st56560", "st56570", "st111000", "st307840", "st122dg"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     all_photos = dict.fromkeys(photo for model in models.values() for photo in model[2])
-    for photo in (*all_photos, A3_HEAD_COVER):
+    for photo in (*all_photos, *ACCESSORY_COVERS.values()):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
@@ -397,6 +409,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             return "Head Shower A3", " / ".join(a3_head_galleries)
         if slug == C7_HEAD_SHOWER:
             return "Head Shower C7", "Black"
+        if slug == RAIN_SHOWER_ROUND:
+            return "Rain Shower Round", " / ".join(rain_round_galleries)
         if slug == GROHE_FLUSH_PLATE:
             return GROHE_NAME, " / ".join(GROHE_FLUSH_PLATE_FINISHES)
         if slug in GROHE_CONFIGURATIONS:
@@ -464,6 +478,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return name, FINISH
 
     def country_of_origin(slug):
+        if slug == RAIN_SHOWER_ROUND:
+            return None
         if slug in (HEAD_SHOWER, FERRARI_HEAD_SHOWER, A3_HEAD_SHOWER, C7_HEAD_SHOWER):
             return "Italy", "إيطاليا"
         if slug in GROHE_CONFIGURATIONS or slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
@@ -499,14 +515,14 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                 f'<bdi dir="ltr">${amount:,}</bdi></span>'
                 for package, amount in variant_prices.get(slug, {finish: price}).items()
             )
-            if slug in (FERRARI_HEAD_SHOWER, A3_HEAD_SHOWER):
+            if slug in (FERRARI_HEAD_SHOWER, A3_HEAD_SHOWER, RAIN_SHOWER_ROUND):
                 options = (f'<span class="concealed-accessory-price"><bdi>{finish}</bdi>'
                            f'<bdi dir="ltr">${price:,}</bdi></span>')
             if slug == GROHE_FLUSH_PLATE:
                 prices = variant_prices[slug].values()
                 options = (f'<span class="concealed-accessory-price"><span>٨ خيارات</span>'
                            f'<bdi dir="ltr">${min(prices)}–${max(prices)}</bdi></span>')
-            cover = A3_HEAD_COVER if slug == A3_HEAD_SHOWER else photos[0]
+            cover = ACCESSORY_COVERS.get(slug, photos[0])
             return (f'<a class="concealed-accessory-card" href="/{slug}/">'
                     f'<span class="concealed-accessory-photo">{picture(cover, "")}</span>'
                     f'<span class="concealed-accessory-copy"><strong>{escape(label)} <bdi>{model_name}</bdi></strong>'
@@ -641,6 +657,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T G369369": "اس تي جي 369369 stg369369",
                        "S.T Y5279 Smart": "اس تي واي 5279 سمارت sty5279",
                        "S.T M6245": "اس تي إم 6245 stm6245",
+                       "Rain Shower Round": "سماعة دش يدوي نربيش خرطوم قاعدة اسود ذهبي كروم",
                        "Head Shower C7": "راس دش جداري اسطواني سي 7 اسود",
                        "Head Shower A3": "راس دش سقفي ايه 3 ذهبي مصقول اسود كروم",
                        "Head Shower Ferrari": "راس دش علوي دائري فيراري اسود كروم",
@@ -740,6 +757,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             description_html = f"<p>{A3_HEAD_DESCRIPTION}</p>"
         if slug == C7_HEAD_SHOWER:
             description_html = f"<p>{C7_HEAD_DESCRIPTION}</p>"
+        if slug == RAIN_SHOWER_ROUND:
+            description_html = f"<p>{RAIN_SHOWER_ROUND_DESCRIPTION}</p>"
         unit_price_attr = " data-unit-price" if slug in variant_prices else ""
         price_note = ""
         if slug in PRICE_INCLUDES_BOTH_PARTS:
@@ -846,7 +865,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                            "og:url": url, "twitter:title": full_title, "twitter:description": description}.items():
             page = meta(page, key, value)
         if photos:
-            cover = A3_HEAD_COVER if slug == A3_HEAD_SHOWER else photos[0]
+            cover = ACCESSORY_COVERS.get(slug, photos[0])
             page = preview(page, title, origin + cover)
         data.update({"@context": "https://schema.org", "url": url, "name": title, "description": description})
         page = schema_pattern.sub(lambda _: json_script(data), page, count=1)
@@ -875,6 +894,8 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             description = f"{A3_HEAD_DESCRIPTION} صُنع في إيطاليا. ${price:,}."
         if slug == C7_HEAD_SHOWER:
             description = f"{C7_HEAD_DESCRIPTION} باللون الأسود، صُنع في إيطاليا. ${price:,}."
+        if slug == RAIN_SHOWER_ROUND:
+            description = f"{RAIN_SHOWER_ROUND_DESCRIPTION} {finish}. ${price:,}."
         if slug in variant_prices:
             offer = [{"@type": "Offer", "name": color, "price": amount, "priceCurrency": "USD",
                       "url": f"{origin}/{slug}/"} for color, amount in variant_prices[slug].items()]
