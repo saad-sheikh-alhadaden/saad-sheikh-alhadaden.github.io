@@ -423,7 +423,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     photo_sizes.update(json.loads(Path(__file__).with_name("showerarm").joinpath("sizes.json").read_text()))
     all_photos = dict.fromkeys(photo for model in models.values() for photo in model[2])
     collection_photos = dict.fromkeys(families[family.TANK]["collectionImages"][GROHE_GROUP].values())
-    for photo in (*all_photos, *ACCESSORY_COVERS.values(), *collection_photos, *GROHE_PLATE_NAVY_IMAGES.values(), GROHE_CISTERN_COVER):
+    family_detail_photos = [
+        f'/assets/{spec["detail_photo"]}.webp'
+        for spec in family.FAMILIES.values() if "detail_photo" in spec
+    ]
+    for photo in (*all_photos, *ACCESSORY_COVERS.values(), *collection_photos,
+                  *GROHE_PLATE_NAVY_IMAGES.values(), GROHE_CISTERN_COVER, *family_detail_photos):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
