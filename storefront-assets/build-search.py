@@ -1,12 +1,17 @@
 """Create crawlable collection pages and describe existing storefront photos."""
 import json
 import re
+import sys
 import xml.etree.ElementTree as ET
 from hashlib import sha256
 from html import escape, unescape
 from pathlib import Path
 from runpy import run_path
 from urllib.parse import urlsplit
+
+# This generator is also executed with run_path from the archived catalog installer.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import accessory_families
 
 ROOT = Path("storefront")
 ORIGIN = "https://saad-customer-app.onrender.com"
@@ -215,3 +220,6 @@ for page in ROOT.rglob("index.html"):
     if not count:
         raise ValueError(f"Missing page title in {page}")
     page.write_text(markup)
+
+# Write legacy entry points after generators that expect full product pages.
+accessory_families.write_legacy_pages(ROOT, ORIGIN)

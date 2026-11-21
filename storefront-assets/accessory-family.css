@@ -1,0 +1,27 @@
+.family-listing .concealed-accessory-copy {align-content:center; gap:.3rem}
+.family-listing .concealed-accessory-copy > bdi {text-align:start;direction:ltr;justify-self:start;font-size:.92rem;color:#e3c9a9}
+.family-listing .family-card-forms {color:#dccebf;font-size:.88rem}
+.family-listing .concealed-accessory-price {flex-wrap:wrap;row-gap:.2rem}
+.family-listing .concealed-accessory-price b {color:#f2d3a6;font-size:1.04rem}
+.family-product .product-image {align-self:start;background:#242427}
+.family-product .product-image img {display:block;width:100%;height:clamp(240px,44svh,440px);object-fit:contain}
+.family-product .product-info h1 {overflow-wrap:anywhere}
+.family-product .family-options {min-inline-size:0;padding:0;border:0;margin:1.15rem 0}
+.family-options legend {padding:0;margin-bottom:.5rem;font-size:1rem;font-weight:700}
+.family-choices {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+[data-axis="finish"] .family-choices {grid-template-columns:repeat(3,minmax(0,1fr))}
+.family-choices label {position:relative;cursor:pointer;min-width:0}
+.family-choices input {position:absolute;width:1px;height:1px;opacity:0}
+.family-choices label > span {box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  column-gap:.4rem;row-gap:.12rem;text-align:center;min-height:44px;height:100%;padding:.55rem .35rem;border:1px solid #b7a58a;
+  border-radius:.65rem;background:#fbf8f2;color:#332b21;font-size:.97rem;font-weight:600;line-height:1.45}
+.family-choices [data-option-price] {width:100%;color:#735124;font-size:.92rem}
+.family-choices input:checked + span {background:#241e18;color:#fff4df;border-color:#a7864f;box-shadow:inset 0 0 0 1px #b39765}
+.family-choices input:checked + span [data-option-price] {color:#efcf99}
+.family-choices input:focus-visible + span {outline:2px solid #916b33;outline-offset:3px}
+.family-choices i {width:.82rem;height:.82rem;border-radius:50%;border:1px solid #937d62}
+.swatch-gold {background:linear-gradient(130deg,#ffe8b8,#c29137)}.swatch-chrome {background:linear-gradient(130deg,#fff,#939393,#eee)}.swatch-black {background:#252525}
+.family-summary {display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.8rem 0;border-block:1px solid #cbbb9e;margin:1.2rem 0}
+.family-summary [data-family-summary] {display:block;margin-top:.2rem;font-size:.9rem;color:#67543e}
+.family-summary > bdi {font-size:1.55rem;font-weight:750;color:#785524}
+@media(min-width:650px){[data-axis="size"] .family-choices {grid-template-columns:repeat(4,minmax(0,1fr))}}

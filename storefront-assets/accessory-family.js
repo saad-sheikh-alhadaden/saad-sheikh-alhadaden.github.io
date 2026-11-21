@@ -1,0 +1,54 @@
+// The cart uses the same option key as the photo and unit-price summary.
+function bindAccessoryOptions(screen, product, select) {
+  const groups = [...screen.querySelectorAll("fieldset[data-axis]")];
+  const query = new URLSearchParams(location.search);
+  if (location.pathname.replaceAll("/", "") === screen.id) {
+    for (const group of groups) {
+      const match = [...group.querySelectorAll("input")].find(input => input.value === query.get(group.dataset.axis));
+      if (match) match.checked = true;
+    }
+  }
+  const image = screen.querySelector(".product-image img");
+  const price = screen.querySelector("[data-unit-price]");
+  const summary = screen.querySelector("[data-family-summary]");
+
+  function update() {
+    const values = groups.map(group => group.querySelector("input:checked").value);
+    const key = values.join("|");
+    const label = product.colorLabels[key];
+    const src = product.images[key];
+    if (image.getAttribute("src") !== src) image.src = src;
+    image.alt = product.name + " · " + label;
+    summary.textContent = label;
+    price.textContent = money(product.prices[key]);
+
+    for (const input of screen.querySelectorAll('[data-axis="package"] input')) {
+      const optionKey = [values[0], input.value].join("|");
+      input.parentElement.querySelector("[data-option-price]").textContent = money(product.prices[optionKey]);
+    }
+    for (const input of screen.querySelectorAll('[data-axis="size"] input')) {
+      const optionKey = [values[0], values[1], input.value].join("|");
+      input.parentElement.querySelector("[data-option-label]").textContent = product.colorLabels[optionKey].split(" · ").at(-1);
+    }
+    select(key);
+  }
+
+  for (const group of groups) group.addEventListener("change", update);
+  update();
+}
+
+function migrateAccessoryCart(items, families) {
+  const result = [];
+  for (const item of items) {
+    const family = families.find(([, product]) => item && Object.hasOwn(product.legacyOptions, item.product));
+    if (!family) { result.push(item); continue; }
+    const [slug, product] = family;
+    const variant = product.legacyOptions[item.product][item.color];
+    if (variant && Number.isSafeInteger(item.qty) && item.qty > 0) {
+      const existing = result.find(row => row?.product === slug && row.color === variant);
+      if (existing) existing.qty += item.qty;
+      else result.push({...item, product: slug, color: variant});
+    }
+  }
+  return result;
+}
