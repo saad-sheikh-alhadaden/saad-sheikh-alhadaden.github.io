@@ -41,3 +41,5 @@
 #grohe-flush-plate[data-collection-view="grohe"] .plate-choice img {background:#091a34}
 #grohe-flush-plate :is([data-plate-origin],.velato-warranty)[hidden] {display:none}
 #grohe-flush-plate [data-plate-origin] {margin:0 0 .75rem}
+
+#grohe-flush-plate[data-collection-view="grohe"] .product-image:has(img[src$="grohe-flush-plate-tileable.webp"]) {background:#272727}

@@ -43,7 +43,8 @@ GROHE_FLUSH_PLATE_FINISHES = {
     "مخفية قابلة للتبليط": ("tileable", "قابلة للتبليط", 155),
 }
 GROHE_PLATE_NAVY_IMAGES = {
-    finish: f"/assets/grohe-flush-plate-{suffix}-navy.webp"
+    finish: ("/assets/grohe-flush-plate-tileable.webp" if suffix == "tileable"
+             else f"/assets/grohe-flush-plate-{suffix}-navy.webp")
     for finish, (suffix, _, _) in GROHE_FLUSH_PLATE_FINISHES.items()
 }
 ACCESSORIES_GROUP = "concealed-accessory"
