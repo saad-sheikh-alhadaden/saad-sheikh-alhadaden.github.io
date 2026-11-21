@@ -35,6 +35,7 @@ FAMILIES = {
                        search="كروهي غروهي جروهي بياض سمارت grohe smart control"),
     SMARTBOX: dict(name="Rapido SmartBox", label="قلب دفن سمارت", cover="smartbox",
                    category="grohe", price=130, photo="family-smartbox",
+                   outlet_support="يدعم مخرجًا واحدًا أو مخرجين أو ثلاثة مخارج",
                    description="قلب الدفن الداخلي لنظام Grohtherm SmartControl. يُباع بشكل منفصل عن واجهة التحكّم.",
                    search="كروهي غروهي جروهي سواد داخلي قلب دفن رابيدو grohe smart box"),
     GROHE_SHOWER_BODY: dict(name="GROHE Concealed Shower Mixer Body", label="قلب خلاط شاور دفن",
@@ -144,10 +145,10 @@ def family_registry(slug, category):
     }
 
 
-def fixed_outlet_label(spec):
+def outlet_label(spec):
     count = spec.get("outlets")
     if count is None:
-        return ""
+        return escape(spec.get("outlet_support", ""))
     return f'{SMARTCONTROL_OUTLETS[str(count)]} · <bdi lang="en" dir="ltr">{count} Outlet</bdi>'
 
 
@@ -160,7 +161,7 @@ def family_card(slug, registry, origin_label):
     name = f'<bdi lang="en" dir="ltr">{spec["name"]}</bdi>'
     heading = (f'<strong>{name}</strong><span>{spec["label"]}</span>' if registry["category"] == "grohe"
                else f'<strong>{spec["label"]}</strong>{name}')
-    outlets = fixed_outlet_label(spec)
+    outlets = outlet_label(spec)
     return (f'<a class="concealed-accessory-card family-listing" href="/{slug}/">'
             f'<span class="concealed-accessory-photo"><img loading="lazy" decoding="async" src="{cover(slug)}" alt=""></span>'
             f'<span class="concealed-accessory-copy">{heading}'
@@ -201,7 +202,7 @@ def detail(slug, registry, warranty, origin_label, related=""):
         if slug == SPOUT:
             controls += options(slug, "diverter", "التحويلة", DIVERTERS, DIVERTER_PRICES)
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
-    outlets = fixed_outlet_label(spec)
+    outlets = outlet_label(spec)
     outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
     return f"""
 <section id="{slug}" class="vanity-detail family-product" data-nosnippet hidden>
