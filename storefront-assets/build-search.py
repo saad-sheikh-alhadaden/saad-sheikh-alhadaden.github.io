@@ -186,7 +186,7 @@ cart_hooks = {
     confirmation.clear();''',
     '  addButton.addEventListener("click", () => {': '''  addButton.addEventListener("click", () => {
     if (addButton.hasAttribute("data-cart-added")) return;''',
-    '    renderCart();\n    location.hash = "#cart";': '''    renderCart();
+    '    addCatalogItem(id, orderColor(), quantity);\n    location.hash = "#cart";': '''    addCatalogItem(id, orderColor(), quantity);
     confirmation.show(product, orderColor(), quantity);''',
 }
 for original, replacement in cart_hooks.items():
