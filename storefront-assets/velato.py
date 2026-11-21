@@ -26,6 +26,8 @@ ST_56570 = "st-56570"
 ST_56570_NAME = "S.T 56570"
 ST_111000 = "st-111000"
 ST_111000_NAME = "S.T 118088"
+ST_122DG = "st-122dg"
+ST_122DG_NAME = "S.T 122DG"
 ST_307840 = "st-307840"
 ST_307840_NAME = "S.T 307840"
 ST_GR = "st-gr"
@@ -136,6 +138,15 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     color_galleries[ST_307840] = wall_galleries
     models[ST_307840] = ("خلاط مغسلة جداري بفوّهة انسيابية ممتدّة نحو الحوض", 500,
                         [photo for gallery in wall_galleries.values() for photo in gallery], MOUNTED_GROUP)
+    st122dg_galleries = {
+        color: [f"/assets/st122dg-{color.lower().replace(' ', '-')}-{index:02}.webp"
+                for index in range(1, 4)]
+        for color in ("Brushed Gold", "White")
+    }
+    color_galleries[ST_122DG] = st122dg_galleries
+    models[ST_122DG] = (PARTS["basin"][0], 350,
+                       [photo for gallery in st122dg_galleries.values() for photo in gallery],
+                       "concealed-basin-mixer")
     for kind, price, count in [("shower", 700, 5), ("basin", 350, 2)]:
         slug = f"eclipse-flow-concealed-{kind}"
         galleries = {
@@ -266,7 +277,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
-    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu", "st0047", "stw101", "stw102", "st56560", "st56570", "st111000", "st307840"):
+    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu", "st0047", "stw101", "stw102", "st56560", "st56570", "st111000", "st307840", "st122dg"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
@@ -293,6 +304,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == ST_122DG:
+            return ST_122DG_NAME, " / ".join(color_galleries[slug])
         if slug == ST_307840:
             return ST_307840_NAME, " / ".join(color_galleries[slug])
         if slug == ST_111000:
@@ -356,7 +369,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def country_of_origin(slug):
         if slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
-        if slug == ST_W102 or slug.startswith(ST_GR + "-"):
+        if slug in (ST_W102, ST_122DG) or slug.startswith(ST_GR + "-"):
             return None
         if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
             return ("Italy", "إيطاليا")
@@ -484,6 +497,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_56560_NAME: "اس تي 56560 st56560 رمادي فاتح",
                        ST_56570_NAME: "اس تي 56570 st56570 ذهبي مصقول",
+                       ST_122DG_NAME: "اس تي 122 دي جي st122dg ذهبي مصقول أبيض",
                        ST_307840_NAME: "اس تي 307840 st307840 خلاط حائط رمادي أسود كروم أبيض",
                        ST_111000_NAME: "اس تي 118088 st118088 خلاط مغسلة من السقف أسود كروم",
                        ST_W101_NAME: "اس تي 27 بي st27b",
