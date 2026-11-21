@@ -14,6 +14,7 @@ WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</st
 SET = "velato-concealed-set"
 SET_GROUP = "concealed-sets"
 MOUNTED_GROUP = "floor-ceiling-wall-mixers"
+GROHE_GROUP = "grohe"
 MOUNTED_TITLE = "خلاطات من الأرض والسقف والحائط"
 MOUNTED_SUBTITLE = "Floor, Ceiling & Wall Mixers"
 ST_0047 = "st-0047"
@@ -421,6 +422,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     labels.update({group: label for slug, (label, price, photos, group) in models.items() if slug not in sets})
     labels[ACCESSORIES_GROUP] = "ملحقات الدفن"
     labels[MOUNTED_GROUP] = MOUNTED_TITLE
+    labels[GROHE_GROUP] = "GROHE"
     headings = {
         "encastre": "Encastre",
         SET_GROUP: "Concealed Sets",
@@ -627,6 +629,17 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         '<div class="velato-strip mounting-types" aria-hidden="true">'
         '<span>الأرض</span><span>السقف</span><span>الحائط</span></div></a>'
     )
+    grohe_card = (
+        f'<a class="velato-feature grohe-collection-card" href="/{GROHE_GROUP}/">'
+        '<bdi lang="en" dir="ltr">GROHE</bdi></a>'
+    )
+    grohe_panel = (
+        f'<section class="panel concealed-gallery" id="{GROHE_GROUP}" data-nosnippet hidden>'
+        '<header class="cabinet-heading"><h1><bdi lang="en" dir="ltr">GROHE</bdi></h1></header>'
+        + (grids[GROHE_GROUP] if any(model[3] == GROHE_GROUP for model in models.values()) else
+           '<p class="grohe-empty">لا توجد موديلات معروضة حالياً.</p>')
+        + '</section>'
+    )
     mounted_panel = (
         f'<section class="panel concealed-gallery" id="{MOUNTED_GROUP}" data-nosnippet hidden>'
         f'<header class="cabinet-heading"><h1><small>{MOUNTED_TITLE}</small>'
@@ -653,6 +666,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 #grohe-flush-plate .velato-gallery{display:none}
 .velato-feature small{display:block;margin-top:.35rem;color:#e4b58d}
 .velato-strip,.velato-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
+.grohe-collection-card{box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+min-height:44px;height:var(--grohe-card-height,4rem);font-size:1.15rem;font-weight:600}
+.grohe-empty{text-align:center;color:#d5c4b0}
 .mounting-types{gap:0;border-top:1px solid #4f4033}
 .mounting-types span{text-align:center;padding:.65rem .25rem;color:#e4b58d}
 .mounting-types span+span{border-inline-start:1px solid #4f4033}
@@ -942,7 +958,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     js = js.replace("const products = {", "const products = {\n" + "\n".join(registry_additions), 1)
     if registry_additions[0] not in js:
         raise ValueError("Missing storefront product registry")
-    js = js.replace('const encastreScreens = new Set([', f'const encastreScreens = new Set(["{SET_GROUP}", "{MOUNTED_GROUP}", ', 1)
+    js = js.replace('const encastreScreens = new Set([', f'const encastreScreens = new Set(["{SET_GROUP}", "{MOUNTED_GROUP}", "{GROHE_GROUP}", ', 1)
     quantity_listener = '  for (const button of screen.querySelectorAll("[data-quantity-change]")) {'
     if quantity_listener not in js:
         raise ValueError("Missing storefront quantity controls")
@@ -1014,6 +1030,18 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     js = js.replace('priceLine.append("إجمالي هذا اللون: ",', 'priceLine.append(product.legacyOptions ? "إجمالي القطع: " : "إجمالي هذا اللون: ",', 1)
     js = js.replace('| اللون: ${itemColorLabel(product, item.color)}', '| ${product.legacyOptions ? "المواصفات" : "اللون"}: ${itemColorLabel(product, item.color)}', 1)
     js += "\n" + Path(__file__).with_name("accessory-family.js").read_text()
+    js += """
+{
+  const groheCard = document.querySelector(".grohe-collection-card");
+  const mountedCard = groheCard?.previousElementSibling;
+  if (mountedCard && typeof ResizeObserver === "function") {
+    new ResizeObserver(() => {
+      const height = mountedCard.getBoundingClientRect().height;
+      if (height > 0) groheCard.style.setProperty("--grohe-card-height", height / 2 + "px");
+    }).observe(mountedCard);
+  }
+}
+"""
     new_script = f"assets/storefront-{sha256(js.encode()).hexdigest()[:12]}.js"
     (root / new_script).write_text(js)
 
@@ -1053,13 +1081,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             bilingual_collection_link, html, flags=re.I,
         )
         catalog_link = r'(<a\b[^>]*\bhref="catalogs/saad-encastre\.pdf")'
-        html, count = re.subn(catalog_link, lambda match: mounted_card + match[0], html, count=1)
+        html, count = re.subn(catalog_link, lambda match: mounted_card + grohe_card + match[0], html, count=1)
         if count != 1:
             raise ValueError("Missing Encastre catalog link")
         html = html.replace('href="#encastre"', 'href="/encastre/"')
         html = html.replace("</main>", f'<section class="panel concealed-gallery" id="{SET_GROUP}" data-nosnippet hidden>'
                             f'{collection_heading(SET_GROUP)}{grids[SET_GROUP]}</section>'
-                            + mounted_panel + "".join(details) + "</main>", 1)
+                            + mounted_panel + grohe_panel + "".join(details) + "</main>", 1)
         path.write_text(html)
 
     def landing(slug, title, description, photos, data):
@@ -1132,7 +1160,11 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         children = (list(labels)[1:] if slug == "encastre" else
                     [model for model, data in models.items() if data[3] == slug])
         cover = next((data[2] for data in models.values() if data[3] == slug), models[SET][2])
-        landing(slug, label, f"تصفّح {label} وشاهد الموديلات والتشطيبات والأسعار.", cover,
+        description = f"تصفّح {label} وشاهد الموديلات والتشطيبات والأسعار."
+        if slug == GROHE_GROUP and not children:
+            cover = []
+            description = "قسم GROHE ضمن مجموعات الدفن."
+        landing(slug, label, description, cover,
                 {"@type": "CollectionPage", "mainEntity": {"@type": "ItemList", "itemListElement": [
                     {"@type": "ListItem", "position": index, "url": f"{origin}/{child}/"}
                     for index, child in enumerate(children, 1)]}})
