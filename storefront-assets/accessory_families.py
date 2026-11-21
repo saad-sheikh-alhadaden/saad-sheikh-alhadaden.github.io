@@ -55,7 +55,7 @@ FAMILIES = {
     TANK: dict(name="GROHE", label="خزان دفن", cover="cistern",
                description="خزان دفن بتركيبين، مع قواعد تثبيت أو مع شاسيه. يتوفّر مع كبسة الدفن أو بدونها.",
                forms={"feet": "مع قواعد تثبيت", "frame": "مع شاسيه"},
-               photos={"feet": "grohe-cistern-with-feet", "frame": "grohe-cistern"},
+               photos={"feet": "grohe-cistern-feet-navy", "frame": "grohe-cistern-frame-navy"},
                old={"feet": "grohe-concealed-cistern-with-feet", "frame": "grohe-concealed-cistern"},
                prices={"feet": {"without-plate": 100, "with-plate": 125}, "frame": {"without-plate": 115, "with-plate": 140}}, search="غروهي كروهي المانيا ألمانيا"),
     HAND: dict(name="Hand Shower Set", label="طقم دش يدوي", cover="hand",
