@@ -169,8 +169,34 @@ finish_picker = publish_asset(ROOT, Path(__file__).with_name("storefront-finish-
 photo_css = publish_asset(ROOT, Path(__file__).with_name("storefront-photos.css"))
 photo_js = publish_asset(ROOT, Path(__file__).with_name("storefront-photos.js"))
 photo_controls = f'<link rel="stylesheet" href="{photo_css}"><script defer src="{photo_js}"></script>'
+
+# The catalog generator supplies one cart handler shared by all product screens.
+home = (ROOT / "index.html").read_text()
+cart_script = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
+cart_js = (ROOT / cart_script).read_text()
+cart_hooks = {
+    '  const syncOrder = () => {': '''  const confirmation = cartConfirmationFor(addButton);
+  const syncOrder = () => {
+    confirmation.clear();''',
+    '  addButton.addEventListener("click", () => {': '''  addButton.addEventListener("click", () => {
+    if (addButton.hasAttribute("data-cart-added")) return;''',
+    '    renderCart();\n    location.hash = "#cart";': '''    renderCart();
+    confirmation.show(product.name, quantity);''',
+}
+for original, replacement in cart_hooks.items():
+    if cart_js.count(original) != 1:
+        raise ValueError(f"Expected one shared cart handler containing {original}")
+    cart_js = cart_js.replace(original, replacement)
+cart_js += "\n" + Path(__file__).with_name("storefront-cart-feedback.js").read_text()
+updated_cart_script = f"assets/storefront-{sha256(cart_js.encode()).hexdigest()[:12]}.js"
+(ROOT / updated_cart_script).write_text(cart_js)
+
 for page in ROOT.rglob("index.html"):
     markup = page.read_text()
+    if cart_script in markup:
+        markup = markup.replace(f'<script src="/{cart_script}"',
+                                '<span id="cart-feedback" role="status" aria-atomic="true"></span>\n'
+                                f'<script src="/{updated_cart_script}"')
     if not re.search(r"<img\b", markup, re.I):
         continue
     markup = markup.replace("<span>أول سنتين تبديل</span>", "<span>تبديل فوري خلال أول سنتين، وصيانة خلال السنوات الثلاث التالية.</span>")

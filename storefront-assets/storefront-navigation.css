@@ -68,3 +68,27 @@
 html .app:has(#cabinet-luxury:not([hidden])) > header.top { background: #191713; }
 html .app:has(#cabinet-luxury:not([hidden])) .top .brand-name { color: #f5f0e7; }
 html .app:has(#cabinet-luxury:not([hidden])) .top #back { color: #efd9ad; border-color: #b99a64; }
+
+[data-add-cart][data-cart-added] { position: relative; }
+[data-add-cart][data-cart-added]::after {
+  content: attr(data-cart-added);
+  position: absolute;
+  inset: -1px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #ac8d59;
+  border-radius: inherit;
+  background: #282219;
+  color: #f5dfb6;
+  font-size: .94em;
+  pointer-events: none;
+}
+#cart-feedback {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
