@@ -11,6 +11,7 @@ SPOUT = "shower-spout"
 JET = "shower-jet"
 SMARTACTIVE_CUBE = "concealed-shower-smartactive-cube"
 SMARTACTIVE_ROUND = "concealed-shower-smartactive-round"
+SMARTCONTROL_ROUND = "concealed-shower-smartcontrol-round"
 ESSENCE = "grohe-essence-basin-mixer"
 ESSENCE_BODY = "grohe-universal-concealed-body"
 SMARTCONTROL = "grohtherm-smartcontrol"
@@ -79,6 +80,19 @@ FAMILIES = {
             ("smartround-sprays-navy", "رسم توضيحي لأنماط رش الطاسة الدائرية"),
         ),
         search="كروهي غروهي جروهي شاور دفن سمارت دائري مدور كروم rainshower thermostat smartcontrol round",
+    ),
+    SMARTCONTROL_ROUND: dict(
+        name="Concealed Shower SmartControl Round", label="شاور دفن سمارت دائري",
+        category="grohe", cover="smartcontrol-round-navy", photo="family-smartcontrol-round-navy",
+        price=900, finish_label="Chrome", outlets=2,
+        description="طقم شاور دفن دائري بتشطيب كروم، مع ترموستات مخفي بتقنية SmartControl للتحكّم بالدش العلوي والسماعة اليدوية. اضغط زرّ المخرج لتشغيل المياه أو إيقافها، وأدره لضبط قوة التدفق. يتيح المقبض السفلي ضبط درجة الحرارة بدقة، مع زرّ أمان عند 38 درجة مئوية.",
+        gallery=(
+            ("family-smartcontrol-round-navy", "طقم SmartControl Round بتشطيب كروم"),
+            ("controlround-thermostat-navy", "الترموستات الدائري والسماعة اليدوية"),
+            ("controlround-hand-navy", "السماعة اليدوية أثناء التشغيل"),
+            ("controlround-head-navy", "الدش المطري الدائري أثناء التشغيل"),
+        ),
+        search="كروهي غروهي جروهي شاور دفن سمارت دائري مدور كروم مخرجين ترموستات SmartControl Round shower",
     ),
     ESSENCE: dict(
         name="GROHE Essence Basin Mixer", label="خلاط مغسلة دفن", cover="essence-mixer",
