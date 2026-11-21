@@ -28,5 +28,5 @@
 
 .swatch-brushed-gold {background:linear-gradient(130deg,#f3e4c0,#baa475)}
 
-.family-body-note {margin: -.35rem 0 1rem; color: #67543e; font-size: .9rem}
-.family-body-note a {color: #785524; text-underline-offset: .2em}
+.family-detail-photo.family-body-guide {grid-template-columns:minmax(0,clamp(5.15rem,28%,8.5rem)) minmax(0,1fr);margin-block:.65rem 1.15rem}
+.family-body-guide a {color:inherit;text-underline-offset:.2em}

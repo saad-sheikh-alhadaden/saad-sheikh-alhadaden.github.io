@@ -307,10 +307,15 @@ def detail(slug, registry, warranty, origin_label, related=""):
         finish = selected.split("|")[0]
         prices = {package: registry["prices"][f"{finish}|{package}"] for package in BODY_PACKAGES}
         controls += options(slug, "package", "قلب الدفن", BODY_PACKAGES, prices)
-        body_note = (
-            f'<p class="family-body-note"><a href="/{body_slug}/">قلب الدفن</a> ضروري للتركيب. '
-            'اختَر «بدون قلب الدفن» إذا كان القلب المتوافق متوفّر عندك.</p>'
-        )
+        body_note = f"""
+        <figure class="family-detail-photo family-body-guide">
+          <img src="{cover(body_slug)}" alt="قلب الدفن الداخلي لخلاط مغسلة GROHE Essence"
+               width="790" height="988" loading="lazy" decoding="async">
+          <figcaption><strong><a href="/{body_slug}/">ما هو قلب الدفن؟</a></strong>
+            <span>هو القطعة اللي بتركب جوّا الحيط وبتوصل المياه للخلاط. وجوده ضروري للتركيب.</span>
+            <span>اختَر «بدون قلب الدفن» إذا كان القلب المتوافق متوفّر عندك.</span>
+          </figcaption>
+        </figure>"""
     spray_details = ""
     if "sprays" in spec:
         spray_items = "".join(
