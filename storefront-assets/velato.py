@@ -478,11 +478,20 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         group: '<div class="cabinet-gallery">' + "".join(
             gallery_card(slug) for slug, model in reversed(models.items()) if model[3] == group
         ) + '</div>'
-        for group in labels if group != "encastre"
+        for group in labels if group not in ("encastre", ACCESSORIES_GROUP)
     }
 
-    grids[ACCESSORIES_GROUP] = grids[ACCESSORIES_GROUP].replace('class="cabinet-gallery"',
-                                                               'class="concealed-accessory-list"', 1)
+    pinned_accessories = (GROHE_FLUSH_PLATE, GROHE_FEET_CISTERN, GROHE_CISTERN)
+    accessory_order = [
+        *pinned_accessories,
+        *(slug for slug, model in models.items()
+          if model[3] == ACCESSORIES_GROUP and slug not in pinned_accessories),
+    ]
+    grids[ACCESSORIES_GROUP] = (
+        '<div class="concealed-accessory-list">'
+        + "".join(gallery_card(slug) for slug in accessory_order)
+        + '</div>'
+    )
 
     hero = (f'<a class="velato-feature" href="/{SET_GROUP}/"><span>أطقم الدفن الكاملة'
             '<br><bdi lang="en">Concealed Sets</bdi><small>استعرض الأطقم</small></span>'
