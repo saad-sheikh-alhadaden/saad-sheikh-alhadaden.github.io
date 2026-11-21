@@ -142,7 +142,7 @@ def purchase_controls(order, price):
     <button class="action" data-add-cart type="button">{order} — ${price:,}</button>"""
 
 
-def flush_plate_detail(registry):
+def flush_plate_detail(registry, warranty, origin_badge):
     selected = registry["defaultColor"]
     options = []
     for finish, (suffix, label, price) in GROHE_FLUSH_PLATE_FINISHES.items():
@@ -168,11 +168,12 @@ def flush_plate_detail(registry):
     </div>
   </div>
   <div class="product-info">
+    {origin_badge}
     <div class="plate-heading"><h2 id="plate-choices-title">اختر الكبسة</h2>
       <button class="circle" data-save type="button" aria-label="إضافة GROHE إلى المفضّلة" aria-pressed="false">♡</button></div>
     <div class="plate-grid" role="group" aria-labelledby="plate-choices-title">{"".join(options)}</div>
     {purchase_controls("أضف إلى السلة", price)}
-    {WARRANTY}
+    {warranty}
   </div>
 </section>"""
 
@@ -187,7 +188,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         photos = [f"/assets/octagon-{kind}-{i}.webp" for i in range(1, 5)]
         models[f"octagon-concealed-{kind}"] = (PARTS[kind][0], price, photos, f"concealed-{kind}-mixer")
     color_galleries = {}
-    families = {slug: family.family_registry(slug, ACCESSORIES_GROUP) for slug in family.FAMILIES}
+    families = {slug: family.family_registry(slug, spec.get("category", ACCESSORIES_GROUP))
+                for slug, spec in family.FAMILIES.items()}
     plate_galleries = {
         finish: [f"/assets/grohe-flush-plate-{suffix}.webp"]
         for finish, (suffix, _, _) in GROHE_FLUSH_PLATE_FINISHES.items()
@@ -219,7 +221,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 
     for slug, registry in families.items():
         photos = list(dict.fromkeys(registry["images"].values()))
-        models[slug] = (family.FAMILIES[slug]["label"], registry["price"], photos, ACCESSORIES_GROUP)
+        models[slug] = (family.FAMILIES[slug]["label"], registry["price"], photos, registry["category"])
     for slug, (_, prefix, _, label, price, finishes) in PHOTO_ACCESSORIES.items():
         galleries = {finish: [f"/assets/{prefix}-{finish.lower()}.webp"]
                      for finish in finishes}
@@ -532,6 +534,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return name, FINISH
 
     def country_of_origin(slug):
+        if models[slug][3] == GROHE_GROUP:
+            return "Germany", "ألمانيا"
         if slug in PHOTO_ACCESSORIES or (slug in families and slug != family.TANK):
             return None
         if slug in (HEAD_SHOWER, FERRARI_HEAD_SHOWER, A3_HEAD_SHOWER, C7_HEAD_SHOWER):
@@ -543,6 +547,10 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
             return ("Italy", "إيطاليا")
         return None
+
+    def origin_label(slug):
+        country = country_of_origin(slug)
+        return f"صُنع في {country[1]}" if country else ""
 
     def set_part_url(part, set_slug):
         color = "&amp;color=chrome" if part == CASCATA_TOILET and set_slug == chrome_set else ""
@@ -560,12 +568,12 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
 
     def gallery_card(slug):
         if slug in families:
-            return family.family_card(slug, families[slug])
+            return family.family_card(slug, families[slug], origin_label(slug))
         label, price, photos, group = models[slug]
         model_name, finish = identity(slug)
-        if group == ACCESSORIES_GROUP:
-            country = country_of_origin(slug)
-            origin_badge = f"<small>صُنع في {country[1]}</small>" if country else ""
+        if group in (ACCESSORIES_GROUP, GROHE_GROUP):
+            origin = origin_label(slug)
+            origin_badge = f"<small>{origin}</small>" if origin else ""
             options = "".join(
                 f'<span class="concealed-accessory-price"><span>{escape(package)}</span>'
                 f'<bdi dir="ltr">${amount:,}</bdi></span>'
@@ -741,12 +749,13 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     saved_links = ""
     for slug, (label, price, photos, group) in models.items():
         model_name, finish = identity(slug)
+        warranty = "" if group == GROHE_GROUP else WARRANTY
         if slug in families:
             registry = families[slug]
             registry_additions.append(f'  "{slug}": {json.dumps(registry, ensure_ascii=False)},')
             search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{registry["name"]}</a>'
             saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{registry["name"]}</a>'
-            details.append(family.detail(slug, registry, WARRANTY))
+            details.append(family.detail(slug, registry, warranty, origin_label(slug)))
             continue
         arabic_name = {"OCTAGON": "أوكتاغون", "Velato": "فيلاتو", "Eclipse Flow": "إكليبس فلو",
                        "Cascata Oro": "كاسكاتا أورو",
@@ -822,7 +831,9 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         search_links += f'<a href="/{slug}/" data-search-product="{slug}" hidden>{name}</a>'
         saved_links += f'<a href="/{slug}/" data-saved="{slug}" hidden>{name}</a>'
         if slug == GROHE_FLUSH_PLATE:
-            details.append(flush_plate_detail(registry))
+            plate_origin = origin_label(slug)
+            badge = f'<span class="velato-origin">{plate_origin}</span>' if plate_origin else ""
+            details.append(flush_plate_detail(registry, warranty, badge))
             continue
         parts = sets.get(slug, [])
         gallery_class = " velato-set-thumbnails" if parts else ""
@@ -904,7 +915,11 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             related += '<h2>قطع متناسقة</h2>' + "".join(links)
         order = "أضف الطقم للسلة" if slug in sets else "أضف إلى السلة"
         country = country_of_origin(slug)
-        origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>' if country else ""
+        origin_badge = ""
+        if group == GROHE_GROUP:
+            origin_badge = f'<span class="velato-origin">{origin_label(slug)}</span>'
+        elif country:
+            origin_badge = f'<span class="velato-origin" lang="en" dir="ltr">Made in {country[0]}</span>'
         description_html = f'<p>{escape(GERMAN_SHOWERS[slug][4])}</p>' if slug in GERMAN_SHOWERS else ""
         if slug == HEAD_SHOWER:
             description_html = f"<p>{HEAD_SHOWER_DESCRIPTION}</p>"
@@ -947,7 +962,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
     {price_note}
     {purchase_controls(order, price)}
     {related}
-    {WARRANTY}
+    {warranty}
   </div>
 </section>""")
 
@@ -1119,8 +1134,12 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
         model_name, finish = identity(slug)
         if slug in families:
             spec = family.FAMILIES[slug]
-            description = spec["description"] + (" صُنع في ألمانيا." if slug == family.TANK else "")
-            landing(slug, f"{label} {model_name}", description, photos, family.product_data(slug, families[slug], origin))
+            origin_country = country_of_origin(slug)
+            description = spec["description"]
+            if origin_country:
+                description += f" {origin_label(slug)}."
+            landing(slug, f"{label} {model_name}", description, photos,
+                    family.product_data(slug, families[slug], origin, origin_country[0] if origin_country else None))
             continue
         contents = " يشمل " + " و".join(models[part][0] for part in sets[slug]) + "." if slug in sets else ""
         origin_country = country_of_origin(slug)

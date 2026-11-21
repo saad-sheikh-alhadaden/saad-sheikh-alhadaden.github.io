@@ -113,7 +113,7 @@ def family_registry(slug, category):
     }
 
 
-def family_card(slug, registry):
+def family_card(slug, registry, origin_label):
     spec = FAMILIES[slug]
     amounts = set(registry["prices"].values())
     price = f'<bdi dir="ltr">${min(amounts)}</bdi>'
@@ -122,7 +122,7 @@ def family_card(slug, registry):
     return (f'<a class="concealed-accessory-card family-listing" href="/{slug}/">'
             f'<span class="concealed-accessory-photo"><img loading="lazy" decoding="async" src="{cover(slug)}" alt=""></span>'
             f'<span class="concealed-accessory-copy"><strong>{spec["label"]}</strong><bdi lang="en" dir="ltr">{spec["name"]}</bdi>'
-            + ('<small>صُنع في ألمانيا</small>' if slug == TANK else '')
+            + (f'<small>{escape(origin_label)}</small>' if origin_label else '')
             + f'<span class="family-card-forms">{" · ".join(spec["forms"].values())}</span>'
             f'<span class="concealed-accessory-prices"><span class="concealed-accessory-price"><b>{price}</b>'
             '<span class="concealed-accessory-detail">تفاصيل المنتج</span></span></span></span></a>')
@@ -139,7 +139,7 @@ def options(slug, group, title, labels, prices=None):
             f'<div class="family-choices">{"".join(chips)}</div></fieldset>')
 
 
-def detail(slug, registry, warranty):
+def detail(slug, registry, warranty, origin_label):
     spec = FAMILIES[slug]
     selected = registry["defaultColor"]
     label = registry["colorLabels"][selected]
@@ -155,7 +155,7 @@ def detail(slug, registry, warranty):
         controls += options(slug, "size", "مقاس رأس الدش", {s: size_text("round", s) for s in SIZES}, SIZES)
     if slug == SPOUT:
         controls += options(slug, "diverter", "التحويلة", DIVERTERS, DIVERTER_PRICES)
-    origin = '<span class="velato-origin">صُنع في ألمانيا</span>' if tank else ''
+    origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
     return f"""
 <section id="{slug}" class="vanity-detail family-product" data-nosnippet hidden>
   <div class="product-image"><img src="{registry["images"][selected]}" alt="{spec["label"]} · {label}" width="790" height="988" loading="lazy" decoding="async">
@@ -169,7 +169,7 @@ def detail(slug, registry, warranty):
   </div></section>"""
 
 
-def product_data(slug, registry, origin):
+def product_data(slug, registry, origin, country):
     spec = FAMILIES[slug]
     url = f"{origin}/{slug}/"
     axes = ["form", "package" if slug == TANK else "finish", "diverter" if slug == SPOUT else "size"]
@@ -179,9 +179,9 @@ def product_data(slug, registry, origin):
     images = dict.fromkeys([cover(slug), *registry["images"].values()])
     data = {"@type": "Product", "@id": url + "#product", "sku": slug,
             "image": [origin + path for path in images], "offers": offers}
-    if slug == TANK:
-        data["countryOfOrigin"] = {"@type": "Country", "name": "Germany"}
-    else:
+    if country:
+        data["countryOfOrigin"] = {"@type": "Country", "name": country}
+    if "colors" in spec:
         data["color"] = list(spec["colors"])
     return data
 
