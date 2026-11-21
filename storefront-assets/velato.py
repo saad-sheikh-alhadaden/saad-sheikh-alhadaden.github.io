@@ -27,7 +27,7 @@ ST_56570_NAME = "S.T 56570"
 ST_111000 = "st-111000"
 ST_111000_NAME = "S.T 118088"
 ST_122DG = "st-122dg"
-ST_122DG_NAME = "S.T 122DG"
+ST_122DG_NAME = "S.T 122FG"
 ST_307840 = "st-307840"
 ST_307840_NAME = "S.T 307840"
 ST_GR = "st-gr"
@@ -497,7 +497,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_56560_NAME: "اس تي 56560 st56560 رمادي فاتح",
                        ST_56570_NAME: "اس تي 56570 st56570 ذهبي مصقول",
-                       ST_122DG_NAME: "اس تي 122 دي جي st122dg ذهبي مصقول أبيض",
+                       ST_122DG_NAME: "اس تي 122 إف جي st122fg ذهبي مصقول أبيض",
                        ST_307840_NAME: "اس تي 307840 st307840 خلاط حائط رمادي أسود كروم أبيض",
                        ST_111000_NAME: "اس تي 118088 st118088 خلاط مغسلة من السقف أسود كروم",
                        ST_W101_NAME: "اس تي 27 بي st27b",
