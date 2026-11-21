@@ -12,6 +12,7 @@ JET = "shower-jet"
 SMARTCONTROL = "grohtherm-smartcontrol"
 SMARTACTIVE = "rainshower-smartactive"
 SMARTACTIVE_HAND = "rainshower-smartactive-hand-shower"
+GROHE_WALL_OUTLET = "grohe-wall-outlet"
 SMARTBOX = "rapido-smartbox"
 GROHE_SHOWER_BODY = "grohe-concealed-shower-mixer-body"
 GROHE_TOILET_BODY = "grohe-concealed-toilet-mixer-body"
@@ -71,6 +72,14 @@ FAMILIES = {
         },
         control_note="زر SmartTip خلف المقبض يتيح التبديل بين أنماط الرش بلمسة إصبع واحدة.",
         search="جروهي غروهي كروهي سماعة شاور دوش دش يدوي rain shower hand shower smart tip massage",
+    ),
+    GROHE_WALL_OUTLET: dict(
+        name="GROHE Wall Outlet", label="مخرج دفن", cover="grohe-wall-outlet",
+        category="grohe", colors=("Brushed Gold", "Black", "Chrome"),
+        finish_photos={finish: f"groheoutlet-{finish}" for finish in ("brushed-gold", "black", "chrome")},
+        finish_prices={"brushed-gold": 150, "black": 125, "chrome": None},
+        description="مخرج مياه جداري بتصميم انسيابي، يصل قلب الدفن داخل الجدار بخرطوم سماعة الدش أو الشطّاف.",
+        search="كروهي غروهي جروهي مخرج دفن وصلة جداري سماعة دش مسكة شطاف hose connection wall outlet",
     ),
     SMARTBOX: dict(name="Rapido SmartBox", label="قلب دفن سمارت", cover="smartbox",
                    category="grohe", price=130, photo="family-smartbox",
