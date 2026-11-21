@@ -6,6 +6,11 @@ function dismissCartNotice() {
   cartNotice.replaceChildren();
 }
 
+function scheduleCartNoticeDismissal() {
+  window.clearTimeout(noticeTimer);
+  noticeTimer = window.setTimeout(dismissCartNotice, 4500);
+}
+
 window.addEventListener("hashchange", dismissCartNotice);
 window.addEventListener("pagehide", dismissCartNotice);
 
@@ -25,6 +30,10 @@ function cartConfirmationFor(button) {
     const heading = document.createElement("strong");
     heading.className = "cart-notice-heading";
     heading.textContent = "أُضيف إلى السلة";
+    const action = document.createElement("span");
+    action.className = "cart-notice-action";
+    action.textContent = "عرض السلة";
+    heading.append(action);
     const name = document.createElement("bdi");
     name.className = "cart-notice-product";
     name.textContent = product.name;
@@ -41,9 +50,15 @@ function cartConfirmationFor(button) {
     if (quantity === 2) label.textContent = "إجمالي قطعتين";
     if (quantity > 2) label.textContent = `إجمالي ${quantity} ${quantity < 11 ? "قطع" : "قطعة"}`;
     price.append(label, amount);
-    cartNotice.replaceChildren(heading, name, finish, price);
+    const link = document.createElement("a");
+    link.className = "cart-notice-link";
+    link.href = location.pathname + location.search + "#cart";
+    link.append(heading, name, finish, price);
+    link.addEventListener("focus", () => window.clearTimeout(noticeTimer));
+    link.addEventListener("blur", scheduleCartNoticeDismissal);
+    cartNotice.replaceChildren(link);
     resetTimer = window.setTimeout(clear, 900);
-    noticeTimer = window.setTimeout(dismissCartNotice, 4500);
+    scheduleCartNoticeDismissal();
   }
 
   return { show, clear };

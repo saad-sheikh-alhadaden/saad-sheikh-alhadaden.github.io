@@ -86,7 +86,9 @@ html .app:has(#cabinet-luxury:not([hidden])) .top #back { color: #efd9ad; border
   margin-inline: auto;
   pointer-events: none;
 }
-#cart-feedback:not(:empty) {
+.cart-notice-link {
+  pointer-events: auto;
+  text-decoration: none;
   display: grid;
   grid-template-columns: minmax(0, 1fr) max-content;
   gap: 3px 14px;
@@ -99,6 +101,17 @@ html .app:has(#cabinet-luxury:not([hidden])) .top #back { color: #efd9ad; border
   box-shadow: 0 5px 16px #100c0733;
   text-align: start;
   line-height: 1.4;
+}
+.cart-notice-link:focus-visible {
+  outline: 2px solid #f0d7a8;
+  outline-offset: 3px;
+}
+.cart-notice-action {
+  margin-inline-start: auto;
+  font-size: .82rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: .2em;
 }
 .cart-notice-heading {
   grid-column: 1 / -1;
