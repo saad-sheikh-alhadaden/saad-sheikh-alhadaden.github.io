@@ -40,7 +40,10 @@ FAMILIES = {
                       finish_photos={finish: f"smartactive-{finish}" for finish in ("brushed-gold", "black", "chrome")},
                       finish_prices={"brushed-gold": 750, "black": 450, "chrome": None},
                       card_note="قطر 30 سم · السعر يشمل ساعد الدش",
-                      detail_photo="smartactive-face",
+                      detail_photo=dict(file="smartactive-face", size=(774, 1000),
+                                        title="تفاصيل وجه الطاسة",
+                                        caption="لقطة مقرّبة لفوّهات الرش الخارجية والفتحات الطولية في المنتصف.",
+                                        alt="لقطة مقرّبة لوجه طاسة الدش تُظهر الفوّهات الخارجية وفتحات الرش الوسطى"),
                       description="رأس دش دائري بقطر 30 سم، بتصميم نحيف وعصري. السعر يشمل ساعد الدش.",
                       sprays={
                           "PureRain": "رذاذ مطري ناعم وواسع ينساب من الفوّهات الخارجية ليغطّي الجسم بالكامل.",
@@ -54,6 +57,11 @@ FAMILIES = {
         finish_photos={finish: f"smartactive-hand-{finish}" for finish in ("brushed-gold", "black", "chrome")},
         finish_prices={"brushed-gold": 450, "black": 250, "chrome": None},
         card_note="٣ أنماط للرش · زر SmartTip",
+        detail_photo=dict(file="smartactive-hand-spray-guide", size=(790, 988),
+                          title="تفاصيل الرش وزر SmartTip",
+                          caption="رسم يوضّح فتحات الرش من الأمام ومكان زرّ التبديل خلف المقبض.",
+                          alt="رسم لسماعة الدش من الأمام والخلف يحدّد فتحات Rain وJet وActiveMassage ومكان زر SmartTip",
+                          wide=True),
         description="سماعة دش يدوية بثلاثة أنماط للرش، مع زر SmartTip مدمج خلف المقبض.",
         spray_title="ثلاثة أنماط للرش",
         sprays={
@@ -256,13 +264,15 @@ def detail(slug, registry, warranty, origin_label, related=""):
         spray_details = (f'<p><strong>{spray_title}</strong></p><ul>{spray_items}</ul>'
                          f'<p>{escape(spec["control_note"])}</p>')
     detail_photo = ""
-    if "detail_photo" in spec:
+    if photo := spec.get("detail_photo"):
+        width, height = photo["size"]
+        modifier = " family-detail-photo--wide" if photo.get("wide") else ""
         detail_photo = f"""
-        <figure class="family-detail-photo">
-          <img src="/assets/{spec['detail_photo']}.webp" alt="لقطة مقرّبة لوجه طاسة الدش تُظهر الفوّهات الخارجية وفتحات الرش الوسطى"
-               width="774" height="1000" loading="lazy" decoding="async">
-          <figcaption><strong>تفاصيل وجه الطاسة</strong>
-            <span>لقطة مقرّبة لفوّهات الرش الخارجية والفتحات الطولية في المنتصف.</span>
+        <figure class="family-detail-photo{modifier}">
+          <img src="/assets/{photo['file']}.webp" alt="{escape(photo['alt'])}"
+               width="{width}" height="{height}" loading="lazy" decoding="async">
+          <figcaption><strong>{escape(photo['title'])}</strong>
+            <span>{escape(photo['caption'])}</span>
           </figcaption>
         </figure>"""
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
@@ -292,7 +302,7 @@ def product_data(slug, registry, origin, country):
               for key, amount in registry["prices"].items() if amount is not None]
     images = dict.fromkeys([cover(slug), *registry["images"].values()])
     if "detail_photo" in spec:
-        images[f'/assets/{spec["detail_photo"]}.webp'] = None
+        images[f'/assets/{spec["detail_photo"]["file"]}.webp'] = None
     data = {"@type": "Product", "@id": url + "#product", "sku": slug,
             "image": [origin + path for path in images], "offers": offers}
     if country:

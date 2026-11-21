@@ -424,7 +424,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     all_photos = dict.fromkeys(photo for model in models.values() for photo in model[2])
     collection_photos = dict.fromkeys(families[family.TANK]["collectionImages"][GROHE_GROUP].values())
     family_detail_photos = [
-        f'/assets/{spec["detail_photo"]}.webp'
+        f'/assets/{spec["detail_photo"]["file"]}.webp'
         for spec in family.FAMILIES.values() if "detail_photo" in spec
     ]
     for photo in (*all_photos, *ACCESSORY_COVERS.values(), *collection_photos,
@@ -734,6 +734,8 @@ font-family:inherit;font-size:.72rem;font-weight:600;line-height:1.45;text-align
 .family-detail-photo figcaption strong{display:block;color:#f7e3bd;font-size:1.05rem}
 .family-detail-photo figcaption span{display:block;margin-top:.25rem;color:#d7cbbc;font-size:.875rem}
 @media(max-width:520px){.family-detail-photo{grid-template-columns:minmax(0,44%) minmax(0,1fr)}}
+.family-detail-photo--wide{grid-template-columns:minmax(0,1fr);max-width:36rem}
+.family-detail-photo--wide figcaption{grid-row:1;padding:.3rem .35rem 0}
 .product-info .velato-origin{display:inline-block;margin:.15rem 0 .7rem;padding:.25rem .65rem;
 border:1px solid #aa8a5f;border-radius:100px;color:#5b462c;font-size:.76rem;letter-spacing:.025em}
 #shower-arm .diameter-picker{min-inline-size:0;margin:1.25rem 0 .85rem;padding:0;border:0}
