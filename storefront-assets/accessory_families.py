@@ -9,6 +9,7 @@ OUTLET = "shower-outlet-with-holder"
 TANK = "grohe-cistern"
 SPOUT = "shower-spout"
 JET = "shower-jet"
+SMARTACTIVE_CUBE = "concealed-shower-smartactive-cube"
 ESSENCE = "grohe-essence-basin-mixer"
 ESSENCE_BODY = "grohe-universal-concealed-body"
 SMARTCONTROL = "grohtherm-smartcontrol"
@@ -31,6 +32,30 @@ DIVERTER_PRICES = {"without-diverter": 50, "with-diverter": 75}
 
 # The first entry in each group is the initial selection.
 FAMILIES = {
+    SMARTACTIVE_CUBE: dict(
+        name="Concealed Shower SmartActive Cube", label="شاور دفن سمارت مربع",
+        category="grohe", cover="smartactive-cube", photo="family-smartactive-cube",
+        price=1325, finish_label="Chrome", outlets=3,
+        description="طقم شاور دفن بتشطيب كروم وتصميم مربّع متناسق، يجمع التحكّم الحراري مع دش مطري علوي وسماعة يدوية.",
+        included_parts=(
+            ("خلاط حراري مربّع بثلاثة أزرار",
+             "يثبّت حرارة المياه ويتيح التحكّم بالتدفّق واختيار المخارج الثلاثة، مع صندوق التأسيس المدفون GROHE Rapido SmartBox."),
+            ("طاسة مطرية Rainshower SmartActive 310 Cube",
+             "طاسة مربّعة بمقاس 31 × 31 سم، بنمطَي رش PureRain وActiveRain، مع ذراع جداري بطول 43 سم وصندوق التأسيس الخاص بالطاسة."),
+            ("سماعة يدوية Rainshower SmartActive 130 Cube",
+             "سماعة مربّعة بثلاثة أنماط للرش، مع كوع مخرج جداري مربّع وحامل وخرطوم بطول 150 سم."),
+        ),
+        package_note="الطقم يأتي من دون مصب بانيو.",
+        gallery=(
+            ("family-smartactive-cube", "طقم SmartActive Cube بتشطيب كروم"),
+            ("smartcube-thermostat", "أزرار الخلاط الحراري"),
+            ("smartcube-hand", "وجه السماعة اليدوية المربّعة"),
+            ("smartcube-head", "وجه الطاسة المطرية المربّعة"),
+            ("smartcube-controls", "شرح وظائف لوحة التحكّم"),
+            ("smartcube-sprays", "شرح نمطَي الرش في الطاسة"),
+        ),
+        search="كروهي غروهي جروهي شاور دفن سمارت مربع كيوب كروم rainshower thermostat smartcontrol cube",
+    ),
     ESSENCE: dict(
         name="GROHE Essence Basin Mixer", label="خلاط مغسلة دفن", cover="essence-mixer",
         category="grohe", colors=("Brushed Gold", "Black", "Chrome"),
@@ -167,7 +192,7 @@ def finish_options(spec):
 def build_family(slug):
     spec = FAMILIES[slug]
     if "photo" in spec:
-        return {"standard": (spec["price"], f'/assets/{spec["photo"]}.webp', spec["label"])}, {}
+        return {"standard": (spec["price"], f'/assets/{spec["photo"]}.webp', spec.get("finish_label", spec["label"]))}, {}
     if body_slug := spec.get("required_body"):
         body_price = FAMILIES[body_slug]["price"]
         variants = {
@@ -282,6 +307,10 @@ def options(slug, group, title, labels, prices=None):
             f'<div class="family-choices">{"".join(chips)}</div></fieldset>')
 
 
+def gallery_photos(spec):
+    return {f"/assets/{photo}.webp": alt for photo, alt in spec.get("gallery", ())}
+
+
 def detail(slug, registry, warranty, origin_label, related=""):
     spec = FAMILIES[slug]
     selected = registry["defaultColor"]
@@ -337,6 +366,23 @@ def detail(slug, registry, warranty, origin_label, related=""):
             <span>{escape(photo['caption'])}</span>
           </figcaption>
         </figure>"""
+    gallery = ""
+    if photos := gallery_photos(spec):
+        buttons = "".join(
+            f'<button type="button" data-gallery-src="{src}" data-width="790" data-height="988" '
+            f'aria-pressed="{str(index == 0).lower()}" aria-label="{escape(alt)}">'
+            f'<img src="{src}" alt="" loading="lazy" decoding="async"></button>'
+            for index, (src, alt) in enumerate(photos.items())
+        )
+        gallery = f'<div class="velato-gallery" aria-label="صور المنتج">{buttons}</div>'
+    components = ""
+    if "included_parts" in spec:
+        parts = "".join(
+            f'<li><strong>{escape(title)}</strong><br>{escape(copy)}</li>'
+            for title, copy in spec["included_parts"]
+        )
+        components = (f'<h2 class="family-parts-title">مكوّنات الطقم</h2><ul class="family-parts">{parts}</ul>'
+                      f'<p class="family-parts-note">{escape(spec["package_note"])}</p>')
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
     outlets = outlet_label(spec)
     outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
@@ -345,7 +391,7 @@ def detail(slug, registry, warranty, origin_label, related=""):
   <div class="product-image"><img src="{registry["images"][selected]}" alt="{spec["label"]} · {label}" width="790" height="988" loading="lazy" decoding="async">
     <button class="circle" data-save type="button" aria-label="إضافة إلى المفضّلة" aria-pressed="false">♡</button></div>
   <div class="product-info"><p class="category">{spec["label"]}</p><h1><bdi dir="ltr">{spec["name"]}</bdi></h1>
-    {origin}<p>{spec["description"]}</p>{outlet_note}{spray_details}{detail_photo}{controls}{body_note}
+    {gallery}{origin}<p>{spec["description"]}</p>{outlet_note}{components}{spray_details}{detail_photo}{controls}{body_note}
     <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>سعر القطعة</strong><span data-family-summary>{label}</span></div>
     <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
@@ -362,7 +408,7 @@ def product_data(slug, registry, origin, country):
     offers = [{"@type": "Offer", "name": registry["colorLabels"][key], "price": amount, "priceCurrency": "USD",
                "url": url if "photo" in spec else url + "?" + urlencode(dict(zip(axes, key.split("|"))))}
               for key, amount in registry["prices"].items() if amount is not None]
-    images = dict.fromkeys([cover(slug), *registry["images"].values()])
+    images = dict.fromkeys([cover(slug), *registry["images"].values(), *gallery_photos(spec)])
     if "detail_photo" in spec:
         images[f'/assets/{spec["detail_photo"]["file"]}.webp'] = None
     data = {"@type": "Product", "@id": url + "#product", "sku": slug,

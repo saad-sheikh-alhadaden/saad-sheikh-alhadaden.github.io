@@ -30,3 +30,8 @@
 
 .family-detail-photo.family-body-guide {grid-template-columns:minmax(0,clamp(5.15rem,28%,8.5rem)) minmax(0,1fr);margin-block:.65rem 1.15rem}
 .family-body-guide a {color:inherit;text-underline-offset:.2em}
+
+.family-parts-title {margin: 1rem 0 .4rem; font-size: 1.15rem}
+.family-parts {margin: .4rem 0 1rem; padding-inline-start: 1.2rem}
+.family-parts li + li {margin-top: .6rem}
+.family-parts-note {padding: .55rem .75rem; border-inline-start: 2px solid #b39765; color: #67543e}
