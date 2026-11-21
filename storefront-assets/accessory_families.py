@@ -11,6 +11,7 @@ SPOUT = "shower-spout"
 JET = "shower-jet"
 SMARTCONTROL = "grohtherm-smartcontrol"
 SMARTACTIVE = "rainshower-smartactive"
+SMARTACTIVE_HAND = "rainshower-smartactive-hand-shower"
 SMARTBOX = "rapido-smartbox"
 GROHE_SHOWER_BODY = "grohe-concealed-shower-mixer-body"
 GROHE_TOILET_BODY = "grohe-concealed-toilet-mixer-body"
@@ -47,6 +48,22 @@ FAMILIES = {
                       },
                       control_note="لاختيار نمط الرش، يلزم خلاط SmartControl أو محوّل ثنائي المخارج (2-way diverter). يمكن تشغيل النمطين معًا إذا كانت وحدة التحكّم تدعم ذلك.",
                       search="كروهي غروهي جروهي طاسة رأس راس دش مطري ساعد 30 cm rain shower pure rain active rain"),
+    SMARTACTIVE_HAND: dict(
+        name="Rainshower SmartActive", label="سماعة دش", cover="smartactive-hand",
+        category="grohe", colors=("Brushed Gold", "Black", "Chrome"),
+        finish_photos={finish: f"smartactive-hand-{finish}" for finish in ("brushed-gold", "black", "chrome")},
+        finish_prices={"brushed-gold": 450, "black": 250, "chrome": None},
+        card_note="٣ أنماط للرش · زر SmartTip",
+        description="سماعة دش يدوية بثلاثة أنماط للرش، مع زر SmartTip مدمج خلف المقبض.",
+        spray_title="ثلاثة أنماط للرش",
+        sprays={
+            "Rain": "رذاذ مطري لطيف.",
+            "Jet": "رشّ مركّز.",
+            "ActiveMassage": "تدفّق مائي للتدليك.",
+        },
+        control_note="زر SmartTip خلف المقبض يتيح التبديل بين أنماط الرش بلمسة إصبع واحدة.",
+        search="جروهي غروهي كروهي سماعة شاور دوش دش يدوي rain shower hand shower smart tip massage",
+    ),
     SMARTBOX: dict(name="Rapido SmartBox", label="قلب دفن سمارت", cover="smartbox",
                    category="grohe", price=130, photo="family-smartbox",
                    outlet_support="يدعم مخرجًا واحدًا أو مخرجين أو ثلاثة مخارج",
@@ -235,7 +252,8 @@ def detail(slug, registry, warranty, origin_label, related=""):
             f'<li><strong><bdi lang="en" dir="ltr">{escape(mode)}</bdi></strong> · {escape(description)}</li>'
             for mode, description in spec["sprays"].items()
         )
-        spray_details = (f'<p><strong>نمطان للرش</strong></p><ul>{spray_items}</ul>'
+        spray_title = escape(spec.get("spray_title", "نمطان للرش"))
+        spray_details = (f'<p><strong>{spray_title}</strong></p><ul>{spray_items}</ul>'
                          f'<p>{escape(spec["control_note"])}</p>')
     detail_photo = ""
     if "detail_photo" in spec:
