@@ -369,7 +369,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     def country_of_origin(slug):
         if slug in (ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
-        if slug in (ST_W102, ST_122DG) or slug.startswith(ST_GR + "-"):
+        if slug == ST_W102 or slug.startswith(ST_GR + "-"):
             return None
         if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
             return ("Italy", "إيطاليا")
