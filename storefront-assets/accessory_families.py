@@ -327,7 +327,14 @@ def detail(slug, registry, warranty, origin_label, related=""):
             width="790" height="988" loading="lazy" decoding="async"></a>
         <div>
           <a class="family-required-name" href="/{body_slug}/"><bdi lang="en" dir="ltr">{body['name']}</bdi></a>
-          <button class="action" data-add-required-body="{body_slug}" type="button">أضف قلب الدفن <bdi dir="ltr">${body['price']:,}</bdi></button>
+          <button class="action" data-add-required-body="{body_slug}" type="button">
+            <span data-required-body-add>أضف قلب الدفن · <bdi dir="ltr">${body['price']:,}</bdi></span>
+            <span data-required-body-added hidden>✓ موجود بالسلة</span>
+          </button>
+          <div class="family-required-cart">
+            <span data-required-body-status role="status"></span>
+            <a href="#cart" data-required-body-cart hidden>عرض السلة</a>
+          </div>
         </div>
       </div>
     </aside>"""

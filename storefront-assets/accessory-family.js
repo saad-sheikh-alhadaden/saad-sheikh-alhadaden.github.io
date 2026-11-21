@@ -80,15 +80,32 @@ function addCatalogItem(id, color, quantity) {
   renderCart();
 }
 
+function requiredBodyQuantity(id) {
+  return cart.reduce((total, item) => itemProduct(item) === id ? total + item.qty : total, 0);
+}
+
+function refreshRequiredBodies() {
+  for (const card of document.querySelectorAll(".family-required-body")) {
+    const button = card.querySelector("[data-add-required-body]");
+    const quantity = requiredBodyQuantity(button.dataset.addRequiredBody);
+    const inCart = quantity > 0;
+    button.disabled = inCart;
+    button.querySelector("[data-required-body-add]").hidden = inCart;
+    button.querySelector("[data-required-body-added]").hidden = !inCart;
+    card.querySelector("[data-required-body-cart]").hidden = !inCart;
+    const status = card.querySelector("[data-required-body-status]");
+    const message = inCart ? `الكمية في السلة: ${quantity}` : "";
+    if (status.textContent !== message) status.textContent = message;
+  }
+}
+
 function bindRequiredBody(screen) {
   const button = screen.querySelector("[data-add-required-body]");
   if (!button) return;
   const id = button.dataset.addRequiredBody;
   const body = products[id];
-  const confirmation = cartConfirmationFor(button);
   button.addEventListener("click", () => {
-    if (button.hasAttribute("data-cart-added")) return;
+    if (requiredBodyQuantity(id) > 0) return;
     addCatalogItem(id, body.defaultColor, 1);
-    confirmation.show(body, body.defaultColor, 1);
   });
 }

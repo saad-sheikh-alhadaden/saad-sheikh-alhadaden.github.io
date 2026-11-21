@@ -42,3 +42,7 @@
 .family-required-item img {display: block; width: 100%; height: auto; border-radius: .55rem}
 .family-required-name {display: block; color: inherit; font-size: .95rem; margin-bottom: .45rem; overflow-wrap: anywhere}
 .family-required-item .action {width: auto; min-height: 44px; margin: 0; padding: .5rem .7rem; font-size: .88rem}
+.family-required-item .action:disabled {background: #383b2d; border-color: #90977a; color: #f4f2dc; cursor: default; opacity: 1}
+.family-required-cart {display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .75rem; color: #e5d7c3; font-size: .83rem}
+.family-required-cart:not(:has(a[hidden])) {margin-top: .35rem}
+.family-required-cart a {color: #f2d3a6; padding-block: .35rem; text-underline-offset: .2em}
