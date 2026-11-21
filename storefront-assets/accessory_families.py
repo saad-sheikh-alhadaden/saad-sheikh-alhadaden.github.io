@@ -34,7 +34,7 @@ DIVERTER_PRICES = {"without-diverter": 50, "with-diverter": 75}
 FAMILIES = {
     SMARTACTIVE_CUBE: dict(
         name="Concealed Shower SmartActive Cube", label="شاور دفن سمارت مربع",
-        category="grohe", cover="smartactive-cube", photo="family-smartactive-cube",
+        category="grohe", cover="smartactive-cube-navy", photo="family-smartactive-cube-navy",
         price=1325, finish_label="Chrome", outlets=3,
         description="طقم شاور دفن بتشطيب كروم وتصميم مربّع متناسق، يجمع التحكّم الحراري مع دش مطري علوي وسماعة يدوية.",
         included_parts=(
@@ -47,12 +47,12 @@ FAMILIES = {
         ),
         package_note="الطقم يأتي من دون مصب بانيو.",
         gallery=(
-            ("family-smartactive-cube", "طقم SmartActive Cube بتشطيب كروم"),
-            ("smartcube-thermostat", "أزرار الخلاط الحراري"),
-            ("smartcube-hand", "وجه السماعة اليدوية المربّعة"),
-            ("smartcube-head", "وجه الطاسة المطرية المربّعة"),
-            ("smartcube-controls", "شرح وظائف لوحة التحكّم"),
-            ("smartcube-sprays", "شرح نمطَي الرش في الطاسة"),
+            ("family-smartactive-cube-navy", "طقم SmartActive Cube بتشطيب كروم"),
+            ("smartcube-thermostat-navy", "أزرار الخلاط الحراري"),
+            ("smartcube-hand-navy", "وجه السماعة اليدوية المربّعة"),
+            ("smartcube-head-navy", "وجه الطاسة المطرية المربّعة"),
+            ("smartcube-controls-navy", "شرح وظائف لوحة التحكّم"),
+            ("smartcube-sprays-navy", "شرح نمطَي الرش في الطاسة"),
         ),
         search="كروهي غروهي جروهي شاور دفن سمارت مربع كيوب كروم rainshower thermostat smartcontrol cube",
     ),
