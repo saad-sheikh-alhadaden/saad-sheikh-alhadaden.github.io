@@ -71,3 +71,24 @@ function migrateAccessoryCart(items, families) {
   }
   return result;
 }
+
+function addCatalogItem(id, color, quantity) {
+  const entry = cart.find(item => itemProduct(item) === id && item.color === color);
+  if (entry) entry.qty += quantity;
+  else cart.push({product: id, color, qty: quantity});
+  persistCart();
+  renderCart();
+}
+
+function bindRequiredBody(screen) {
+  const button = screen.querySelector("[data-add-required-body]");
+  if (!button) return;
+  const id = button.dataset.addRequiredBody;
+  const body = products[id];
+  const confirmation = cartConfirmationFor(button);
+  button.addEventListener("click", () => {
+    if (button.hasAttribute("data-cart-added")) return;
+    addCatalogItem(id, body.defaultColor, 1);
+    confirmation.show(body, body.defaultColor, 1);
+  });
+}

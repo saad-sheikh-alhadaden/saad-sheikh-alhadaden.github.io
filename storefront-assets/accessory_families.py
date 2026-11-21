@@ -9,6 +9,8 @@ OUTLET = "shower-outlet-with-holder"
 TANK = "grohe-cistern"
 SPOUT = "shower-spout"
 JET = "shower-jet"
+ESSENCE = "grohe-essence-basin-mixer"
+ESSENCE_BODY = "grohe-universal-concealed-body"
 SMARTCONTROL = "grohtherm-smartcontrol"
 SMARTACTIVE = "rainshower-smartactive"
 SMARTACTIVE_HAND = "rainshower-smartactive-hand-shower"
@@ -28,6 +30,21 @@ DIVERTER_PRICES = {"without-diverter": 50, "with-diverter": 75}
 
 # The first entry in each group is the initial selection.
 FAMILIES = {
+    ESSENCE: dict(
+        name="GROHE Essence Basin Mixer", label="خلاط مغسلة دفن", cover="essence-mixer",
+        category="grohe", colors=("Brushed Gold", "Black", "Chrome"),
+        finish_photos={finish: f"essence-{finish}" for finish in ("brushed-gold", "black", "chrome")},
+        finish_prices={"brushed-gold": 450, "black": 350, "chrome": 250},
+        required_body=ESSENCE_BODY, card_note="الجزء الظاهر · قلب الدفن يُباع منفصلاً",
+        description="خلاط مغسلة جداري من مجموعة Essence، بمصبّ انسيابي ومقبض منفصل للتحكّم بالمياه.",
+        search="غروهي كروهي جروهي ايسنس خلاط مغسلة دفن بياض basin mixer essence",
+    ),
+    ESSENCE_BODY: dict(
+        name="Universal Concealed Body", label="قلب دفن خلاط المغسلة", cover="essence-body",
+        category="grohe", price=160, photo="family-essence-body",
+        description="قلب الدفن الداخلي اللازم لتركيب خلاط مغسلة GROHE Essence، ويُباع بشكل منفصل عن الجزء الظاهر.",
+        search="غروهي كروهي جروهي سواد قلب دفن خلاط المغسلة rough-in universal concealed body",
+    ),
     SMARTCONTROL: dict(name="Grohtherm SmartControl", label="بياض كروهي سمارت", cover="smartcontrol",
                        category="grohe", forms=SMARTCONTROL_OUTLETS, form_title="عدد المخارج",
                        colors=("Brushed Gold", "Black", "Chrome"),
@@ -296,14 +313,32 @@ def detail(slug, registry, warranty, origin_label, related=""):
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
     outlets = outlet_label(spec)
     outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
+    price_title = "سعر القطعة"
+    body_card = ""
+    if body_slug := spec.get("required_body"):
+        body = FAMILIES[body_slug]
+        price_title = "سعر البياض · الجزء الظاهر"
+        body_card = f"""
+    <aside class="family-required-body" aria-label="قلب الدفن المطلوب">
+      <h2>قلب الدفن ضروري للتركيب</h2>
+      <p>سعر البياض للجزء الظاهر فقط. قلب الدفن يُباع بشكل منفصل.</p>
+      <div class="family-required-item">
+        <a href="/{body_slug}/"><img src="{cover(body_slug)}" alt="قلب دفن خلاط المغسلة"
+            width="790" height="988" loading="lazy" decoding="async"></a>
+        <div>
+          <a class="family-required-name" href="/{body_slug}/"><bdi lang="en" dir="ltr">{body['name']}</bdi></a>
+          <button class="action" data-add-required-body="{body_slug}" type="button">أضف قلب الدفن <bdi dir="ltr">${body['price']:,}</bdi></button>
+        </div>
+      </div>
+    </aside>"""
     return f"""
 <section id="{slug}" class="vanity-detail family-product" data-nosnippet hidden>
   <div class="product-image"><img src="{registry["images"][selected]}" alt="{spec["label"]} · {label}" width="790" height="988" loading="lazy" decoding="async">
     <button class="circle" data-save type="button" aria-label="إضافة إلى المفضّلة" aria-pressed="false">♡</button></div>
   <div class="product-info"><p class="category">{spec["label"]}</p><h1><bdi dir="ltr">{spec["name"]}</bdi></h1>
     {origin}<p>{spec["description"]}</p>{outlet_note}{spray_details}{detail_photo}{controls}
-    <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>سعر القطعة</strong><span data-family-summary>{label}</span></div>
-    <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>
+    <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>{price_title}</strong><span data-family-summary>{label}</span></div>
+    <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>{body_card}
     <div class="qty"><span>الكمية</span><button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button><output data-quantity>1</output><button type="button" data-quantity-change="1" aria-label="زيادة الكمية">+</button></div>
     <button class="action" data-add-cart type="button">أضف إلى السلة — ${price:,}</button>{related}{warranty}
   </div></section>"""
