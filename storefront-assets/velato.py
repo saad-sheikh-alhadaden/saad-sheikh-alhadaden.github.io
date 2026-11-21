@@ -26,6 +26,8 @@ ST_56570 = "st-56570"
 ST_56570_NAME = "S.T 56570"
 ST_111000 = "st-111000"
 ST_111000_NAME = "S.T 118088"
+ST_307840 = "st-307840"
+ST_307840_NAME = "S.T 307840"
 ST_GR = "st-gr"
 ST_GR_BASIN = f"{ST_GR}-concealed-basin"
 ST_GR_TOILET = f"{ST_GR}-concealed-toilet"
@@ -127,6 +129,13 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     color_galleries[ST_111000] = ceiling_galleries
     models[ST_111000] = ("خلاط مغسلة بتثبيت سقفي وتحكّم جداري", 500,
                         [photo for gallery in ceiling_galleries.values() for photo in gallery], MOUNTED_GROUP)
+    wall_galleries = {
+        color: [f"/assets/st307840-{color.lower()}-{index:02}.webp" for index in range(1, 6)]
+        for color in ("Gray", "Black", "Chrome", "White")
+    }
+    color_galleries[ST_307840] = wall_galleries
+    models[ST_307840] = ("خلاط مغسلة جداري بفوّهة انسيابية ممتدّة نحو الحوض", 500,
+                        [photo for gallery in wall_galleries.values() for photo in gallery], MOUNTED_GROUP)
     for kind, price, count in [("shower", 700, 5), ("basin", 350, 2)]:
         slug = f"eclipse-flow-concealed-{kind}"
         galleries = {
@@ -257,7 +266,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
                           [chrome_photos[kind][0] for kind in PARTS], SET_GROUP)
     part_sets = {part: slug for slug, parts in sets.items() for part in parts if part != CASCATA_TOILET}
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
-    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu", "st0047", "stw101", "stw102", "st56560", "st56570", "st111000"):
+    for folder in ("velato", "eclipse", "lunaire", "cascata", "stgr", "stbl", "str", "cube", "sphere", "stgu", "st0047", "stw101", "stw102", "st56560", "st56570", "st111000", "st307840"):
         photo_sizes.update(json.loads(Path(__file__).with_name(folder).joinpath("sizes.json").read_text()))
     for photo in dict.fromkeys(photo for model in models.values() for photo in model[2]):
         filename = Path(photo).name
@@ -284,6 +293,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return f'<img src="{photo}" alt="{escape(alt)}" loading="lazy" decoding="async">'
 
     def identity(slug):
+        if slug == ST_307840:
+            return ST_307840_NAME, " / ".join(color_galleries[slug])
         if slug == ST_111000:
             return ST_111000_NAME, " / ".join(color_galleries[slug])
         if slug == ST_56570:
@@ -473,6 +484,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        ST_0047_NAME: "اس تي 9965 st9965",
                        ST_56560_NAME: "اس تي 56560 st56560 رمادي فاتح",
                        ST_56570_NAME: "اس تي 56570 st56570 ذهبي مصقول",
+                       ST_307840_NAME: "اس تي 307840 st307840 خلاط حائط رمادي أسود كروم أبيض",
                        ST_111000_NAME: "اس تي 118088 st118088 خلاط مغسلة من السقف أسود كروم",
                        ST_W101_NAME: "اس تي 27 بي st27b",
                        ST_W102_NAME: "اس تي 82366 st82366",
