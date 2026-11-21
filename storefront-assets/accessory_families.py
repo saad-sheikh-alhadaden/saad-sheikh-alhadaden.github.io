@@ -7,9 +7,13 @@ HEAD = "rain-shower-head-304"
 HAND = "hand-shower-set"
 OUTLET = "shower-outlet-with-holder"
 TANK = "grohe-cistern"
+SPOUT = "shower-spout"
 SIZES = {"20": 25, "25": 50, "30": 75, "40": 100}
 SHAPES = {"round": "دائري", "cube": "مربّع"}
 PACKAGES = {"without-plate": "بدون كبسة الدفن", "with-plate": "مع كبسة الدفن"}
+
+DIVERTERS = {"without-diverter": "بدون تحويلة", "with-diverter": "مع تحويلة"}
+DIVERTER_PRICES = {"without-diverter": 50, "with-diverter": 75}
 
 # The first entry in each group is the initial selection.
 FAMILIES = {
@@ -29,6 +33,11 @@ FAMILIES = {
                  forms=SHAPES, colors=("Gold", "Black", "Chrome"), photos={"round": "roundoutlet", "cube": "cubeoutlet"},
                  old={"round": "round-shower-outlet", "cube": "cube-shower-outlet"},
                  prices={"round": 40, "cube": 50}, search="وصلة نربيش مخرج"),
+    SPOUT: dict(name="Shower Spout", label="مصب دوش", cover="spout",
+                description="مصب دوش جداري بتصميم مدوّر أو مربّع، يتوفّر مع تحويلة أو بدونها.",
+                forms={"round": "مدوّر", "cube": "مربّع"}, colors=("Chrome", "Gold", "Black"),
+                photos={"round": "spout-round", "cube": "spout-cube"}, old={},
+                search="مصب دش شاور تحويلة محول diverter wall spout"),
     HEAD: dict(name="Shower Head 304", label="رأس دش مطري", cover="head",
                description="رأس دش مطري من الستانلس ستيل 304، بفوهات مقاومة لتراكم الكلس.",
                forms=SHAPES, colors=("Chrome", "Black", "Gold"), photos={"round": "shower304", "cube": "cubeshower304"},
@@ -45,8 +54,9 @@ def build_family(slug):
     secondary = PACKAGES if slug == TANK else {color.lower(): color for color in spec["colors"]}
     variants = {}
     legacy = {}
-    for form, choice, size in product(spec["forms"], secondary, SIZES if slug == HEAD else ("",)):
-        parts = [form, choice] + ([size] if size else [])
+    third_axis = {HEAD: SIZES, SPOUT: DIVERTERS}.get(slug, ("",))
+    for form, choice, option in product(spec["forms"], secondary, third_axis):
+        parts = [form, choice] + ([option] if option else [])
         labels = [spec["forms"][form], secondary[choice]]
         old_choice = secondary[choice]
         photo = spec["photos"][form]
@@ -54,15 +64,20 @@ def build_family(slug):
             price = spec["prices"][form][choice]
         else:
             photo += "-" + choice
-            if size:
-                price = SIZES[size]
-                labels.append(size_text(form, size))
-                old_choice += f" / {size} cm"
+            if slug == HEAD:
+                price = SIZES[option]
+                labels.append(size_text(form, option))
+                old_choice += f" / {option} cm"
+            elif slug == SPOUT:
+                price = DIVERTER_PRICES[option]
+                labels.append(DIVERTERS[option])
+                photo += "-" + option
             else:
                 price = spec["prices"][form]
         key = "|".join(parts)
         variants[key] = (price, f"/assets/{photo}.webp", " · ".join(labels))
-        legacy.setdefault(spec["old"][form], {})[old_choice] = key
+        if form in spec["old"]:
+            legacy.setdefault(spec["old"][form], {})[old_choice] = key
     return variants, legacy
 
 
@@ -125,6 +140,8 @@ def detail(slug, registry, warranty):
         controls += options(slug, "finish", "التشطيب", {c.lower(): c for c in spec["colors"]})
     if slug == HEAD:
         controls += options(slug, "size", "مقاس رأس الدش", {s: size_text("round", s) for s in SIZES}, SIZES)
+    if slug == SPOUT:
+        controls += options(slug, "diverter", "التحويلة", DIVERTERS, DIVERTER_PRICES)
     origin = '<span class="velato-origin">صُنع في ألمانيا</span>' if tank else ''
     return f"""
 <section id="{slug}" class="vanity-detail family-product" data-nosnippet hidden>
@@ -142,7 +159,7 @@ def detail(slug, registry, warranty):
 def product_data(slug, registry, origin):
     spec = FAMILIES[slug]
     url = f"{origin}/{slug}/"
-    axes = ["form", "package" if slug == TANK else "finish", "size"]
+    axes = ["form", "package" if slug == TANK else "finish", "diverter" if slug == SPOUT else "size"]
     offers = [{"@type": "Offer", "name": registry["colorLabels"][key], "price": amount, "priceCurrency": "USD",
                "url": url + "?" + urlencode(dict(zip(axes, key.split("|"))))}
               for key, amount in registry["prices"].items()]
