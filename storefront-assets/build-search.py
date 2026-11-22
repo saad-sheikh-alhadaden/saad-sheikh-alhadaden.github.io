@@ -205,6 +205,7 @@ sharing = run_path(str(Path(__file__).with_name("storefront_share.py")), run_nam
 # Publish shared storefront styles and photo controls.
 publish_asset = sharing["publish_asset"]
 milano_logo = publish_asset(ROOT, Path(__file__).with_name("milano-italy-bronze.webp"))
+ferrari_logo = publish_asset(ROOT, Path(__file__).with_name("ferrari-red.webp"))
 milano_css = publish_asset(ROOT, Path(__file__).with_name("storefront-milano.css"))
 logo = Path(__file__).with_name("saad-watermark-gold.webp")
 (ROOT / "assets" / logo.name).write_bytes(logo.read_bytes())
@@ -245,7 +246,7 @@ washbasin_cards = (
 
 for page in ROOT.rglob("index.html"):
     markup = page.read_text()
-    markup = milano_brand.add_to_products(markup, milano_logo)
+    markup = milano_brand.add_to_products(markup, milano_logo, ferrari_logo)
     markup = re.sub(
         r'(<a\b[^>]*\bhref="(?:#toilets|/toilets/)"[^>]*>)\s*تواليت\s*<bdi\b[^>]*>Toilet</bdi>\s*</a>',
         r'\1<strong>كراسي تواليت</strong><small><bdi lang="en" dir="ltr">Toilets</bdi></small></a>',

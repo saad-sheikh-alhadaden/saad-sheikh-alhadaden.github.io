@@ -9,8 +9,8 @@ ITALIAN_ORIGIN = re.compile(
 PRICE = re.compile(r'<p\b[^>]*\bclass="price-tag"[^>]*>.*?</p>', re.S)
 
 
-def add_to_products(markup, logo_url):
-    logo = (f'<img class="milano-brand" src="{logo_url}" alt="Milano Italy" '
+def add_to_products(markup, logo_url, ferrari_url=None):
+    milano_logo = (f'<img class="milano-brand" src="{logo_url}" alt="Milano Italy" '
             'lang="en" width="679" height="328">')
 
     def brand_section(match):
@@ -21,6 +21,10 @@ def add_to_products(markup, logo_url):
         origin = ITALIAN_ORIGIN.search(section, info)
         if not origin:
             return section
+        logo = milano_logo
+        if ferrari_url and re.search(r'\bid="shower-ferrari"', section[:section.index(">")]):
+            logo = (f'<img class="milano-brand" src="{ferrari_url}" alt="Ferrari" '
+                    'width="300" height="419" style="filter:none;max-width:2.65rem;margin-inline:auto">')
         price = PRICE.search(section, info)
         if not price:
             return section[:origin.end()] + logo + section[origin.end():]
