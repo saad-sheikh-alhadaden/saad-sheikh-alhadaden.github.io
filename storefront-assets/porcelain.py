@@ -104,7 +104,7 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
         image = f'<img src="{photo}" alt="{name} باللون {color_label}" width="790" height="988">'
         dimensions = f'<bdi dir="ltr">{size} cm</bdi> · ' if size else ""
         size_line = f'<p>المقاس <bdi dir="ltr">{size} cm</bdi></p>' if size else ""
-        country_line = '<p>صنع في إيطاليا</p>' if country == "Italy" else ""
+        country_line = '<p class="origin" dir="ltr" lang="en">Made in Italy</p>' if country == "Italy" else ""
         card_name, separator, model_name = name.partition(" — ") if group == "kitchen" else (name, "", "")
         if group == "kitchen":
             subtitle = model_name if separator else "Stick Kitchen Mixer"
