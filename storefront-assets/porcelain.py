@@ -26,21 +26,39 @@ def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
         ("stick-kitchen-mixer", "خلاط مجلى ستيك",
          "خلاط مجلى إيطالي بتصميم ستيك، يجمع بين الخطوط الهندسية الدقيقة ولمسة رمادية هادئة. تمنحك رقبة السيليكون المرنة حرية توجيه الماء داخل الحوض بسهولة.",
          400, None, "stick kitchen mixer ستيك خلاط مجلى gray رمادي"),
+        ("st-01-kitchen-mixer", "خلاط مجلى 3 في 1 — Kitchen Mixer S.T 01",
+         "خلاط مجلى إيطالي بتشطيب ذهبي مفرّش ورقبة سيليكون مرنة تمنحك حرية توجيه الماء داخل الحوض. يجمع تصميمه العصري ثلاثة خطوط في خلاط واحد: للمياه الباردة، وللمياه الساخنة، وخط مستقل يُوصَل بفلتر مياه الشرب أو بخط مياه الشركة.",
+         350, None, "st 01 3in1 3 in 1 فلتر brushed gold"),
     )
     publish_models(root, origin, screen_page, schema_pattern, json_script, "kitchen", "kitchen-mixers",
-                   "خلاطات مجلى", "Kitchen Mixers", models, "Gray", "رمادي", country="Italy")
+                   "خلاطات مجلى", "Kitchen Mixers", models, "Gray", "رمادي", country="Italy",
+                   finishes={"st-01-kitchen-mixer": ("Brushed Gold", "ذهبي مفرّش")},
+                   galleries={"st-01-kitchen-mixer": ("detail", "in-use")})
 
 
 def publish_models(root, origin, screen_page, schema_pattern, json_script, group, collection_slug,
-                   collection, english, models, color, color_label, material=None, country=None):
+                   collection, english, models, default_color, default_label, material=None, country=None,
+                   finishes=None, galleries=None):
     cards = []
     sections = []
     home = (root / "index.html").read_text()
     registry = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
     js = (root / registry).read_text()
     for slug, name, description, price, size, keywords in models:
-        photo = f"/assets/{slug}-{color.lower()}.webp"
-        (root / photo[1:]).write_bytes(Path(__file__).with_name(Path(photo).name).read_bytes())
+        color, color_label = (finishes or {}).get(slug, (default_color, default_label))
+        photo = f"/assets/{slug}-{color.lower().replace(' ', '-')}.webp"
+        photos = [photo, *(f"/assets/{slug}-{view}.webp" for view in (galleries or {}).get(slug, ()))]
+        for asset in photos:
+            (root / asset[1:]).write_bytes(Path(__file__).with_name(Path(asset).name).read_bytes())
+        gallery = ""
+        if len(photos) > 1:
+            thumbnails = "".join(
+                f'<button type="button" data-gallery-src="{asset}" data-width="790" data-height="988" '
+                f'aria-label="{name} · {label}" aria-pressed="{str(i == 0).lower()}">'
+                f'<img src="{asset}" width="64" height="80" alt="" loading="lazy"></button>'
+                for i, (asset, label) in enumerate(zip(photos, ("الصورة الرئيسية", "التفاصيل", "أثناء الاستخدام")))
+            )
+            gallery = f'<div class="product-gallery">{thumbnails}</div>'
         image = f'<img src="{photo}" alt="{name} باللون {color_label}" width="790" height="988">'
         dimensions = f'<bdi dir="ltr">{size} cm</bdi> · ' if size else ""
         size_line = f'<p>المقاس <bdi dir="ltr">{size} cm</bdi></p>' if size else ""
@@ -55,6 +73,7 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
             <p class="category">{collection}</p>
             <h1>{name}</h1>
             <p class="product-description">{description}</p>
+            {gallery}
             {size_line}
             <p>اللون {color_label}</p>
             {country_line}
@@ -102,14 +121,16 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
     dest.mkdir(exist_ok=True)
     (dest / "index.html").write_text(page)
     for slug, name, description, price, size, _ in models:
-        photo = f"/assets/{slug}-{color.lower()}.webp"
+        color, color_label = (finishes or {}).get(slug, (default_color, default_label))
+        photo = f"/assets/{slug}-{color.lower().replace(' ', '-')}.webp"
+        photos = [photo, *(f"/assets/{slug}-{view}.webp" for view in (galleries or {}).get(slug, ()))]
         # screen_page opens panels using the shared section class.
         product_shell = home.replace(f'<section id="{slug}" class="vanity-detail" hidden>',
                                      f'<section class="panel" id="{slug}" hidden>', 1)
         page = screen_page(product_shell, slug, slug, name, description, "Product")
         page = page.replace(f'<section class="panel" id="{slug}">', f'<section id="{slug}" class="vanity-detail">', 1)
         schema = {"@context": "https://schema.org", "@type": "Product", "name": name, "description": description,
-                  "sku": slug, "url": f"{origin}/{slug}/", "image": [origin + photo], "color": color,
+                  "sku": slug, "url": f"{origin}/{slug}/", "image": [origin + asset for asset in photos], "color": color,
                   "offers": {"@type": "Offer", "price": price, "priceCurrency": "USD", "url": f"{origin}/{slug}/"}}
         if size:
             schema["size"] = f"{size} cm"
