@@ -110,6 +110,9 @@ publish_v20_photo(ROOT)
 velato = run_path(str(Path(__file__).with_name("velato.py")))
 velato["publish"](ROOT, ORIGIN, STORE, meta, set_product_preview, schema_pattern, json_script)
 
+porcelain = run_path(str(Path(__file__).with_name("porcelain.py")))
+porcelain["publish"](ROOT, ORIGIN, screen_page, schema_pattern, json_script)
+
 image_map = ET.Element("urlset", {"xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
                                   "xmlns:image": "http://www.google.com/schemas/sitemap-image/1.1"})
 java_models = []
@@ -232,7 +235,7 @@ updated_cart_script = f"assets/storefront-{sha256(cart_js.encode()).hexdigest()[
 
 washbasin_cards = (
     ("/cabinet-luxury/", "CABINET LUXURY", "كابينتات فخمة", "مغاسل كابينت فاخرة", "Luxury Bathroom Vanities"),
-    ("#porcelain", "Porcelain", "بورسلان", "مغاسل بورسلان", "Porcelain Basins"),
+    ("/porcelain/", "Porcelain", "بورسلان", "مغاسل بورسلان", "Porcelain Basins"),
     ("#granite", "Granite", "غرانيت", "مغاسل غرانيت", "Granite Basins"),
 )
 

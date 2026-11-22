@@ -11,6 +11,7 @@ GROUPS = {
     "java-mix": "أطقم خلاطات JAVA MIX",
     "washbasins": "المغاسل والكبائن",
     "cabinet-luxury": "مغاسل مع خزائن",
+    "porcelain": "مغاسل بورسلان",
 }
 INTRO = {
     "mixers": "قارن خلاطات المغاسل الطويلة والجدارية بحسب نوع الحوض، وشاهد ألوان كل موديل وسعره.",
@@ -125,13 +126,13 @@ def publish(root, origin, store, branches):
         items = [("الرئيسية", "/")]
         if slug in parents:
             group = parents[slug]
-            if group == "cabinet-luxury":
+            if group in ("cabinet-luxury", "porcelain"):
                 items.append((GROUPS["washbasins"], "/washbasins/"))
             items.append((GROUPS[group], f"/{group}/"))
             page, data, label = update_product(page, data, panel, group, registry, finishes, origin, store)
         elif slug in GROUPS:
             label = GROUPS[slug]
-            if slug == "cabinet-luxury":
+            if slug in ("cabinet-luxury", "porcelain"):
                 items.append((GROUPS["washbasins"], "/washbasins/"))
             content = [{"@type": "ListItem", "position": i, "url": f"{origin}/{link}/",
                         "name": products[link]["name"] if link in products else GROUPS[link]}
