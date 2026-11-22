@@ -137,7 +137,7 @@ FAMILIES = {
         name="Rainshower SmartActive", label="سماعة دش", cover="smartactive-hand",
         category="grohe", colors=("Brushed Gold", "Black", "Chrome"),
         finish_photos={finish: f"smartactive-hand-{finish}" for finish in ("brushed-gold", "black", "chrome")},
-        finish_prices={"brushed-gold": 450, "black": 250, "chrome": None},
+        finish_prices={"brushed-gold": 450, "black": 250, "chrome": 125},
         card_note="٣ أنماط للرش · زر SmartTip",
         detail_photo=dict(file="smartactive-hand-spray-guide", size=(790, 988),
                           title="تفاصيل الرش وزر SmartTip",
