@@ -158,7 +158,7 @@ FAMILIES = {
         name="GROHE Wall Outlet", label="مخرج دفن", cover="grohe-wall-outlet",
         category="grohe", colors=("Brushed Gold", "Black", "Chrome"),
         finish_photos={finish: f"groheoutlet-{finish}" for finish in ("brushed-gold", "black", "chrome")},
-        finish_prices={"brushed-gold": 150, "black": 125, "chrome": None},
+        finish_prices={"brushed-gold": 150, "black": 125, "chrome": 75},
         description="مخرج مياه جداري بتصميم انسيابي، يصل قلب الدفن داخل الجدار بخرطوم سماعة الدش أو الشطّاف.",
         search="كروهي غروهي جروهي مخرج دفن وصلة جداري سماعة دش مسكة شطاف hose connection wall outlet",
     ),
