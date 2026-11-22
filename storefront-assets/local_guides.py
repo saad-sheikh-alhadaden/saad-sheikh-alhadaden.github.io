@@ -180,6 +180,8 @@ def publish_guides(root):
         if page == root / "index.html" and kitchen_link not in source and links not in source:
             raise ValueError("The storefront's home collection menu has changed")
         updated = legacy_actions.sub(upgrade_actions, source.replace(kitchen_link, links))
+        # Apply the same collection styling as Smart Shower.
+        updated = updated.replace("#showers,.concealed-gallery)", "#showers,#kitchen,.concealed-gallery)")
         updated = panel.sub(
             lambda m: m[1] + heading,
             updated, count=1)
