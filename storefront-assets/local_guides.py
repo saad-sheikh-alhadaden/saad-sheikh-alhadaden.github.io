@@ -161,6 +161,7 @@ def publish_guides(root):
     kitchen_link = '<a href="#kitchen">مطبخ <bdi>Kitchen</bdi></a>'
     links = (f'<a href="/{KITCHEN_COLLECTION}/"><strong>خلاطات مجلى</strong>'
              '<small><bdi lang="en" dir="ltr">Kitchen Mixers</bdi></small></a>'
+             f'<a href="/{KITCHEN}/">خلاطات مطبخ في دمشق</a>'
              f'<a href="/{BATH}/">تجهيزات وإكساء حمامات في دمشق</a>')
     legacy_actions = re.compile(r'<div class="contact-actions">([^<]*(?:<a\b[^>]*>.*?</a>\s*)+)</div>', re.S)
 
@@ -169,15 +170,6 @@ def publish_guides(root):
         number = "0" + telephone[1] if telephone else ""
         return branch_links(number) if number in BRANCH_NUMBERS else match[0]
 
-    products = GUIDES[KITCHEN]["groups"][0][2]
-    cards = [read_card(root, *product) for product in products]
-    gallery = "".join(
-        f'<a class="hero mixer-product" href="{card["path"]}">'
-        f'<img src="{escape(card["image"])}" alt="{escape(card["title"])}" width="400" height="500" loading="lazy">'
-        f'<div class="mixer-product-copy"><strong>{escape(card["title"])}</strong>'
-        f'<small><bdi>{escape(card["model"])}</bdi></small><span dir="ltr">${card["price"]}</span></div></a>'
-        for card in cards
-    )
     heading = '<h1>خلاطات مجلى <bdi lang="en" dir="ltr">Kitchen Mixers</bdi></h1>'
     panel = re.compile(r'(<section class="panel" id="kitchen"[^>]*>)\s*<h1>.*?</h1>', re.S)
 
@@ -187,7 +179,7 @@ def publish_guides(root):
             raise ValueError("The storefront's home collection menu has changed")
         updated = legacy_actions.sub(upgrade_actions, source.replace(kitchen_link, links))
         updated = panel.sub(
-            lambda m: m[1] + heading + f'<div class="cabinet-gallery">{gallery}</div>',
+            lambda m: m[1] + heading,
             updated, count=1)
         if updated != source:
             page.write_text(updated)
@@ -200,11 +192,11 @@ def publish_guides(root):
         raise ValueError("Missing kitchen collection panel")
     url = f"{ORIGIN}/{KITCHEN_COLLECTION}/"
     title = f"خلاطات مجلى | Kitchen Mixers | {STORE}"
-    description = "تصفّح موديلات خلاطات المجلى الجدارية والشكّ العالي، مع الصور والأسعار."
+    description = "قسم خلاطات مجلى في متجر شركة سعد شيخ الحدادين."
     collection_page = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", collection_page, count=1)
     collection_page = collection_page.replace(f'rel="canonical" href="{ORIGIN}/"', f'rel="canonical" href="{url}"', 1)
     for key, value in {"description": description, "og:description": description, "og:url": url,
-                       "og:title": title, "og:image": cards[0]["image"]}.items():
+                       "og:title": title}.items():
         collection_page = re.sub(
             rf'(<meta (?:name|property)="{re.escape(key)}" content=")[^"]*',
             lambda m: m[1] + escape(value), collection_page, count=1)
