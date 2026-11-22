@@ -105,6 +105,14 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
         dimensions = f'<bdi dir="ltr">{size} cm</bdi> · ' if size else ""
         size_line = f'<p>المقاس <bdi dir="ltr">{size} cm</bdi></p>' if size else ""
         country_line = '<p class="origin" dir="ltr" lang="en">Made in Italy</p>' if country == "Italy" else ""
+        brand_mark = ""
+        if slug == "stick-kitchen-mixer":
+            logo = Path(__file__).with_name("milano-italy-bronze.webp")
+            (root / "assets" / logo.name).write_bytes(logo.read_bytes())
+            brand_mark = (
+                f'<img src="/assets/{logo.name}" alt="Milano Italy" lang="en" width="679" height="328" '
+                'style="float:left;width:min(27%,7rem);height:auto;margin:1.55rem 2.5% 0">'
+            )
         card_name, separator, model_name = name.partition(" — ") if group == "kitchen" else (name, "", "")
         if group == "kitchen":
             subtitle = model_name if separator else "Stick Kitchen Mixer"
@@ -126,6 +134,7 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
             {size_line}
             {color_line}
             {country_line}
+            {brand_mark}
             <p class="price-tag" data-unit-price dir="ltr">${price}</p>
             <div class="qty">
               <button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button>
