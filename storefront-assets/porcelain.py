@@ -21,7 +21,7 @@ def publish(root, origin, screen_page, schema_pattern, json_script):
             f'<small><bdi dir="ltr">{size} cm</bdi> · أبيض</small>'
             f'<span dir="ltr">${price}</span></div></a>')
     section = f'''<section id="{slug}" class="vanity-detail" hidden>
-      <div class="product-image">{image}</div>
+      <div class="product-image">{image}<button class="save" type="button" data-save aria-pressed="false" aria-label="إضافة إلى المفضّلة">♡</button></div>
       <div class="product-info">
         <p class="category">{collection}</p>
         <h1>{name}</h1>
@@ -56,6 +56,13 @@ def publish(root, origin, screen_page, schema_pattern, json_script):
             r'(<section class="panel" id="porcelain"[^>]*>)\s*<h1>.*?</h1>',
             lambda m: m[1] + f'<h1>{collection}</h1><div class="cabinet-gallery">{card}</div>',
             html, count=1, flags=re.S)
+        for container, attribute in (("saved", "data-saved"), ("result", "data-search-product")):
+            html, count = re.subn(
+                rf'(<[^>]+\bid="{container}"[^>]*>)',
+                lambda m: m[1] + f'<a href="/{slug}/" {attribute}="{slug}" hidden>{name}</a>',
+                html, count=1)
+            if count != 1:
+                raise ValueError(f"Missing {container} in {page}")
         html = html.replace("</main>", section + "</main>", 1)
         page.write_text(html)
     home = (root / "index.html").read_text()
