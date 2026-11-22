@@ -120,7 +120,7 @@ FAMILIES = {
     SMARTACTIVE: dict(name="Rainshower SmartActive", label="طاسة دش جروهي", cover="smartactive",
                       category="grohe", colors=("Brushed Gold", "Black", "Chrome"),
                       finish_photos={finish: f"smartactive-{finish}" for finish in ("brushed-gold", "black", "chrome")},
-                      finish_prices={"brushed-gold": 750, "black": 450, "chrome": None},
+                      finish_prices={"brushed-gold": 750, "black": 650, "chrome": 520},
                       card_note="قطر 30 سم · السعر يشمل ساعد الدش",
                       detail_photo=dict(file="smartactive-face", size=(774, 1000),
                                         title="تفاصيل وجه الطاسة",
