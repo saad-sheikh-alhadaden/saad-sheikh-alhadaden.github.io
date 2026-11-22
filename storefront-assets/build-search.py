@@ -288,7 +288,7 @@ a.top-ten-entry { position: relative; justify-content: center; text-align: cente
 a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
 .velato-feature > span { text-align: center; }
 </style>"""
-    controls = (collection_alignment + f'<link rel="stylesheet" href="{finish_css}">''
+    controls = (collection_alignment + f'<link rel="stylesheet" href="{finish_css}">'
                 f'<script defer src="{finish_picker}"></script>' + photo_controls)
     if 'class="branch-links"' in markup:
         controls += f'<link rel="stylesheet" href="{branch_css}">'
