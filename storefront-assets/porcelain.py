@@ -17,18 +17,37 @@ def publish(root, origin, screen_page, schema_pattern, json_script):
         ("st-7902-porcelain-basin", "مغسلة معلّقة S.T 7902", "مغسلة بورسلان بيضاء بتثبيت جداري، مع مساحة تخزين مدمجة أسفل الحوض لوضع عبوات الشامبو ومستحضرات التجميل في متناول اليد. السعر للمغسلة وحدها، والخلاط والملحقات خارج السعر.", 175, "45 × 42", "st 7902 معلقة رف شامبو wall hung"),
         ("st-7901-porcelain-basin", "مغسلة معلّقة S.T 7901", "مغسلة بورسلان بيضاء بتثبيت جداري، مع فتحة تخزين مدمجة أسفل الحوض ومفتوحة من الخلف، لترتيب عبوات الشامبو ومستحضرات التجميل وإبقائها في متناول اليد. السعر للمغسلة وحدها، والخلاط والملحقات خارج السعر.", 175, "43 × 30", "st 7901 معلقة رف شامبو wall hung"),
     )
+    publish_models(root, origin, screen_page, schema_pattern, json_script, group, group, collection,
+                   "Porcelain Basins", models, "White", "أبيض", "Porcelain")
+
+
+def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
+    models = (
+        ("stick-kitchen-mixer", "خلاط مجلى ستيك",
+         "خلاط مجلى إيطالي بتصميم ستيك، يجمع بين الخطوط الهندسية الدقيقة ولمسة رمادية هادئة. تمنحك رقبة السيليكون المرنة حرية توجيه الماء داخل الحوض بسهولة.",
+         400, None, "stick kitchen mixer ستيك خلاط مجلى gray رمادي"),
+    )
+    publish_models(root, origin, screen_page, schema_pattern, json_script, "kitchen", "kitchen-mixers",
+                   "خلاطات مجلى", "Kitchen Mixers", models, "Gray", "رمادي", country="Italy")
+
+
+def publish_models(root, origin, screen_page, schema_pattern, json_script, group, collection_slug,
+                   collection, english, models, color, color_label, material=None, country=None):
     cards = []
     sections = []
     home = (root / "index.html").read_text()
     registry = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
     js = (root / registry).read_text()
     for slug, name, description, price, size, keywords in models:
-        photo = f"/assets/{slug}-white.webp"
+        photo = f"/assets/{slug}-{color.lower()}.webp"
         (root / photo[1:]).write_bytes(Path(__file__).with_name(Path(photo).name).read_bytes())
-        image = f'<img src="{photo}" alt="{name} من البورسلان الأبيض" width="790" height="988">'
+        image = f'<img src="{photo}" alt="{name} باللون {color_label}" width="790" height="988">'
+        dimensions = f'<bdi dir="ltr">{size} cm</bdi> · ' if size else ""
+        size_line = f'<p>المقاس <bdi dir="ltr">{size} cm</bdi></p>' if size else ""
+        country_line = '<p>صنع في إيطاليا</p>' if country == "Italy" else ""
         card = (f'<a class="hero mixer-product" href="/{slug}/">{image}'
                 f'<div class="mixer-product-copy"><strong>{name}</strong>'
-                f'<small><bdi dir="ltr">{size} cm</bdi> · أبيض</small>'
+                f'<small>{dimensions}{color_label}</small>'
                 f'<span dir="ltr">${price}</span></div></a>')
         section = f'''<section id="{slug}" class="vanity-detail" hidden>
           <div class="product-image">{image}<button class="save" type="button" data-save aria-pressed="false" aria-label="إضافة إلى المفضّلة">♡</button></div>
@@ -36,8 +55,9 @@ def publish(root, origin, screen_page, schema_pattern, json_script):
             <p class="category">{collection}</p>
             <h1>{name}</h1>
             <p class="product-description">{description}</p>
-            <p>المقاس <bdi dir="ltr">{size} cm</bdi></p>
-            <p>اللون أبيض</p>
+            {size_line}
+            <p>اللون {color_label}</p>
+            {country_line}
             <p class="price-tag" data-unit-price dir="ltr">${price}</p>
             <div class="qty">
               <button type="button" data-quantity-change="-1" aria-label="تقليل الكمية">−</button>
@@ -47,9 +67,9 @@ def publish(root, origin, screen_page, schema_pattern, json_script):
             <button class="action" type="button" data-add-cart>أضف إلى السلة</button>
           </div>
         </section>'''
-        data = {"name": name, "search": f"{name} {keywords} porcelain بورسلان أبيض",
-                "price": price, "category": group, "defaultColor": "White",
-                "colorLabels": {"White": "أبيض"}, "images": {"White": photo},
+        data = {"name": name, "search": f"{name} {keywords} {collection} {color_label}",
+                "price": price, "category": group, "defaultColor": color,
+                "colorLabels": {color: color_label}, "images": {color: photo},
                 "favoriteKey": f"saad-saved-{slug}"}
         js = js.replace("const products = {", f'const products = {{\n  "{slug}": {json.dumps(data, ensure_ascii=False)},', 1)
         cards.append(card)
@@ -62,7 +82,7 @@ def publish(root, origin, screen_page, schema_pattern, json_script):
             continue
         html = html.replace(registry, new_registry).replace('href="#porcelain"><bdi', 'href="/porcelain/"><bdi')
         html = re.sub(
-            r'(<section class="panel" id="porcelain"[^>]*>)\s*<h1>.*?</h1>',
+            rf'(<section class="panel" id="{group}"[^>]*>)\s*<h1>.*?</h1>',
             lambda m: m[1] + f'<h1>{collection}</h1><div class="cabinet-gallery">{"".join(cards)}</div>',
             html, count=1, flags=re.S)
         for slug, name, *_ in models:
@@ -76,22 +96,27 @@ def publish(root, origin, screen_page, schema_pattern, json_script):
         html = html.replace("</main>", "".join(sections) + "</main>", 1)
         page.write_text(html)
     home = (root / "index.html").read_text()
-    page = screen_page(home, group, group, "مغاسل بورسلان | Porcelain Basins",
-                       "تصفّح مغاسل البورسلان مع المقاسات والأسعار.")
-    dest = root / group
+    page = screen_page(home, group, collection_slug, f"{collection} | {english}",
+                       f"تصفّح موديلات {collection} وصورها وأسعارها.")
+    dest = root / collection_slug
     dest.mkdir(exist_ok=True)
     (dest / "index.html").write_text(page)
     for slug, name, description, price, size, _ in models:
-        photo = f"/assets/{slug}-white.webp"
+        photo = f"/assets/{slug}-{color.lower()}.webp"
         # screen_page opens panels using the shared section class.
         product_shell = home.replace(f'<section id="{slug}" class="vanity-detail" hidden>',
                                      f'<section class="panel" id="{slug}" hidden>', 1)
         page = screen_page(product_shell, slug, slug, name, description, "Product")
         page = page.replace(f'<section class="panel" id="{slug}">', f'<section id="{slug}" class="vanity-detail">', 1)
         schema = {"@context": "https://schema.org", "@type": "Product", "name": name, "description": description,
-                  "sku": slug, "url": f"{origin}/{slug}/", "image": [origin + photo], "color": "White",
-                  "size": f"{size} cm", "material": "Porcelain",
+                  "sku": slug, "url": f"{origin}/{slug}/", "image": [origin + photo], "color": color,
                   "offers": {"@type": "Offer", "price": price, "priceCurrency": "USD", "url": f"{origin}/{slug}/"}}
+        if size:
+            schema["size"] = f"{size} cm"
+        if material:
+            schema["material"] = material
+        if country:
+            schema["countryOfOrigin"] = {"@type": "Country", "name": country}
         dest = root / slug
         dest.mkdir(exist_ok=True)
         (dest / "index.html").write_text(schema_pattern.sub(lambda _: json_script(schema), page, count=1))

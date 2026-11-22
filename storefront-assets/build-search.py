@@ -112,6 +112,7 @@ velato["publish"](ROOT, ORIGIN, STORE, meta, set_product_preview, schema_pattern
 
 porcelain = run_path(str(Path(__file__).with_name("porcelain.py")))
 porcelain["publish"](ROOT, ORIGIN, screen_page, schema_pattern, json_script)
+porcelain["publish_kitchen"](ROOT, ORIGIN, screen_page, schema_pattern, json_script)
 
 image_map = ET.Element("urlset", {"xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
                                   "xmlns:image": "http://www.google.com/schemas/sitemap-image/1.1"})
