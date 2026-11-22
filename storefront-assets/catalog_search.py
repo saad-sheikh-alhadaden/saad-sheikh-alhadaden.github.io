@@ -89,7 +89,8 @@ def update_product(page, data, panel, group, registry, finishes, origin, store):
         data = finish_group(data, registry, finishes, origin, description)
     else:
         data["@id"] = data["url"] + "#product"
-    data["model"] = label
+    model = re.search(r'<p class="product-description">\s*<bdi[^>]*>([^<]+)</bdi>\s*</p>', panel)
+    data["model"] = text_content(model[1]) if model else label
     data["category"] = GROUPS[group]
     return page, data, label
 
