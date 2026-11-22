@@ -170,7 +170,9 @@ def publish_guides(root):
         number = "0" + telephone[1] if telephone else ""
         return branch_links(number) if number in BRANCH_NUMBERS else match[0]
 
-    heading = '<h1>خلاطات مجلى <bdi lang="en" dir="ltr">Kitchen Mixers</bdi></h1>'
+    heading = ('<header class="cabinet-heading"><h1><small>خلاطات مجلى</small>'
+               '<bdi lang="en" dir="ltr">Kitchen Mixers</bdi></h1></header>'
+               '<p class="catalog-intro">تصفّح خلاطات المجلى وقارن التصاميم والتشطيبات والأسعار.</p>')
     panel = re.compile(r'(<section class="panel" id="kitchen"[^>]*>)\s*<h1>.*?</h1>', re.S)
 
     for page in root.rglob("index.html"):
