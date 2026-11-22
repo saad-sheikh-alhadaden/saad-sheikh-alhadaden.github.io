@@ -162,6 +162,14 @@ FAMILIES = {
         description="مخرج مياه جداري بتصميم انسيابي، يصل قلب الدفن داخل الجدار بخرطوم سماعة الدش أو الشطّاف.",
         search="كروهي غروهي جروهي مخرج دفن وصلة جداري سماعة دش مسكة شطاف hose connection wall outlet",
     ),
+    "grohe-tempesta-shattaf": dict(
+        name="GROHE Tempesta", label="شطّاف كروهي", cover="grohe-tempesta-shattaf",
+        category="grohe", country_unconfirmed=True, colors=("Black", "Brushed Gold", "Chrome"),
+        finish_photos={finish: f"family-grohe-tempesta-shattaf-{finish}" for finish in ("black", "brushed-gold", "chrome")},
+        finish_prices={"black": 125, "brushed-gold": 150, "chrome": 40},
+        description="شطّاف يدوي من مجموعة Tempesta بذراع ضغط للتحكّم بتدفّق المياه.",
+        search="grohe tempesta shattaf شطاف شطّاف كروهي غروهي",
+    ),
     "grohe-essentials-master": dict(
         name="Essentials Master", label="طقم إكسسوارات حمام كروهي", cover="grohe-essentials-master",
         category="grohe", country_unconfirmed=True, photo="family-grohe-essentials-master", price=115, finish_label="Chrome",
