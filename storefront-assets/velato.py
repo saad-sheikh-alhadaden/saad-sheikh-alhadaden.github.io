@@ -691,9 +691,10 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     styles = """<style>
 .velato-feature,.velato-card{display:block;color:#f6ebdc;background:#201c19;border:1px solid #9c7656;border-radius:14px;overflow:hidden;text-decoration:none}
 .velato-feature{margin:1rem 0}.velato-feature>span,.velato-card>span{display:block;padding:.75rem 1rem}
-.encastre-category-link .encastre-category-name{display:grid;gap:.16rem;min-width:0;line-height:1.35;text-align:start}
+.category-list > a.encastre-category-link{display:flex;justify-content:center;align-items:center;padding-inline:1.3rem;text-align:center}
+.category-list > a.encastre-category-link .encastre-category-name{width:100%;display:grid;gap:.16rem;min-width:0;line-height:1.35;text-align:center}
 .encastre-category-name>span{font-weight:600;color:#f6ebdc}
-.encastre-category-name>bdi{font-size:.875rem;color:#d5c4b0;text-align:right}
+.encastre-category-name>bdi{font-size:.875rem;color:#d5c4b0;text-align:center}
 #concealed-accessory .concealed-accessory-list{display:grid;gap:1rem;padding:1rem 0}
 .concealed-accessory-card{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:center;gap:.75rem;padding:.65rem;border:1px solid #5e4c3a;border-radius:14px;background:#201c19;color:inherit;text-decoration:none}
 .concealed-accessory-photo{display:block;border-radius:9px;overflow:hidden;background:#181818}
