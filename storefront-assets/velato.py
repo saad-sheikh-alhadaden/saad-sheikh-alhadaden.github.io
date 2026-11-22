@@ -8,6 +8,7 @@ from html import escape
 from pathlib import Path
 
 import accessory_families as family
+from catalog_search import BREADCRUMB_STYLE, trail
 
 FINISH = "Brushed Rose Gold"
 WARRANTY = '<p class="velato-warranty"><strong>الكفالة الذهبية</strong><span>كفالة 5 سنوات. تبديل فوري خلال أول سنتين، وصيانة خلال السنوات الثلاث التالية.</span></p>'
@@ -438,11 +439,17 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         filename = Path(photo).name
         source = Path(__file__).with_name(filename.split("-", 1)[0])
         shutil.copyfile(source / filename, root / photo.lstrip("/"))
-    labels = {"encastre": "خلاطات الدفن", SET_GROUP: "أطقم الدفن الكاملة"}
-    labels.update({group: label for slug, (label, price, photos, group) in models.items() if slug not in sets})
-    labels[ACCESSORIES_GROUP] = "ملحقات الدفن"
-    labels[MOUNTED_GROUP] = MOUNTED_TITLE
-    labels[GROHE_GROUP] = "GROHE"
+    encastre_links = {
+        "concealed-shower-mixer": "خلاط شاور دفن",
+        "concealed-basin-mixer": "خلاط مغسلة دفن",
+        "concealed-toilet-mixer": "خلاط تواليت دفن",
+        "concealed-accessory": "ملحقات الدفن",
+    }
+
+    labels = {
+        "encastre": "خلاطات الدفن", SET_GROUP: "أطقم الدفن الكاملة",
+        **encastre_links, MOUNTED_GROUP: MOUNTED_TITLE, GROHE_GROUP: GROHE_NAME,
+    }
     headings = {
         "encastre": "Encastre",
         SET_GROUP: "Concealed Sets",
@@ -450,13 +457,6 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         "concealed-basin-mixer": "Concealed Basin Mixer",
         "concealed-toilet-mixer": "Concealed Toilet Mixer",
         "concealed-accessory": "Concealed Accessories",
-    }
-
-    encastre_links = {
-        "concealed-shower-mixer": "خلاط شاور دفن",
-        "concealed-basin-mixer": "خلاط مغسلة دفن",
-        "concealed-toilet-mixer": "خلاط تواليت دفن",
-        "concealed-accessory": "ملحقات الدفن",
     }
 
     def bilingual_collection_link(match):
@@ -1211,7 +1211,24 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
             cover = ACCESSORY_COVERS.get(slug, photos[0])
             page = preview(page, title, origin + cover)
         data.update({"@context": "https://schema.org", "url": url, "name": title, "description": description})
-        page = schema_pattern.sub(lambda _: json_script(data), page, count=1)
+        items = [("الرئيسية", "/")]
+        if slug != "encastre":
+            items.append((labels["encastre"], "/encastre/"))
+        if slug in models:
+            group = models[slug][3]
+            items.append((labels[group], f"/{group}/"))
+            data["category"] = labels[group]
+            model_name = identity(slug)[0]
+            if model_name != GROHE_NAME:
+                data["model"] = model_name
+            if group == GROHE_GROUP or slug in grohe_members:
+                data["brand"] = {"@type": "Brand", "name": GROHE_NAME}
+        nav, breadcrumbs = trail(origin, [*items, (title, f"/{slug}/")])
+        panel = re.compile(rf'(<section\b(?=[^>]*\bid="{re.escape(slug)}")[^>]*>.*?)</section>', re.S)
+        page = panel.sub(lambda m: m[1] + nav + "</section>", page, count=1)
+        page = schema_pattern.sub(
+            lambda _: json_script(data) + "\n" + json_script(breadcrumbs) + BREADCRUMB_STYLE, page, count=1)
+
         target = root / slug
         target.mkdir(exist_ok=True)
         (target / "index.html").write_text(page)
