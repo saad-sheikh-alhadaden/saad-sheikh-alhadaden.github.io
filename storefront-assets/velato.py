@@ -394,7 +394,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     for prefix in ("velato", "octagon", "eclipse-flow", "lunaire-digital-blus", CASCATA, ST_GR):
         slug = f"{prefix}-concealed-set"
         kinds = PARTS if prefix in ("velato", CASCATA, ST_GR) else ("shower", "basin")
-        parts = [f"{prefix}-concealed-{kind}" for kind in kinds]
+        parts = [ST_47454 if prefix == ST_GR and kind == "basin" else f"{prefix}-concealed-{kind}"
+                 for kind in kinds]
         sets[slug] = parts
         if parts[0] in color_galleries:
             galleries = {
