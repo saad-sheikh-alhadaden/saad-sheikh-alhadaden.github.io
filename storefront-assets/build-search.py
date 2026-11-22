@@ -238,10 +238,11 @@ washbasin_cards = (
 
 for page in ROOT.rglob("index.html"):
     markup = page.read_text()
-    markup = markup.replace(
-        '</small></a><a href="/washbasins/">المغاسل والكبائن</a>',
-        '</small></a><a href="/washbasins/"><strong>المغاسل والكبائن</strong>'
+    markup = re.sub(
+        r'<a href="(?:#washbasins|/washbasins/)">المغاسل والكبائن</a>(?=<a href="(?:#accessories|/accessories/)")',
+        '<a href="/washbasins/"><strong>المغاسل والكبائن</strong>'
         '<small><bdi lang="en" dir="ltr">Basins &amp; Vanities</bdi></small></a>',
+        markup,
     )
     for href, old_english, old_arabic, arabic, english in washbasin_cards:
         original = f'<a href="{href}"><bdi lang="en" dir="ltr">{old_english}</bdi><small>{old_arabic}</small></a>'
