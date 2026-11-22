@@ -16,7 +16,14 @@ import accessory_families
 ROOT = Path("storefront")
 ORIGIN = "https://saad-customer-app.onrender.com"
 STORE = "شركة سعد شيخ الحدادين"
+DECOR_BASIN_COLLECTIONS = {
+    "decorative-vessel-basins": ("أجران مغسلة ديكور", "Decorative Vessel Basins"),
+    "freestanding-pedestal-basins": ("مغاسل برميل ديكور", "Freestanding Pedestal Basin"),
+}
+
 COLLECTIONS = {
+    **{slug: (slug, f"{arabic} | {english}", f"تصفّح قسم {arabic} لدى {STORE}.")
+       for slug, (arabic, english) in DECOR_BASIN_COLLECTIONS.items()},
     "mixers": ("mixers", "خلاطات مغاسل فاخرة في دمشق | Trend Of Mixer", "تصفّح خلاطات المغاسل والمطبخ من شركة سعد شيخ الحدادين في دمشق وقارن صور الموديلات وألوانها وأسعارها بالدولار."),
     "showers": ("smart-showers", "أنظمة دش وشاورات ذكية في دمشق | Smart Shower", "اكتشف أنظمة الدش والشاور الذكي من شركة سعد شيخ الحدادين في دمشق. تصفّح صور الموديلات مثل Ferrari وVera وMidas مع الألوان والأسعار."),
     "washbasins": ("washbasins", "مغاسل حمام مع خزائن في دمشق", "تصفّح أقسام المغاسل والكبائن من شركة سعد شيخ الحدادين في دمشق، واختر عرض الكابينت المناسب لحمّامك."),
@@ -124,11 +131,37 @@ for page in sorted(ROOT.glob("*/index.html")):
         ET.SubElement(photo, "image:loc").text = image
     page.write_text(html)
 
+def add_decor_basin_sections(html):
+    vessel, pedestal = DECOR_BASIN_COLLECTIONS
+    vessel_arabic, vessel_english = DECOR_BASIN_COLLECTIONS[vessel]
+    pedestal_arabic, pedestal_english = DECOR_BASIN_COLLECTIONS[pedestal]
+    vessel_card = (f'<a href="/{vessel}/"><strong>{vessel_arabic}</strong>'
+                   f'<small><bdi lang="en" dir="ltr">{vessel_english}</bdi></small></a>')
+    pedestal_card = (f'<a class="velato-feature" href="/{pedestal}/"><span>'
+                     f'<strong>{pedestal_arabic}</strong><br><bdi lang="en" dir="ltr">{pedestal_english}</bdi>'
+                     '<small>استعرض المغاسل</small></span></a>')
+    panels = "".join(
+        f'<section class="panel" id="{slug}" hidden><h1>{arabic}<br>'
+        f'<bdi lang="en" dir="ltr">{english}</bdi></h1>'
+        '<p>ستُضاف الموديلات قريباً.</p>'
+        '<a class="contact-card" href="/washbasins/">المغاسل والكبائن</a></section>'
+        for slug, (arabic, english) in DECOR_BASIN_COLLECTIONS.items()
+    )
+
+    def add_cards(match):
+        panel = match[0]
+        panel = panel.replace('</div><div class="vanity-filter"', vessel_card + '</div><div class="vanity-filter"', 1)
+        return panel.replace("</section>", pedestal_card + "</section>" + panels, 1)
+
+    return re.sub(r'<section class="panel" id="washbasins"[^>]*>.*?</section>',
+                  add_cards, html, count=1, flags=re.S)
+
+
 # Keep the colour-first JAVA MIX selector and expose direct model links beneath it.
 model_links = "".join(f'<a href="{escape(path)}">{escape(name)}</a>' for path, name in java_models)
 model_list = f'<details><summary>تصفّح بحسب نوع الخلاط</summary><div class="collections category-list">{model_links}</div></details>'
 for page in ROOT.rglob("index.html"):
-    html = category_links(page.read_text())
+    html = add_decor_basin_sections(category_links(page.read_text()))
     html = html.replace('<a class="contact-card" href="catalogs/java-mix-2027.pdf"',
                         model_list + '<a class="contact-card" href="catalogs/java-mix-2027.pdf"', 1)
     page.write_text(html)
