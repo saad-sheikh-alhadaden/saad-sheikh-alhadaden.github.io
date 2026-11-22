@@ -166,7 +166,7 @@ FAMILIES = {
         name="GROHE Bath Spout", label="مصب بانيو كروهي", cover="grohe-bath-spout",
         category="grohe", colors=("Chrome", "Brushed Gold", "Black"),
         finish_photos={finish: f"grohebathspout-{finish}" for finish in ("chrome", "brushed-gold", "black")},
-        finish_prices={"chrome": 125, "brushed-gold": 175, "black": 150},
+        finish_prices={"chrome": 170, "brushed-gold": 400, "black": 325},
         description="مصبّ جداري لملء البانيو، بتصميم نحيف وقاعدة مربّعة.",
         search="كروهي غروهي جروهي مصب بانيو حوض استحمام جداري bath spout tub filler",
     ),
