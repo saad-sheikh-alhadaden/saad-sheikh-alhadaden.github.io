@@ -81,6 +81,7 @@ ST_GR_TOILET = f"{ST_GR}-concealed-toilet"
 SET_PRICES = {SET: 1975, f"{ST_GR}-concealed-set": 1000}
 ST_GU = "st-gu-concealed-toilet"
 ST_GU_PRICES = {"Brushed Gold": 300, "Gray": 300, "Black": 275, "Chrome": 250}
+ST_47454 = "st-47454-concealed-basin"
 ST_BL_BASIN = "st-bl-concealed-basin"
 ST_R_BASIN = "st-r-concealed-basin"
 COORDINATED_GROUPS = (
@@ -372,6 +373,9 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         color_galleries[slug] = galleries
         models[slug] = (label, next(iter(prices.values())), [images[0] for images in galleries.values()],
                         "concealed-shower-mixer")
+    st_47454_photo = "/assets/st47454-basin-gray.webp"
+    color_galleries[ST_47454] = {"Gray": [st_47454_photo]}
+    models[ST_47454] = ("خلاط مغسلة سمارت", 400, [st_47454_photo], "concealed-basin-mixer")
     cover_manifest = json.loads(Path(__file__).with_name("cinematic").joinpath("covers.json").read_text())
     cover_paths = {f"/assets/{original}": f"/assets/{replacement['file']}"
                    for original, replacement in cover_manifest.items()}
@@ -414,6 +418,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
     photo_sizes = {replacement["file"]: replacement["size"] for replacement in cover_manifest.values()}
     for photo in models[HEAD_SHOWER][2]:
         photo_sizes[Path(photo).name] = (790, 988)
+    photo_sizes[Path(st_47454_photo).name] = (790, 988)
     photo_sizes["c7head-black.webp"] = (790, 988)
     for slug in (FERRARI_HEAD_SHOWER, A3_HEAD_SHOWER, *PHOTO_ACCESSORIES):
         for photos in color_galleries[slug].values():
@@ -504,6 +509,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         if slug in GERMAN_SHOWERS:
             name, _, _, prices, _ = GERMAN_SHOWERS[slug]
             return name, " / ".join(prices)
+        if slug == ST_47454:
+            return "S.T 47454", "Gray"
         if slug in (ST_BL_BASIN, ST_R_BASIN):
             name = "S.T M2YH" if slug == ST_BL_BASIN else "S.T 10088"
             return name, " / ".join(color_galleries[slug])
@@ -556,7 +563,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             return "Italy", "إيطاليا"
         if slug in (family.TANK, ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
-        if slug in (ST_W102, GROHE_FLUSH_PLATE) or slug.startswith(ST_GR + "-"):
+        if slug in (ST_47454, ST_W102, GROHE_FLUSH_PLATE) or slug.startswith(ST_GR + "-"):
             return None
         if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
             return ("Italy", "إيطاليا")
@@ -813,6 +820,7 @@ border-radius:10px;background:#f7f0e3;color:#392b1b;text-decoration:none;font-we
                        "S.T Gr": "اس تي جي آر st gr",
                        "S.T GU": "اس تي جي يو st gu",
                        "S.T 10088": "اس تي 10088 st10088",
+                       "S.T 47454": "اس تي 47454 st47454 سمارت رمادي",
                        "S.T M2YH": "اس تي إم 2 واي إتش stm2yh",
                        "S.T 20019": "اس تي 20019 st20019",
                        "S.T 222": "اس تي 222 st222",
