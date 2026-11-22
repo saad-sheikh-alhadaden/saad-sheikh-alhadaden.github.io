@@ -83,7 +83,7 @@ FAMILIES = {
     SMARTCONTROL_ROUND: dict(
         name="Concealed Shower SmartControl Round", label="شاور دفن سمارت دائري",
         category="grohe", cover="smartcontrol-round-navy", photo="family-smartcontrol-round-navy",
-        price=900, finish_label="Chrome", outlets=2,
+        price=1075, finish_label="Chrome", outlets=2,
         description="طقم شاور دفن دائري بتشطيب كروم، مع ترموستات مخفي بتقنية SmartControl للتحكّم بالدش العلوي والسماعة اليدوية. اضغط زرّ المخرج لتشغيل المياه أو إيقافها، وأدره لضبط قوة التدفق. يتيح المقبض السفلي ضبط درجة الحرارة بدقة، مع زرّ أمان عند 38 درجة مئوية.",
         gallery=(
             ("family-smartcontrol-round-navy", "طقم SmartControl Round بتشطيب كروم"),
