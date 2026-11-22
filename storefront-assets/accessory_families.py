@@ -163,7 +163,7 @@ FAMILIES = {
         search="كروهي غروهي جروهي مخرج دفن وصلة جداري سماعة دش مسكة شطاف hose connection wall outlet",
     ),
     "grohe-tempesta-shattaf": dict(
-        name="GROHE Tempesta", label="شطّاف كروهي", cover="grohe-tempesta-shattaf",
+        name="GROHE Tempesta Bidet", label="شطاف كروهي", label_below_name=True, cover="grohe-tempesta-shattaf",
         category="grohe", country_unconfirmed=True, colors=("Black", "Brushed Gold", "Chrome"),
         finish_photos={finish: f"family-grohe-tempesta-shattaf-{finish}" for finish in ("black", "brushed-gold", "chrome")},
         finish_prices={"black": 125, "brushed-gold": 150, "chrome": 40},
@@ -443,13 +443,16 @@ def detail(slug, registry, warranty, origin_label, related=""):
     if note := spec.get("package_note"):
         components += f'<p class="family-parts-note">{escape(note)}</p>'
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
+    category_label = f'<p class="category">{escape(spec["label"])}</p>'
+    name_heading = f'<h1><bdi dir="ltr">{escape(spec["name"])}</bdi></h1>'
+    title = name_heading + category_label if spec.get("label_below_name") else category_label + name_heading
     outlets = outlet_label(spec)
     outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
     return f"""
 <section id="{slug}" class="vanity-detail family-product" data-nosnippet hidden>
   <div class="product-image"><img src="{registry["images"][selected]}" alt="{spec["label"]} · {label}" width="790" height="988" loading="lazy" decoding="async">
     <button class="circle" data-save type="button" aria-label="إضافة إلى المفضّلة" aria-pressed="false">♡</button></div>
-  <div class="product-info"><p class="category">{spec["label"]}</p><h1><bdi dir="ltr">{spec["name"]}</bdi></h1>
+  <div class="product-info">{title}
     {gallery}{origin}<p>{spec["description"]}</p>{outlet_note}{components}{spray_details}{detail_photo}{controls}{body_note}
     <div class="family-summary" aria-live="polite" aria-atomic="true"><div><strong>سعر القطعة</strong><span data-family-summary>{label}</span></div>
     <bdi dir="ltr" data-unit-price>${price:,}</bdi></div>
