@@ -47,7 +47,6 @@ FAMILIES = {
             ("سماعة يدوية Rainshower SmartActive 130 Cube",
              "سماعة مربّعة بثلاثة أنماط للرش، مع كوع مخرج جداري مربّع وحامل وخرطوم بطول 150 سم."),
         ),
-        package_note="الطقم يأتي من دون مصب بانيو.",
         gallery=(
             ("family-smartactive-cube-navy", "طقم SmartActive Cube بتشطيب كروم"),
             ("smartcube-thermostat-navy", "أزرار الخلاط الحراري"),
@@ -71,7 +70,7 @@ FAMILIES = {
             ("سماعة يدوية Rainshower SmartActive 130",
              "سماعة دائرية بثلاثة أنماط للرش، مع مخرج جداري دائري بحامل مدمج وخرطوم بطول 150 سم."),
         ),
-        package_note="الطقم يأتي من دون مصب بانيو. تظهر وحدة التحكّم اللاسلكية في صور الشرح للتوضيح فقط.",
+        package_note="تظهر وحدة التحكّم اللاسلكية في صور الشرح للتوضيح فقط.",
         gallery=(
             ("family-smartactive-round-navy", "طقم SmartActive Round بتشطيب كروم"),
             ("smartround-thermostat-navy", "أزرار الخلاط الحراري الدائري"),
@@ -419,8 +418,9 @@ def detail(slug, registry, warranty, origin_label, related=""):
             f'<li><strong>{escape(title)}</strong><br>{escape(copy)}</li>'
             for title, copy in spec["included_parts"]
         )
-        components = (f'<h2 class="family-parts-title">مكوّنات الطقم</h2><ul class="family-parts">{parts}</ul>'
-                      f'<p class="family-parts-note">{escape(spec["package_note"])}</p>')
+        components = f'<h2 class="family-parts-title">مكوّنات الطقم</h2><ul class="family-parts">{parts}</ul>'
+    if note := spec.get("package_note"):
+        components += f'<p class="family-parts-note">{escape(note)}</p>'
     origin = f'<span class="velato-origin">{escape(origin_label)}</span>' if origin_label else ''
     outlets = outlet_label(spec)
     outlet_note = f'<p><strong>{outlets}</strong></p>' if outlets else ""
