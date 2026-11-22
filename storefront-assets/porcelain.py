@@ -38,15 +38,15 @@ def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
                    finishes={"st-01-kitchen-mixer": ("Brushed Gold", "ذهبي مفرّش")},
                    galleries={"st-01-kitchen-mixer": ("detail", "in-use")},
                    variants={"rs-kitchen-mixer": {
-                       "Rose Gold": ("روز غولد", ("rose-gold", "rose-gold-installed", "rose-gold-handle", "rose-gold-spout")),
-                       "White": ("أبيض", ("white", "white-handle", "white-spout", "white-views")),
-                       "Brushed Green": ("أخضر مفرّش", ("brushed-green", "brushed-green-handle", "brushed-green-spout", "brushed-green-views")),
-                   }})
+                       "Rose Gold": ("روز غولد", ("wood-rose-gold-installed", "wood-rose-gold-handle", "wood-rose-gold-spout", "wood-rose-gold-views", "wood-cover")),
+                       "White": ("أبيض", ("wood-white", "wood-white-handle", "wood-white-spout", "wood-white-views")),
+                       "Brushed Green": ("أخضر مفرّش", ("wood-brushed-green", "wood-brushed-green-handle", "wood-brushed-green-spout", "wood-brushed-green-views")),
+                   }}, covers={"rs-kitchen-mixer": "wood-cover"})
 
 
 def publish_models(root, origin, screen_page, schema_pattern, json_script, group, collection_slug,
                    collection, english, models, default_color, default_label, material=None, country=None,
-                   finishes=None, galleries=None, variants=None):
+                   finishes=None, galleries=None, variants=None, covers=None):
     cards = []
     sections = []
     home = (root / "index.html").read_text()
@@ -74,7 +74,11 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
                 f'aria-pressed="{str(finish == color).lower()}"><bdi>{finish}</bdi></button>'
                 for finish in model_variants
             ) + '</div>'
-        image_sets[slug] = (photos, list(model_variants) if model_variants else color)
+        cover_view = (covers or {}).get(slug)
+        cover = f"/assets/{slug}-{cover_view}.webp" if cover_view else photo
+        if cover not in photos:
+            raise ValueError(f"Missing cover in the photo gallery for {slug}")
+        image_sets[slug] = ([cover, *(asset for asset in photos if asset != cover)], list(model_variants) if model_variants else color)
         for asset in photos:
             (root / asset[1:]).write_bytes(Path(__file__).with_name(Path(asset).name).read_bytes())
         gallery = ""
@@ -107,7 +111,8 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
             caption = f'<bdi lang="en" dir="ltr">{subtitle}</bdi>'
         else:
             caption = f"{dimensions}{color_label}"
-        card = (f'<a class="hero mixer-product" href="/{slug}/">{image}'
+        card_image = image.replace(f'src="{photo}"', f'src="{cover}"', 1)
+        card = (f'<a class="hero mixer-product" href="/{slug}/">{card_image}'
                 f'<div class="mixer-product-copy"><strong>{card_name}</strong>'
                 f'<small>{caption}</small>'
                 f'<span dir="ltr">${price}</span></div></a>')
