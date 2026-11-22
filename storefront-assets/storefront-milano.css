@@ -42,3 +42,20 @@
   aspect-ratio: 300 / 418;
   margin-inline: auto;
 }
+
+#shower-ferrari > .product-info {
+  position: relative;
+}
+#shower-ferrari .milano-price-row.with-origin {
+  grid-template-areas: "price origin";
+  row-gap: 0;
+}
+#shower-ferrari .milano-price-row > .milano-brand {
+  position: absolute;
+  top: 2.45rem;
+  left: 17.5%;
+  transform: translateX(-50%);
+  width: clamp(2.5rem, 13%, 3.65rem);
+  max-width: none;
+  margin: 0;
+}
