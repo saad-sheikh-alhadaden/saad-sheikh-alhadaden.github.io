@@ -197,8 +197,18 @@ cart_js += "\n" + Path(__file__).with_name("storefront-cart-feedback.js").read_t
 updated_cart_script = f"assets/storefront-{sha256(cart_js.encode()).hexdigest()[:12]}.js"
 (ROOT / updated_cart_script).write_text(cart_js)
 
+washbasin_cards = (
+    ("/cabinet-luxury/", "CABINET LUXURY", "كابينتات فخمة", "مغاسل كابينت فاخرة", "Luxury Bathroom Vanities"),
+    ("#porcelain", "Porcelain", "بورسلان", "مغاسل بورسلان", "Porcelain Basins"),
+    ("#granite", "Granite", "غرانيت", "مغاسل غرانيت", "Granite Basins"),
+)
+
 for page in ROOT.rglob("index.html"):
     markup = page.read_text()
+    for href, old_english, old_arabic, arabic, english in washbasin_cards:
+        original = f'<a href="{href}"><bdi lang="en" dir="ltr">{old_english}</bdi><small>{old_arabic}</small></a>'
+        updated = f'<a href="{href}"><strong>{arabic}</strong><small><bdi lang="en" dir="ltr">{english}</bdi></small></a>'
+        markup = markup.replace(original, updated)
     if cart_script in markup:
         markup = markup.replace(f'<script src="/{cart_script}"',
                                 '<div id="cart-feedback" role="status" aria-atomic="true"></div>\n'
