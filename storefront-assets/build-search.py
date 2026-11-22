@@ -239,6 +239,11 @@ washbasin_cards = (
 for page in ROOT.rglob("index.html"):
     markup = page.read_text()
     markup = re.sub(
+        r'(<a href="(?:#mixers|/mixers/)">)Trend Of Mixer<small>الخلاطات الفاخرة</small></a>',
+        r'\1<span>الخلاطات الفاخرة</span><small><strong><bdi lang="en" dir="ltr">Trend Of Mixer</bdi></strong></small></a>',
+        markup,
+    )
+    markup = re.sub(
         r'<a href="(?:#washbasins|/washbasins/)">المغاسل والكبائن</a>(?=<a href="(?:#accessories|/accessories/)")',
         '<a href="/washbasins/"><strong>المغاسل والكبائن</strong>'
         '<small><bdi lang="en" dir="ltr">Basins &amp; Vanities</bdi></small></a>',
@@ -261,7 +266,29 @@ for page in ROOT.rglob("index.html"):
     if not re.search(r"<img\b", markup, re.I):
         continue
     markup = markup.replace("<span>أول سنتين تبديل</span>", "<span>تبديل فوري خلال أول سنتين، وصيانة خلال السنوات الثلاث التالية.</span>")
-    controls = (f'<link rel="stylesheet" href="{finish_css}">'
+    collection_alignment = """<style>
+.category-list > a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-inline: 1.3rem;
+    text-align: center;
+}
+.category-list > a::after {
+    position: absolute;
+    inset-inline-end: .45rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.category-list > a > small { margin-block-start: .2rem; }
+.top-ten-entry { position: relative; justify-content: center; text-align: center; padding-inline: 3.2rem; }
+.top-ten-entry .top-ten-title { text-align: center; }
+.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
+.velato-feature > span { text-align: center; }
+</style>"""
+    controls = (collection_alignment + f'<link rel="stylesheet" href="{finish_css}">''
                 f'<script defer src="{finish_picker}"></script>' + photo_controls)
     if 'class="branch-links"' in markup:
         controls += f'<link rel="stylesheet" href="{branch_css}">'
