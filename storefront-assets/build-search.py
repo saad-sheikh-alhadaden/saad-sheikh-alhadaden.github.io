@@ -12,6 +12,7 @@ from urllib.parse import urlsplit
 # This generator is also executed with run_path from the archived catalog installer.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import accessory_families
+import milano_brand
 
 ROOT = Path("storefront")
 ORIGIN = "https://saad-customer-app.onrender.com"
@@ -203,6 +204,8 @@ sharing = run_path(str(Path(__file__).with_name("storefront_share.py")), run_nam
 
 # Publish shared storefront styles and photo controls.
 publish_asset = sharing["publish_asset"]
+milano_logo = publish_asset(ROOT, Path(__file__).with_name("milano-italy-bronze.webp"))
+milano_css = publish_asset(ROOT, Path(__file__).with_name("storefront-milano.css"))
 logo = Path(__file__).with_name("saad-watermark-gold.webp")
 (ROOT / "assets" / logo.name).write_bytes(logo.read_bytes())
 branch_css = publish_asset(ROOT, Path(__file__).with_name("storefront-branches.css"))
@@ -242,6 +245,7 @@ washbasin_cards = (
 
 for page in ROOT.rglob("index.html"):
     markup = page.read_text()
+    markup = milano_brand.add_to_products(markup, milano_logo)
     markup = re.sub(
         r'(<a\b[^>]*\bhref="(?:#toilets|/toilets/)"[^>]*>)\s*تواليت\s*<bdi\b[^>]*>Toilet</bdi>\s*</a>',
         r'\1<strong>كراسي تواليت</strong><small><bdi lang="en" dir="ltr">Toilets</bdi></small></a>',
@@ -304,6 +308,8 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
 </style>"""
     controls = (collection_alignment + f'<link rel="stylesheet" href="{finish_css}">'
                 f'<script defer src="{finish_picker}"></script>' + photo_controls)
+    if 'class="milano-brand"' in markup:
+        controls += f'<link rel="stylesheet" href="{milano_css}">'
     if 'class="branch-links"' in markup:
         controls += f'<link rel="stylesheet" href="{branch_css}">'
     markup, count = re.subn(r"(<title\b[^>]*>)", lambda match: controls + match[0], markup, count=1, flags=re.I)
