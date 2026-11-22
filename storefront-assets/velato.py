@@ -546,6 +546,8 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
         return name, FINISH
 
     def country_of_origin(slug):
+        if family.FAMILIES.get(slug, {}).get("country_unconfirmed"):
+            return None
         if models[slug][3] == GROHE_GROUP:
             return "Germany", "ألمانيا"
         if slug in PHOTO_ACCESSORIES or (slug in families and slug != family.TANK):

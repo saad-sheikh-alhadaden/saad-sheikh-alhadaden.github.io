@@ -162,6 +162,19 @@ FAMILIES = {
         description="مخرج مياه جداري بتصميم انسيابي، يصل قلب الدفن داخل الجدار بخرطوم سماعة الدش أو الشطّاف.",
         search="كروهي غروهي جروهي مخرج دفن وصلة جداري سماعة دش مسكة شطاف hose connection wall outlet",
     ),
+    "grohe-essentials-master": dict(
+        name="Essentials Master", label="طقم إكسسوارات حمام كروهي", cover="grohe-essentials-master",
+        category="grohe", country_unconfirmed=True, photo="family-grohe-essentials-master", price=115, finish_label="Chrome",
+        description="طقم إكسسوارات حمام من GROHE بتشطيب كروم، يتألّف من خمس قطع بتصميم متناسق.",
+        included_parts=(
+            ("حامل مناشف طويل", "قضيب مستقيم بطول 600 ملم (60 سم)."),
+            ("حلقة مناشف دائرية", "لتعليق منشفة اليد بجانب المغسلة."),
+            ("حامل ورق التواليت", "مزوّد بغطاء معدني للحماية."),
+            ("صحن صابون زجاجي", "مع قاعدة وحامل جداري معدني."),
+            ("علاقة ملابس (شنكل)", "لتعليق المناشف أو الروب."),
+        ),
+        search="grohe essentials master chrome طقم اكسسوار اكسسوارات حمام كروهي كروم 5 قطع",
+    ),
     GROHE_BATH_SPOUT: dict(
         name="GROHE Bath Spout", label="مصب بانيو كروهي", cover="grohe-bath-spout",
         category="grohe", colors=("Chrome", "Brushed Gold", "Black"),
