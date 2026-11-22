@@ -63,9 +63,15 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
         dimensions = f'<bdi dir="ltr">{size} cm</bdi> · ' if size else ""
         size_line = f'<p>المقاس <bdi dir="ltr">{size} cm</bdi></p>' if size else ""
         country_line = '<p>صنع في إيطاليا</p>' if country == "Italy" else ""
+        card_name, separator, model_name = name.partition(" — ") if group == "kitchen" else (name, "", "")
+        if group == "kitchen":
+            subtitle = model_name if separator else "Stick Kitchen Mixer"
+            caption = f'<bdi lang="en" dir="ltr">{subtitle}</bdi>'
+        else:
+            caption = f"{dimensions}{color_label}"
         card = (f'<a class="hero mixer-product" href="/{slug}/">{image}'
-                f'<div class="mixer-product-copy"><strong>{name}</strong>'
-                f'<small>{dimensions}{color_label}</small>'
+                f'<div class="mixer-product-copy"><strong>{card_name}</strong>'
+                f'<small>{caption}</small>'
                 f'<span dir="ltr">${price}</span></div></a>')
         section = f'''<section id="{slug}" class="vanity-detail" hidden>
           <div class="product-image">{image}<button class="save" type="button" data-save aria-pressed="false" aria-label="إضافة إلى المفضّلة">♡</button></div>
