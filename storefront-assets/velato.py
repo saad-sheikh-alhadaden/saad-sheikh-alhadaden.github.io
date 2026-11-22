@@ -564,7 +564,7 @@ def publish(root, origin, store, meta, preview, schema_pattern, json_script):
             return "Italy", "إيطاليا"
         if slug in (family.TANK, ST_GU, ST_GR_BASIN, ST_GR_TOILET) or slug in GERMAN_SHOWERS:
             return "Germany", "ألمانيا"
-        if slug in (ST_47454, ST_W102, GROHE_FLUSH_PLATE) or slug.startswith(ST_GR + "-"):
+        if slug in (ST_W102, GROHE_FLUSH_PLATE) or slug.startswith(ST_GR + "-"):
             return None
         if not slug.startswith(CASCATA + "-") or slug.startswith(CASCATA_CHROME + "-"):
             return ("Italy", "إيطاليا")
