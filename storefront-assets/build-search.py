@@ -283,9 +283,9 @@ for page in ROOT.rglob("index.html"):
     transform: translateY(-50%);
 }
 .category-list > a > small { margin-block-start: .2rem; }
-.top-ten-entry { position: relative; justify-content: center; text-align: center; padding-inline: 3.2rem; }
+a.top-ten-entry { position: relative; justify-content: center; text-align: center; padding-inline: 3.2rem; }
 .top-ten-entry .top-ten-title { text-align: center; }
-.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
+a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
 .velato-feature > span { text-align: center; }
 </style>"""
     controls = (collection_alignment + f'<link rel="stylesheet" href="{finish_css}">''
