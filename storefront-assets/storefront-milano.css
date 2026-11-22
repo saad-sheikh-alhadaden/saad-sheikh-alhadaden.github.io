@@ -33,3 +33,12 @@
   text-align: left;
   margin: 0 !important;
 }
+
+/* The Ferrari overlay also carries the shared origin markup. */
+#shower-ferrari .milano-brand {
+  content: url("/assets/ferrari-red-75fa76ee4fb6.webp") / "Ferrari";
+  filter: none;
+  max-width: 2.65rem;
+  aspect-ratio: 300 / 418;
+  margin-inline: auto;
+}
