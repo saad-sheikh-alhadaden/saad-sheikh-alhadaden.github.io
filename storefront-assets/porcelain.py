@@ -29,25 +29,52 @@ def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
         ("st-01-kitchen-mixer", "خلاط مجلى 3 في 1 — Kitchen Mixer S.T 01",
          "خلاط مجلى إيطالي بتشطيب ذهبي مفرّش ورقبة سيليكون مرنة تمنحك حرية توجيه الماء داخل الحوض. يجمع تصميمه العصري ثلاثة خطوط في خلاط واحد: للمياه الباردة، وللمياه الساخنة، وخط مستقل يُوصَل بفلتر مياه الشرب أو بخط مياه الشركة.",
          350, None, "st 01 3in1 3 in 1 فلتر brushed gold"),
+        ("rs-kitchen-mixer", "خلاط مجلى RS — Kitchen Mixer RS",
+         "خلاط مجلى إيطالي بقوس مرتفع ومقبض جانبي نحيف. يأتي بثلاثة تشطيبات: روز غولد، أبيض، وأخضر مفرّش.",
+         620, None, "rs rose gold white brushed green"),
     )
     publish_models(root, origin, screen_page, schema_pattern, json_script, "kitchen", "kitchen-mixers",
                    "خلاطات مجلى", "Kitchen Mixers", models, "Gray", "رمادي", country="Italy",
                    finishes={"st-01-kitchen-mixer": ("Brushed Gold", "ذهبي مفرّش")},
-                   galleries={"st-01-kitchen-mixer": ("detail", "in-use")})
+                   galleries={"st-01-kitchen-mixer": ("detail", "in-use")},
+                   variants={"rs-kitchen-mixer": {
+                       "Rose Gold": ("روز غولد", ("rose-gold", "rose-gold-installed", "rose-gold-handle", "rose-gold-spout")),
+                       "White": ("أبيض", ("white", "white-handle", "white-spout", "white-views")),
+                       "Brushed Green": ("أخضر مفرّش", ("brushed-green", "brushed-green-handle", "brushed-green-spout", "brushed-green-views")),
+                   }})
 
 
 def publish_models(root, origin, screen_page, schema_pattern, json_script, group, collection_slug,
                    collection, english, models, default_color, default_label, material=None, country=None,
-                   finishes=None, galleries=None):
+                   finishes=None, galleries=None, variants=None):
     cards = []
     sections = []
     home = (root / "index.html").read_text()
     registry = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
     js = (root / registry).read_text()
+    image_sets = {}
     for slug, name, description, price, size, keywords in models:
         color, color_label = (finishes or {}).get(slug, (default_color, default_label))
         photo = f"/assets/{slug}-{color.lower().replace(' ', '-')}.webp"
         photos = [photo, *(f"/assets/{slug}-{view}.webp" for view in (galleries or {}).get(slug, ()))]
+        model_variants = (variants or {}).get(slug)
+        color_assets = {}
+        finish_options = ""
+        if model_variants:
+            color = next(iter(model_variants))
+            color_label = model_variants[color][0]
+            color_assets = {
+                finish: [f"/assets/{slug}-{view}.webp" for view in views]
+                for finish, (_, views) in model_variants.items()
+            }
+            photo = color_assets[color][0]
+            photos = [asset for collection_photos in color_assets.values() for asset in collection_photos]
+            finish_options = '<div class="options" aria-label="الألوان المتوفرة">' + "".join(
+                f'<button class="option" type="button" data-color="{finish}" '
+                f'aria-pressed="{str(finish == color).lower()}"><bdi>{finish}</bdi></button>'
+                for finish in model_variants
+            ) + '</div>'
+        image_sets[slug] = (photos, list(model_variants) if model_variants else color)
         for asset in photos:
             (root / asset[1:]).write_bytes(Path(__file__).with_name(Path(asset).name).read_bytes())
         gallery = ""
@@ -59,6 +86,17 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
                 for i, (asset, label) in enumerate(zip(photos, ("الصورة الرئيسية", "التفاصيل", "أثناء الاستخدام")))
             )
             gallery = f'<div class="product-gallery">{thumbnails}</div>'
+        if color_assets:
+            thumbnails = "".join(
+                f'<button type="button" data-gallery-src="{asset}" data-gallery-color="{finish}" data-width="790" data-height="988" '
+                f'aria-label="{name} · {finish} · {i + 1}" aria-pressed="{str(asset == photo).lower()}"'
+                f'{" hidden" if finish != color else ""}>'
+                f'<img src="{asset}" width="64" height="80" alt="" loading="lazy"></button>'
+                for finish, images in color_assets.items()
+                for i, asset in enumerate(images)
+            )
+            gallery = f'<div class="product-gallery">{thumbnails}</div>'
+        color_line = finish_options or f'<p>اللون {color_label}</p>'
         image = f'<img src="{photo}" alt="{name} باللون {color_label}" width="790" height="988">'
         dimensions = f'<bdi dir="ltr">{size} cm</bdi> · ' if size else ""
         size_line = f'<p>المقاس <bdi dir="ltr">{size} cm</bdi></p>' if size else ""
@@ -81,7 +119,7 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
             <p class="product-description">{description}</p>
             {gallery}
             {size_line}
-            <p>اللون {color_label}</p>
+            {color_line}
             {country_line}
             <p class="price-tag" data-unit-price dir="ltr">${price}</p>
             <div class="qty">
@@ -96,6 +134,9 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
                 "price": price, "category": group, "defaultColor": color,
                 "colorLabels": {color: color_label}, "images": {color: photo},
                 "favoriteKey": f"saad-saved-{slug}"}
+        if model_variants:
+            data["colorLabels"] = {finish: label for finish, (label, _) in model_variants.items()}
+            data["images"] = {finish: images[0] for finish, images in color_assets.items()}
         js = js.replace("const products = {", f'const products = {{\n  "{slug}": {json.dumps(data, ensure_ascii=False)},', 1)
         cards.append(card)
         sections.append(section)
@@ -127,9 +168,7 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
     dest.mkdir(exist_ok=True)
     (dest / "index.html").write_text(page)
     for slug, name, description, price, size, _ in models:
-        color, color_label = (finishes or {}).get(slug, (default_color, default_label))
-        photo = f"/assets/{slug}-{color.lower().replace(' ', '-')}.webp"
-        photos = [photo, *(f"/assets/{slug}-{view}.webp" for view in (galleries or {}).get(slug, ()))]
+        photos, color = image_sets[slug]
         # screen_page opens panels using the shared section class.
         product_shell = home.replace(f'<section id="{slug}" class="vanity-detail" hidden>',
                                      f'<section class="panel" id="{slug}" hidden>', 1)
