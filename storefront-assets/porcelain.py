@@ -111,7 +111,7 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
             (root / "assets" / logo.name).write_bytes(logo.read_bytes())
             brand_mark = (
                 f'<img src="/assets/{logo.name}" alt="Milano Italy" lang="en" width="679" height="328" '
-                'style="float:left;width:min(27%,7rem);height:auto;margin:1.55rem 2.5% 0">'
+                'style="filter:brightness(0);float:left;width:min(27%,7rem);height:auto;margin:1.55rem 2.5% 0">'
             )
         card_name, separator, model_name = name.partition(" — ") if group == "kitchen" else (name, "", "")
         if group == "kitchen":
