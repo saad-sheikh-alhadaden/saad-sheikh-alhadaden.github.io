@@ -12,6 +12,7 @@ MAIN_MAP = "https://maps.app.goo.gl/ATzzUQw2CAZLy3iN7?g_st=ic"
 EIN_MAP = "https://maps.google.com/?cid=2144353980955415821"
 BATH = "bathroom-fixtures-damascus"
 KITCHEN = "kitchen-mixers-damascus"
+KITCHEN_COLLECTION = "kitchen-mixers"
 GUIDES = {
     BATH: {
         "title": "تجهيزات وإكساء حمامات في دمشق",
@@ -32,7 +33,7 @@ GUIDES = {
             ("اختَر حسب مكان التركيب", "الخلاط الجداري بيركب على تمديدات الحائط. أمّا إذا عندك فتحة على المجلى أو الرخامة، فشوف موديل الشكّ العالي وتأكد من المساحة المتاحة خلفه.",
              [("java-mix-wall-kitchen-mixer", "خلاط مجلى جداري", "JAVA MIX"), ("java-mix-tall-mixer", "خلاط مجلى شكّ عالي", "JAVA MIX")]),
         ],
-        "related": [("/java-mix/", "كل أطقم JAVA MIX"), ("/mixers/", "كل الخلاطات"),
+        "related": [(f"/{KITCHEN_COLLECTION}/", "تصفّح قسم خلاطات مجلى"), ("/java-mix/", "كل أطقم JAVA MIX"), ("/mixers/", "كل الخلاطات"),
                     (f"/{BATH}/", "تجهيزات الحمّام")],
     },
 }
@@ -158,7 +159,8 @@ def build_page(root, slug, guide):
 
 def publish_guides(root):
     kitchen_link = '<a href="#kitchen">مطبخ <bdi>Kitchen</bdi></a>'
-    links = (f'<a href="/{KITCHEN}/">خلاطات مطبخ في دمشق</a>'
+    links = (f'<a href="/{KITCHEN_COLLECTION}/"><strong>خلاطات مجلى</strong>'
+             '<small><bdi lang="en" dir="ltr">Kitchen Mixers</bdi></small></a>'
              f'<a href="/{BATH}/">تجهيزات وإكساء حمامات في دمشق</a>')
     legacy_actions = re.compile(r'<div class="contact-actions">([^<]*(?:<a\b[^>]*>.*?</a>\s*)+)</div>', re.S)
 
@@ -167,13 +169,54 @@ def publish_guides(root):
         number = "0" + telephone[1] if telephone else ""
         return branch_links(number) if number in BRANCH_NUMBERS else match[0]
 
+    products = GUIDES[KITCHEN]["groups"][0][2]
+    cards = [read_card(root, *product) for product in products]
+    gallery = "".join(
+        f'<a class="hero mixer-product" href="{card["path"]}">'
+        f'<img src="{escape(card["image"])}" alt="{escape(card["title"])}" width="400" height="500" loading="lazy">'
+        f'<div class="mixer-product-copy"><strong>{escape(card["title"])}</strong>'
+        f'<small><bdi>{escape(card["model"])}</bdi></small><span dir="ltr">${card["price"]}</span></div></a>'
+        for card in cards
+    )
+    heading = '<h1>خلاطات مجلى <bdi lang="en" dir="ltr">Kitchen Mixers</bdi></h1>'
+    panel = re.compile(r'(<section class="panel" id="kitchen"[^>]*>)\s*<h1>.*?</h1>', re.S)
+
     for page in root.rglob("index.html"):
         source = page.read_text()
         if page == root / "index.html" and kitchen_link not in source and links not in source:
             raise ValueError("The storefront's home collection menu has changed")
         updated = legacy_actions.sub(upgrade_actions, source.replace(kitchen_link, links))
+        updated = panel.sub(
+            lambda m: m[1] + heading + f'<div class="cabinet-gallery">{gallery}</div>',
+            updated, count=1)
         if updated != source:
             page.write_text(updated)
+    home = (root / "index.html").read_text()
+    collection_page = home.replace('<html lang="ar" dir="rtl">', '<html lang="ar" dir="rtl" data-screen="kitchen">', 1)
+    collection_page = collection_page.replace('<meta charset="utf-8">', '<meta charset="utf-8"><base href="/">', 1)
+    collection_page = collection_page.replace('<section id="home">', '<section id="home" hidden>', 1)
+    collection_page, count = re.subn(r'(<section class="panel" id="kitchen")[^>]*>', r'\1>', collection_page, count=1)
+    if count != 1 or heading not in collection_page:
+        raise ValueError("Missing kitchen collection panel")
+    url = f"{ORIGIN}/{KITCHEN_COLLECTION}/"
+    title = f"خلاطات مجلى | Kitchen Mixers | {STORE}"
+    description = "تصفّح موديلات خلاطات المجلى الجدارية والشكّ العالي، مع الصور والأسعار."
+    collection_page = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", collection_page, count=1)
+    collection_page = collection_page.replace(f'rel="canonical" href="{ORIGIN}/"', f'rel="canonical" href="{url}"', 1)
+    for key, value in {"description": description, "og:description": description, "og:url": url,
+                       "og:title": title, "og:image": cards[0]["image"]}.items():
+        collection_page = re.sub(
+            rf'(<meta (?:name|property)="{re.escape(key)}" content=")[^"]*',
+            lambda m: m[1] + escape(value), collection_page, count=1)
+    schema = {"@context": "https://schema.org", "@type": "CollectionPage", "url": url, "name": "خلاطات مجلى",
+              "inLanguage": "ar-SY", "description": description}
+    collection_page = re.sub(
+        r'<script type="application/ld\+json">.*?</script>',
+        lambda _: f'<script type="application/ld+json">{json.dumps(schema, ensure_ascii=False)}</script>',
+        collection_page, count=1, flags=re.S)
+    folder = root / KITCHEN_COLLECTION
+    folder.mkdir(exist_ok=True)
+    (folder / "index.html").write_text(collection_page)
     for slug, guide in GUIDES.items():
         folder = root / slug
         folder.mkdir(exist_ok=True)
