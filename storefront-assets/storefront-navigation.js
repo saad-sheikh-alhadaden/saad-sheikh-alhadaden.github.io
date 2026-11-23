@@ -50,6 +50,9 @@
     if (!section) return;
     const model = section.id;
     returnLink.textContent = "رجوع";
+    if (model === "kitchen" && query.get("view") === "all") {
+      returnLink.href = "/kitchen-mixers/";
+    }
     if (!Object.hasOwn(products, model)) return;
 
     const from = query.get("from");
@@ -83,6 +86,8 @@
     const path = productPath(model);
     const target = new URL(productPath(collection.id), location.origin);
     target.searchParams.set("model", model);
+    const kitchenGrid = group === "kitchen" && query.get("view") === "all";
+    if (kitchenGrid) target.searchParams.set("view", "all");
     if (filtered) target.searchParams.set("band", selectedBand);
     if (group === "java-mix") target.searchParams.set("color", javaMixFinish);
     returnLink.href = target.href;
@@ -104,6 +109,7 @@
         const card = cards[index + offset];
         if (!card) continue;
         const url = new URL(card.href);
+        if (kitchenGrid) url.searchParams.set("view", "all");
         if (filtered) url.searchParams.set("band", selectedBand);
         pagerLink(nav, url.href, direction);
       }

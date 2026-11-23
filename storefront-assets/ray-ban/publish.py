@@ -212,6 +212,11 @@ def format_kitchen_listing(match):
     gallery = re.sub(r'<img\b(?![^>]*\bloading=)', '<img loading="lazy"', gallery)
     if " hidden" not in before.split(">", 1)[0]:
         gallery = gallery.replace('loading="lazy"', 'loading="eager"', 1)
+    gallery = re.sub(
+        r'<a class="action"[^>]*>استفسر عن قسم المطبخ عبر واتساب</a>',
+        '<a class="kitchen-explore" href="/kitchen-mixers/?view=all" lang="en" dir="ltr">Kitchen Mixers</a>',
+        gallery,
+    )
     return before + gallery_start + gallery
 
 

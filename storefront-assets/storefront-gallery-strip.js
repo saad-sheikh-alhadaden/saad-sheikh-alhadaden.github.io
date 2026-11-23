@@ -123,14 +123,18 @@
 (() => {
   const rail = document.querySelector('#kitchen .cabinet-gallery');
   if (!rail || rail.children.length < 2) return;
+  if (new URLSearchParams(location.search).get('view') === 'all') {
+    rail.closest('#kitchen').classList.add('kitchen-grid');
+    for (const card of rail.children) {
+      const url = new URL(card.href);
+      url.searchParams.set('view', 'all');
+      card.href = url.href;
+    }
+    return;
+  }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const cards = Array.from(rail.children);
   rail.classList.add('kitchen-marquee');
-  const toggle = document.createElement('button');
-  toggle.type = 'button';
-  toggle.className = 'kitchen-motion-toggle';
-  rail.after(toggle);
-
   let paused = reduced.matches;
   let visible = false;
   let touching = false;
@@ -157,7 +161,6 @@
   function sync() {
     cancelAnimationFrame(frame);
     previous = 0;
-    toggle.textContent = paused ? 'تشغيل الحركة' : 'إيقاف الحركة';
     if (!paused && visible && !document.hidden) frame = requestAnimationFrame(tick);
   }
 
@@ -186,7 +189,6 @@
     sync();
   }).observe(rail);
   new ResizeObserver(measure).observe(rail);
-  toggle.onclick = () => { paused = !paused; sync(); };
   reduced.addEventListener('change', () => { paused = reduced.matches; sync(); });
   rail.addEventListener('pointerdown', () => { touching = true; sync(); });
   const release = () => { if (touching) { touching = false; interact(); } };
