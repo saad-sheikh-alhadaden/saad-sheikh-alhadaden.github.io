@@ -193,6 +193,15 @@ publish_mixer(
 )
 
 
+publish_mixer(
+    "st-007-kitchen-mixer", "خلاط مجلى سحب", "Kitchen Mixer S.T 007",
+    "خلاط مجلى برأس قابل للسحب ومقبض جانبي بتصميم حلقي.",
+    125, {"Brushed Gold & Black": "ذهبي مصقول بالفرشاة وأسود", "Black": "أسود", "Chrome": "كروم"},
+    {"Brushed Gold & Black": 8, "Black": 7, "Chrome": 6},
+    "st007 st 007 سحب براش غولد أسود كروم", after_card="st-01-kitchen-mixer", italian=False,
+)
+
+
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
