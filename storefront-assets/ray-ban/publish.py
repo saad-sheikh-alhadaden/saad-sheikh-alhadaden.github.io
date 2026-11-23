@@ -17,7 +17,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None):
     name = f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
@@ -45,24 +45,35 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         for finish in labels
     )
 
+    gallery_markup = f'<div class="product-gallery">{thumbs}</div>'
+    options_markup = f'<div class="options" aria-label="الألوان المتوفرة">{options}</div>'
+    if model_finish:
+        # The shared variant strip builds a selectable thumbnail for each model.
+        gallery_markup = ""
+        options = "".join(
+            f'<button type="button" class="option" data-color="{key}" aria-pressed="{str(key == default_finish).lower()}">{label}</button>'
+            for key, label in labels.items()
+        )
+        options_markup = f'<p>اختر الموديل</p><div class="options" data-package-options aria-label="اختر الموديل">{options}</div>'
+    cover_label = labels[default_finish] if not model_finish else "الكروم"
     template_path = root / "rs-kitchen-mixer/index.html"
     template = template_path.read_text()
     section_pattern = r'<section id="rs-kitchen-mixer" class="vanity-detail"[^>]*>.*?</section>'
     section = re.search(section_pattern, template, re.S)[0]
     section = replace_once(section, r'<section[^>]*>', f'<section id="{slug}" class="vanity-detail" data-nosnippet hidden>')
     section = replace_once(section, r'(<div class="product-image">)<img [^>]*>',
-                           lambda match: match[1] + f'<img src="{cover}" alt="{name} باللون {labels[default_finish]}" width="790" height="988">')
+                           lambda match: match[1] + f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">')
     section = replace_once(section, r'<h1>.*?</h1>', f'<h1>{name}</h1>')
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
-    section = replace_once(section, r'<div class="product-gallery">.*?</div>', f'<div class="product-gallery">{thumbs}</div>')
+    section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
     section = replace_once(section, r'<div class="options"[^>]*>.*?</div>',
-                           f'<div class="options" aria-label="الألوان المتوفرة">{options}</div>')
+                           options_markup)
     section = replace_once(section, r'(<p class="price-tag"[^>]*>).*?(</p>)', lambda match: f'{match[1]}${price}{match[2]}')
     if not italian:
         section = re.sub(r'<p class="origin"[^>]*>.*?</p>', "", section)
         section = re.sub(r'<img class="milano-brand"[^>]*>', "", section)
     card = (f'<a class="hero mixer-product" href="/{slug}/">'
-            f'<img src="{cover}" alt="{name} باللون {labels[default_finish]}" width="790" height="988">'
+            f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">'
             f'<div class="mixer-product-copy"><strong>{title}</strong>'
             f'<small><bdi lang="en" dir="ltr">{model}</bdi></small>'
             f'<span dir="ltr">${price}</span></div></a>')
@@ -113,7 +124,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             .replace(data["name"], name).replace(data["description"], description))
     if not italian:
         data.pop("countryOfOrigin", None)
-    data.update(name=name, description=description, sku=slug, url=url, color=list(labels),
+    data.update(name=name, description=description, sku=slug, url=url, color=[model_finish] if model_finish else list(labels),
                 image=[origin + image for image in gallery])
     data["offers"].update(price=price, url=url)
     head = replace_once(head, r'(<script type="application/ld\+json">).*?(</script>)',
@@ -199,6 +210,15 @@ publish_mixer(
     125, {"Brushed Gold & Black": "ذهبي مصقول بالفرشاة وأسود", "Black": "أسود", "Chrome": "كروم"},
     {"Brushed Gold & Black": 8, "Black": 7, "Chrome": 6},
     "st007 st 007 سحب براش غولد أسود كروم", after_card="st-01-kitchen-mixer", italian=False,
+)
+
+
+publish_mixer(
+    "joyou-kitchen-mixer", "خلاط مجلى طراز جويو", "Kitchen Mixer JOYOU®",
+    "ثلاثة موديلات بتشطيب كروم لامع، تختلف في تصميم المقابض. السعر للقطعة الواحدة. "
+    "كانت شركة Joyou AG تابعةً لمجموعة GROHE في عام 2015.",
+    45, {"Cross": "مقابض متصالبة", "Lever": "مقابض مستقيمة", "White": "مقابض بيضاء"}, 1,
+    "joyou chrome جويو كروم", after_card="st-873-kitchen-mixer", italian=False, model_finish="Chrome",
 )
 
 
