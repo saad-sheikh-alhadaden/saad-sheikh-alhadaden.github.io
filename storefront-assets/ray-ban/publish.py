@@ -164,8 +164,11 @@ photo_strip = re.compile(r'<div class="product-gallery"[^>]*>.*?</div>', re.S)
 info_and_category = re.compile(r'(<div class="product-info">)(\s*<p class="category">خلاطات مجلى</p>)')
 
 
-def move_kitchen_gallery(match):
+def format_kitchen_detail(match):
     section = match[0]
+    if '<p class="category">خلاطات مجلى</p>' not in section:
+        return section
+    section = section.replace(">", " data-kitchen-mixer>", 1)
     if not info_and_category.search(section):
         return section
     gallery = photo_strip.search(section)
@@ -180,7 +183,7 @@ def move_kitchen_gallery(match):
 for page in root.rglob("index.html"):
     html = page.read_text()
     updated = legacy_favorite.sub(r"\1circle\2", html)
-    updated = kitchen_detail.sub(move_kitchen_gallery, updated)
+    updated = kitchen_detail.sub(format_kitchen_detail, updated)
     if updated != html:
         page.write_text(updated)
 

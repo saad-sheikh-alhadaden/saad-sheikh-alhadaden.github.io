@@ -44,3 +44,9 @@
 .product-image > button:is([aria-label="الصورة السابقة"], [aria-label="الصورة التالية"]) {
   display: none;
 }
+
+/* Kitchen mixer photos already include the SAAD logo. */
+#kitchen .hero.mixer-product:has(> img)::after,
+[data-kitchen-mixer] > .product-image::after {
+  content: none;
+}
