@@ -17,10 +17,11 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True):
     name = f"{title} — {model}"
+    counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
-        finish: [f"/assets/{slug}-{finish.lower().replace(' ', '-')}-{index:02}.webp" for index in range(1, photo_count + 1)]
+        finish: [f"/assets/{slug}-{finish.lower().replace(' ', '-')}-{index:02}.webp" for index in range(1, counts[finish] + 1)]
         for finish in labels
     }
     default_finish = next(iter(labels))
@@ -57,6 +58,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     section = replace_once(section, r'<div class="options"[^>]*>.*?</div>',
                            f'<div class="options" aria-label="الألوان المتوفرة">{options}</div>')
     section = replace_once(section, r'(<p class="price-tag"[^>]*>).*?(</p>)', lambda match: f'{match[1]}${price}{match[2]}')
+    if not italian:
+        section = re.sub(r'<p class="origin"[^>]*>.*?</p>', "", section)
+        section = re.sub(r'<img class="milano-brand"[^>]*>', "", section)
     card = (f'<a class="hero mixer-product" href="/{slug}/">'
             f'<img src="{cover}" alt="{name} باللون {labels[default_finish]}" width="790" height="988">'
             f'<div class="mixer-product-copy"><strong>{title}</strong>'
@@ -107,6 +111,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     head = (head.replace('data-screen="rs-kitchen-mixer"', f'data-screen="{slug}"')
             .replace(old_url, url).replace(old_cover, origin + cover)
             .replace(data["name"], name).replace(data["description"], description))
+    if not italian:
+        data.pop("countryOfOrigin", None)
     data.update(name=name, description=description, sku=slug, url=url, color=list(labels),
                 image=[origin + image for image in gallery])
     data["offers"].update(price=price, url=url)
@@ -158,6 +164,15 @@ publish_mixer(
     "خلاط مجلى بتصميم إيطالي يجمع بين جسم مربّع وقوس معدني مخدّد، بلمسة من الكروم اللامع.",
     520, {"Chrome": "كروم"}, 6, "milano quadro chrome كروم ميلانو كوادرو",
     after_card="strass-kitchen-mixer",
+)
+
+publish_mixer(
+    "st-685-kitchen-mixer", "خلاط مجلى ثلاثي", "Kitchen Mixer S.T 685",
+    "خلاط مجلى برقبتين مستقلّتين، إحداهما للمياه الساخنة والباردة، والثانية مخصّصة لمياه الشرب.",
+    200, {"Brushed Gold": "ذهبي مصقول بالفرشاة", "Black": "أسود", "Chrome": "كروم", "Satin": "ساتان"},
+    {"Brushed Gold": 9, "Black": 9, "Chrome": 9, "Satin": 8},
+    "st685 st 685 ثلاثي مياه الشرب براش غولد أسود كروم ساتان",
+    after_card="milano-quadro-kitchen-mixer", italian=False,
 )
 
 
