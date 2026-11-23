@@ -36,7 +36,9 @@ def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
     publish_models(root, origin, screen_page, schema_pattern, json_script, "kitchen", "kitchen-mixers",
                    "خلاطات مجلى", "Kitchen Mixers", models, "Gray", "رمادي", country="Italy",
                    finishes={"st-01-kitchen-mixer": ("Brushed Gold", "ذهبي مفرّش")},
-                   galleries={"st-01-kitchen-mixer": ("detail", "in-use")},
+                   galleries={"st-01-kitchen-mixer": ("detail", "in-use"),
+                              "stick-kitchen-mixer": tuple(f"2027-{i:02}" for i in range(2, 9))},
+                   primary_views={"stick-kitchen-mixer": "2027-01"},
                    variants={"rs-kitchen-mixer": {
                        "Rose Gold": ("روز غولد", ("wood-rose-gold-installed", "wood-rose-gold-handle", "wood-rose-gold-spout", "wood-rose-gold-views", "wood-cover")),
                        "White": ("أبيض", ("wood-white", "wood-white-handle", "wood-white-spout", "wood-white-views")),
@@ -46,7 +48,7 @@ def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
 
 def publish_models(root, origin, screen_page, schema_pattern, json_script, group, collection_slug,
                    collection, english, models, default_color, default_label, material=None, country=None,
-                   finishes=None, galleries=None, variants=None, covers=None):
+                   finishes=None, galleries=None, variants=None, covers=None, primary_views=None):
     cards = []
     sections = []
     home = (root / "index.html").read_text()
@@ -55,7 +57,8 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
     image_sets = {}
     for slug, name, description, price, size, keywords in models:
         color, color_label = (finishes or {}).get(slug, (default_color, default_label))
-        photo = f"/assets/{slug}-{color.lower().replace(' ', '-')}.webp"
+        primary_view = (primary_views or {}).get(slug, color.lower().replace(" ", "-"))
+        photo = f"/assets/{slug}-{primary_view}.webp"
         photos = [photo, *(f"/assets/{slug}-{view}.webp" for view in (galleries or {}).get(slug, ()))]
         model_variants = (variants or {}).get(slug)
         color_assets = {}
@@ -87,7 +90,8 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
                 f'<button type="button" data-gallery-src="{asset}" data-width="790" data-height="988" '
                 f'aria-label="{name} · {label}" aria-pressed="{str(i == 0).lower()}">'
                 f'<img src="{asset}" width="64" height="80" alt="" loading="lazy"></button>'
-                for i, (asset, label) in enumerate(zip(photos, ("الصورة الرئيسية", "التفاصيل", "أثناء الاستخدام")))
+                for i, asset in enumerate(photos)
+                for label in [("الصورة الرئيسية", "التفاصيل", "أثناء الاستخدام")[i] if len(photos) <= 3 else f"صورة {i + 1}"]
             )
             gallery = f'<div class="product-gallery">{thumbnails}</div>'
         if color_assets:
