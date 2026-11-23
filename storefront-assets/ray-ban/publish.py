@@ -185,6 +185,14 @@ publish_mixer(
 )
 
 
+publish_mixer(
+    "st-873-kitchen-mixer", "خلاط مجلى ثلاثي", "Kitchen Mixer S.T 873",
+    "خلاط مجلى ثلاثي بقوس أسود مرتفع وجسم أسطواني ومقبض جانبي رفيع.",
+    100, {"Black": "أسود", "Brushed Gold": "ذهبي مصقول بالفرشاة"}, 5,
+    "st873 st 873 ثلاثي أسود براش غولد", after_card="st-885-kitchen-mixer", italian=False,
+)
+
+
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
