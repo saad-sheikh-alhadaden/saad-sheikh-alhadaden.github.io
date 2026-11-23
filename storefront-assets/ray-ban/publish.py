@@ -152,3 +152,14 @@ publish_mixer(
     "strass ستراس مرصع مرصّع gold ذهبي black أسود",
     after_card="rs-kitchen-mixer",
 )
+
+
+# Use the shared overlay style for older product cards from the storefront archive.
+legacy_favorite = re.compile(
+    r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
+)
+for page in root.rglob("index.html"):
+    html = page.read_text()
+    updated, count = legacy_favorite.subn(r"\1circle\2", html)
+    if count:
+        page.write_text(updated)

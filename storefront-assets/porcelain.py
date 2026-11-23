@@ -126,7 +126,7 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
                 f'<small>{caption}</small>'
                 f'<span dir="ltr">${price}</span></div></a>')
         section = f'''<section id="{slug}" class="vanity-detail" hidden>
-          <div class="product-image">{image}<button class="save" type="button" data-save aria-pressed="false" aria-label="إضافة إلى المفضّلة">♡</button></div>
+          <div class="product-image">{image}<button class="circle" type="button" data-save aria-pressed="false" aria-label="إضافة إلى المفضّلة">♡</button></div>
           <div class="product-info">
             <p class="category">{collection}</p>
             <h1>{name}</h1>
