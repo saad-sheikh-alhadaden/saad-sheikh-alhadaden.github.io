@@ -119,14 +119,28 @@
 #kitchen:not(.kitchen-grid) :is(.cabinet-heading,.catalog-intro) { margin-block: 0; }
 #kitchen:not(.kitchen-grid) .cabinet-gallery { min-height: 0; overflow-y: hidden; padding-bottom: 0; }
 #kitchen:not(.kitchen-grid) .mixer-product {
-  display: grid;
-  grid-template-rows: minmax(0,1fr) auto;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   height: 100%;
 }
-#kitchen:not(.kitchen-grid) .mixer-product img {
-  min-height: 0; width: 100%; height: 100%; object-fit: contain;
+#kitchen:not(.kitchen-grid) .mixer-product::before,
+#kitchen:not(.kitchen-grid) .mixer-product::after {
+  content: "";
+  position: static;
+  background: none;
+  flex: 1 0 0;
 }
+#kitchen:not(.kitchen-grid) .mixer-product::after { flex-grow: 2; }
+#kitchen:not(.kitchen-grid) .mixer-product img {
+  flex: 0 1 auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  object-fit: contain;
+  background: transparent;
+}
+#kitchen:not(.kitchen-grid) .mixer-product-copy { flex: none; }
 html:has(#kitchen:not([hidden], .kitchen-grid)),
 body:has(#kitchen:not([hidden], .kitchen-grid)) { overflow: hidden; overscroll-behavior-y: none; }
 @media (max-height: 700px) {
