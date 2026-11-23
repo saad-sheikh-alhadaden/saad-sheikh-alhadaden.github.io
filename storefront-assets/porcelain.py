@@ -36,9 +36,9 @@ def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
     publish_models(root, origin, screen_page, schema_pattern, json_script, "kitchen", "kitchen-mixers",
                    "خلاطات مجلى", "Kitchen Mixers", models, "Gray", "رمادي", country="Italy",
                    finishes={"st-01-kitchen-mixer": ("Brushed Gold", "ذهبي مفرّش")},
-                   galleries={"st-01-kitchen-mixer": ("detail", "in-use"),
+                   galleries={"st-01-kitchen-mixer": tuple(f"2027-{i:02}" for i in range(2, 10)),
                               "stick-kitchen-mixer": tuple(f"2027-{i:02}" for i in range(2, 9))},
-                   primary_views={"stick-kitchen-mixer": "2027-01"},
+                   primary_views={"stick-kitchen-mixer": "2027-01", "st-01-kitchen-mixer": "2027-01"},
                    variants={"rs-kitchen-mixer": {
                        "Rose Gold": ("روز غولد", ("wood-rose-gold-installed", "wood-rose-gold-handle", "wood-rose-gold-spout", "wood-rose-gold-views", "wood-cover")),
                        "White": ("أبيض", ("wood-white", "wood-white-handle", "wood-white-spout", "wood-white-views")),
