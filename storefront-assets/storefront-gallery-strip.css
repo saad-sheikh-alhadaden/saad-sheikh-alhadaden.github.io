@@ -39,3 +39,8 @@
   object-fit: cover;
   border-radius: 6px;
 }
+
+/* Photos can still be changed by swiping the image or using its thumbnails. */
+.product-image > button:is([aria-label="الصورة السابقة"], [aria-label="الصورة التالية"]) {
+  display: none;
+}
