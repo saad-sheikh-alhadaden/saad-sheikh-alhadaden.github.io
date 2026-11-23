@@ -153,6 +153,13 @@ publish_mixer(
     after_card="rs-kitchen-mixer",
 )
 
+publish_mixer(
+    "milano-quadro-kitchen-mixer", "خلاط مجلى ميلانو كوادرو", "Kitchen Mixer Milano Quadro",
+    "خلاط مجلى بتصميم إيطالي يجمع بين جسم مربّع وقوس معدني مخدّد، بلمسة من الكروم اللامع.",
+    520, {"Chrome": "كروم"}, 6, "milano quadro chrome كروم ميلانو كوادرو",
+    after_card="strass-kitchen-mixer",
+)
+
 
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
