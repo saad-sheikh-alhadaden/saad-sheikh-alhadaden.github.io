@@ -82,15 +82,15 @@
   width: fit-content;
   place-self: center;
   margin: 0 auto;
-  padding: 8px 26px;
+  padding: 8px 28px;
   color: #fff;
   border: 1px solid #fff;
   border-radius: 999px;
   background: transparent;
   text-decoration: none;
-  font: 500 16px/1.35 Futura, "Century Gothic", "Avenir Next", sans-serif;
-  text-transform: uppercase;
-  letter-spacing: -0.035em;
+  font: 400 19px/1.2 "Baskerville", "Palatino Linotype", Georgia, serif;
+  text-transform: none;
+  letter-spacing: 0.025em;
 }
 #kitchen.kitchen-grid .kitchen-explore { display: none; }
 #kitchen.kitchen-grid .cabinet-gallery {
