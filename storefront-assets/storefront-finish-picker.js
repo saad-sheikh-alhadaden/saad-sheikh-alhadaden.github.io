@@ -1,6 +1,6 @@
 for (const options of document.querySelectorAll(".options:not([data-package-options])")) {
   const choices = [...options.querySelectorAll(":scope > button[data-color][aria-pressed]")];
-  if (choices.length < 2) continue;
+  if (!choices.length) continue;
 
   const labelFor = choice => (choice.querySelector("bdi")?.textContent || choice.textContent).trim();
   const finishes = new Map();
@@ -44,4 +44,42 @@ for (const options of document.querySelectorAll(".options:not([data-package-opti
 
   options.before(picker);
   picker.append(summary, options);
+}
+
+const finishAliases = new Map(Object.entries({
+  "رمادي": "gray", "رمادي فاتح": "light gray", "رمادي فحمي": "charcoal gray",
+  "ذهبي": "gold", "ذهبي مفرش": "brushed gold", "روز غولد": "rose gold",
+  "أبيض": "white", "ابيض": "white", "أسود": "black", "اسود": "black",
+  "كروم": "chrome", "أخضر مفرش": "brushed green", "أخضر": "green",
+  "charcoal grey": "charcoal gray", "grey": "gray", "ivory": "ivore",
+}));
+const fixedFinishes = new Set([
+  "chrome", "black", "matt black", "matte black", "gold", "brushed gold",
+  "rose gold", "brushed rose gold", "gray", "light gray", "charcoal gray",
+  "white", "off-white", "ivore", "creamy", "greige", "green", "brushed green",
+  "oil", "red", "bronze", "gunmetal", "brushed gunmetal gray", "walnut",
+  "charcoal gray & walnut", "black & gold", "black oak", "champagne gold",
+  "brushed champagne gold", "polished gold", "polished rose gold", "brushed nickel",
+]);
+for (const line of document.querySelectorAll(".product-info > p")) {
+  if (line.closest(".product-info").querySelector(".finish-picker")) continue;
+  const text = line.textContent.trim();
+  const prefix = /^اللون(?:\s*[·:：]\s*|\s+)/u;
+  const label = text.replace(prefix, "").trim();
+  const name = label.split(" · ")[0].toLowerCase().replace(/[\u064b-\u0652]/gu, "");
+  const finish = finishAliases.get(name) || name;
+  if (!label || (!prefix.test(text) && !fixedFinishes.has(finish))) continue;
+
+  const chip = document.createElement("span");
+  chip.className = "fixed-finish-chip";
+  chip.dataset.color = finish;
+  const dot = document.createElement("span");
+  dot.className = "finish-picker-dot";
+  dot.setAttribute("aria-hidden", "true");
+  const caption = document.createElement("bdi");
+  caption.textContent = label;
+  chip.append(dot, caption);
+  line.classList.add("fixed-finish");
+  line.setAttribute("aria-label", `اللون ${label}`);
+  line.replaceChildren(chip);
 }

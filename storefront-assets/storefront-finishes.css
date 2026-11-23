@@ -87,3 +87,32 @@ button.option[data-color]:has(> img)::before { content: none; }
   padding: .65rem .75rem .75rem;
   border-top: 1px solid #dfd1bc;
 }
+
+[data-color="light gray" i] { --store-finish: #b9bbbd; }
+[data-color="matte black" i], [data-color="matt black" i] { --store-finish: #242424; }
+[data-color="brushed green" i] { --store-finish: #8fa781; }
+[data-color="gunmetal" i], [data-color="brushed gunmetal gray" i] { --store-finish: #545961; }
+[data-color="walnut" i], [data-color="black oak" i] { --store-finish: #594031; }
+[data-color="charcoal gray & walnut" i] { --store-finish: linear-gradient(90deg,#46484c 50%,#78543d 50%); }
+[data-color="black & gold" i] { --store-finish: linear-gradient(90deg,#242424 50%,#c5a058 50%); }
+[data-color="champagne gold" i], [data-color="brushed champagne gold" i] { --store-finish: linear-gradient(135deg,#e7d6b7,#aa8a5e); }
+[data-color="polished gold" i] { --store-finish: linear-gradient(135deg,#ffe5a3,#b67d17); }
+[data-color="polished rose gold" i] { --store-finish: linear-gradient(135deg,#f5c1ae,#a66560); }
+[data-color="brushed nickel" i] { --store-finish: linear-gradient(135deg,#e2dcd1,#92908a); }
+.product-info > .fixed-finish { margin-block: .65rem; }
+.fixed-finish-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .4rem .8rem;
+  border: 1px solid #b7a58a;
+  border-radius: 999px;
+  background: #201b15;
+  color: #f8f3e9;
+  font-size: .875rem;
+  line-height: 1.5;
+}
+.fixed-finish-chip .finish-picker-dot {
+  flex: 0 0 .875rem;
+  background: var(--store-finish, #81766a);
+}
