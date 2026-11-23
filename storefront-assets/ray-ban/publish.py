@@ -183,3 +183,22 @@ for page in root.rglob("index.html"):
     updated = kitchen_detail.sub(move_kitchen_gallery, updated)
     if updated != html:
         page.write_text(updated)
+
+
+# Attach the catalog-wide photo strip to pages using the shared storefront registry.
+gallery_assets = Path(__file__).resolve().parent.parent
+strip_tags = []
+for suffix in ("css", "js"):
+    source = gallery_assets / f"storefront-gallery-strip.{suffix}"
+    payload = source.read_bytes()
+    name = f"{source.stem}-{hashlib.sha256(payload).hexdigest()[:12]}.{suffix}"
+    (root / "assets" / name).write_bytes(payload)
+    strip_tags.append(f'<link rel="stylesheet" href="/assets/{name}">' if suffix == "css"
+                      else f'<script defer src="/assets/{name}"></script>')
+
+storefront_script = re.compile(r'<script src="/assets/storefront-[a-f0-9]+\.js"></script>')
+for page in root.rglob("index.html"):
+    html = page.read_text()
+    updated = storefront_script.sub(lambda match: match[0] + "".join(strip_tags), html, count=1)
+    if updated != html:
+        page.write_text(updated)
