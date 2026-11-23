@@ -50,3 +50,21 @@
 [data-kitchen-mixer] > .product-image::after {
   content: none;
 }
+
+#kitchen .cabinet-gallery {
+  display: flex;
+  direction: rtl;
+  gap: 12px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  padding-bottom: 8px;
+}
+
+#kitchen .cabinet-gallery > .mixer-product {
+  flex: 0 0 min(84%, 390px);
+  scroll-snap-align: start;
+}

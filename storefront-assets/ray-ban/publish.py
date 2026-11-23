@@ -202,10 +202,24 @@ def format_kitchen_detail(match):
     )
 
 
+kitchen_listing = re.compile(r'<section\b[^>]* id="kitchen"[^>]*>.*?</section>', re.S)
+
+
+def format_kitchen_listing(match):
+    section = match[0]
+    gallery_start = '<div class="cabinet-gallery">'
+    before, gallery = section.split(gallery_start, 1)
+    gallery = re.sub(r'<img\b(?![^>]*\bloading=)', '<img loading="lazy"', gallery)
+    if " hidden" not in before.split(">", 1)[0]:
+        gallery = gallery.replace('loading="lazy"', 'loading="eager"', 1)
+    return before + gallery_start + gallery
+
+
 for page in root.rglob("index.html"):
     html = page.read_text()
     updated = legacy_favorite.sub(r"\1circle\2", html)
     updated = kitchen_detail.sub(format_kitchen_detail, updated)
+    updated = kitchen_listing.sub(format_kitchen_listing, updated)
     if updated != html:
         page.write_text(updated)
 
