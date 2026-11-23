@@ -23,6 +23,9 @@ def publish(root, origin, screen_page, schema_pattern, json_script):
 
 def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
     models = (
+        ("gessi-venti-semi-pro", "خلاط مجلى فينتي — Kitchen Mixer Gessi Venti Semi-Pro",
+         "خلاط مجلى إيطالي بتشطيب روز غولد مفرّش، يجمع بين القوس الأسود المرتفع وتفاصيل الجسم المخدّدة. من تصميم المصمّم الإسباني Lázaro Rosa-Violán.",
+         885, None, "gessi venti semi-pro فينتي brushed rose gold"),
         ("stick-kitchen-mixer", "خلاط مجلى ستيك",
          "خلاط مجلى إيطالي بتصميم ستيك، يجمع بين الخطوط الهندسية الدقيقة ولمسة رمادية هادئة. تمنحك رقبة السيليكون المرنة حرية توجيه الماء داخل الحوض بسهولة.",
          580, None, "stick kitchen mixer ستيك خلاط مجلى gray رمادي"),
@@ -35,10 +38,12 @@ def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
     )
     publish_models(root, origin, screen_page, schema_pattern, json_script, "kitchen", "kitchen-mixers",
                    "خلاطات مجلى", "Kitchen Mixers", models, "Gray", "رمادي", country="Italy",
-                   finishes={"st-01-kitchen-mixer": ("Brushed Gold", "ذهبي مفرّش")},
-                   galleries={"st-01-kitchen-mixer": tuple(f"2027-{i:02}" for i in range(2, 10)),
+                   finishes={"gessi-venti-semi-pro": ("Brushed Rose Gold", "BRUSHED ROSE GOLD"),
+                             "st-01-kitchen-mixer": ("Brushed Gold", "ذهبي مفرّش")},
+                   galleries={"gessi-venti-semi-pro": tuple(f"{i:02}" for i in range(2, 10)),
+                              "st-01-kitchen-mixer": tuple(f"2027-{i:02}" for i in range(2, 10)),
                               "stick-kitchen-mixer": tuple(f"2027-{i:02}" for i in range(2, 9))},
-                   primary_views={"stick-kitchen-mixer": "2027-01", "st-01-kitchen-mixer": "2027-01"},
+                   primary_views={"gessi-venti-semi-pro": "01", "stick-kitchen-mixer": "2027-01", "st-01-kitchen-mixer": "2027-01"},
                    variants={"rs-kitchen-mixer": {
                        "Rose Gold": ("روز غولد", ("slate-cover", "slate-rose-installed", "slate-rose-handle", "slate-rose-spout")),
                        "White": ("أبيض", ("slate-white-installed", "slate-white-handle", "slate-white-spout", "slate-white-views")),
