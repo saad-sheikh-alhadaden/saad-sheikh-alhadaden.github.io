@@ -40,10 +40,10 @@ def publish_kitchen(root, origin, screen_page, schema_pattern, json_script):
                               "stick-kitchen-mixer": tuple(f"2027-{i:02}" for i in range(2, 9))},
                    primary_views={"stick-kitchen-mixer": "2027-01", "st-01-kitchen-mixer": "2027-01"},
                    variants={"rs-kitchen-mixer": {
-                       "Rose Gold": ("روز غولد", ("wood-rose-gold-installed", "wood-rose-gold-handle", "wood-rose-gold-spout", "wood-rose-gold-views", "wood-cover")),
-                       "White": ("أبيض", ("wood-white", "wood-white-handle", "wood-white-spout", "wood-white-views")),
-                       "Brushed Green": ("أخضر مفرّش", ("wood-brushed-green", "wood-brushed-green-handle", "wood-brushed-green-spout", "wood-brushed-green-views")),
-                   }}, covers={"rs-kitchen-mixer": "wood-cover"})
+                       "Rose Gold": ("روز غولد", ("slate-cover", "slate-rose-installed", "slate-rose-handle", "slate-rose-spout")),
+                       "White": ("أبيض", ("slate-white-installed", "slate-white-handle", "slate-white-spout", "slate-white-views")),
+                       "Brushed Green": ("أخضر مفرّش", ("slate-green-installed", "slate-green-handle", "slate-green-spout", "slate-green-views")),
+                   }}, covers={"rs-kitchen-mixer": "slate-cover"})
 
 
 def publish_models(root, origin, screen_page, schema_pattern, json_script, group, collection_slug,
