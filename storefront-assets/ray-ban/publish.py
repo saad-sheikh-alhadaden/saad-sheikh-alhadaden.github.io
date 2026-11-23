@@ -194,11 +194,16 @@ kitchen_detail = re.compile(r'<section\b[^>]*\bclass="vanity-detail"[^>]*>.*?</s
 photo_strip = re.compile(r'<div class="product-gallery"[^>]*>.*?</div>', re.S)
 info_and_category = re.compile(r'(<div class="product-info">)(\s*<p class="category">خلاطات مجلى</p>)')
 
+warranty = re.search(r'<div class="warranty">.*?</div>', (root / "index.html").read_text(), re.S)[0]
+cart_button = re.compile(r'<button\b[^>]*\bdata-add-cart\b[^>]*>')
+
 
 def format_kitchen_detail(match):
     section = match[0]
     if '<p class="category">خلاطات مجلى</p>' not in section:
         return section
+    if 'class="warranty"' not in section:
+        section = cart_button.sub(lambda button: warranty + "\n            " + button[0], section, count=1)
     section = section.replace(">", " data-kitchen-mixer>", 1)
     if not info_and_category.search(section):
         return section
