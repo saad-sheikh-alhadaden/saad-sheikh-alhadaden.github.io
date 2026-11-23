@@ -116,3 +116,24 @@ button.option[data-color]:has(> img)::before { content: none; }
   flex: 0 0 .875rem;
   background: var(--store-finish, #81766a);
 }
+
+/* Keep kitchen card prices and dividers aligned when model names wrap. */
+#kitchen .cabinet-gallery > .mixer-product {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+}
+#kitchen .cabinet-gallery .mixer-product-copy {
+  flex: 1;
+  align-items: start;
+  align-content: start;
+}
+#kitchen .cabinet-gallery .mixer-product-copy > small {
+  min-block-size: 3em;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#kitchen .cabinet-gallery .mixer-product-copy > span {
+  line-height: 1.5;
+}
