@@ -128,10 +128,11 @@ def publish_models(root, origin, screen_page, schema_pattern, json_script, group
         section = f'''<section id="{slug}" class="vanity-detail" hidden>
           <div class="product-image">{image}<button class="circle" type="button" data-save aria-pressed="false" aria-label="إضافة إلى المفضّلة">♡</button></div>
           <div class="product-info">
+            {gallery if group == "kitchen" else ""}
             <p class="category">{collection}</p>
             <h1>{name}</h1>
             <p class="product-description">{description}</p>
-            {gallery}
+            {gallery if group != "kitchen" else ""}
             {size_line}
             {color_line}
             {country_line}

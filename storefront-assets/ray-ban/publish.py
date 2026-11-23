@@ -158,8 +158,28 @@ publish_mixer(
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
 )
+# Move archived kitchen mixer galleries before the title and description.
+kitchen_detail = re.compile(r'<section\b[^>]*\bclass="vanity-detail"[^>]*>.*?</section>', re.S)
+photo_strip = re.compile(r'<div class="product-gallery"[^>]*>.*?</div>', re.S)
+info_and_category = re.compile(r'(<div class="product-info">)(\s*<p class="category">خلاطات مجلى</p>)')
+
+
+def move_kitchen_gallery(match):
+    section = match[0]
+    if not info_and_category.search(section):
+        return section
+    gallery = photo_strip.search(section)
+    if gallery is None:
+        return section
+    section = section[:gallery.start()] + section[gallery.end():]
+    return info_and_category.sub(
+        lambda info: info[1] + "\n            " + gallery[0] + info[2], section, count=1
+    )
+
+
 for page in root.rglob("index.html"):
     html = page.read_text()
-    updated, count = legacy_favorite.subn(r"\1circle\2", html)
-    if count:
+    updated = legacy_favorite.sub(r"\1circle\2", html)
+    updated = kitchen_detail.sub(move_kitchen_gallery, updated)
+    if updated != html:
         page.write_text(updated)
