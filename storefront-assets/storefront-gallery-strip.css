@@ -68,3 +68,22 @@
   flex: 0 0 min(84%, 390px);
   scroll-snap-align: start;
 }
+
+#kitchen .kitchen-marquee {
+  direction: ltr;
+  scroll-snap-type: none;
+  overflow-anchor: none;
+  scroll-behavior: auto;
+}
+#kitchen .kitchen-marquee > a { direction: rtl; }
+#kitchen .kitchen-motion-toggle {
+  display: block;
+  margin: 4px auto 12px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 20px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}

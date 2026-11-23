@@ -119,3 +119,84 @@
     }
   }).observe(content, {subtree: true, attributes: true, attributeFilter: ['hidden']});
 })();
+
+(() => {
+  const rail = document.querySelector('#kitchen .cabinet-gallery');
+  if (!rail || rail.children.length < 2) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const cards = Array.from(rail.children);
+  rail.classList.add('kitchen-marquee');
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'kitchen-motion-toggle';
+  rail.after(toggle);
+
+  let paused = reduced.matches;
+  let visible = false;
+  let touching = false;
+  let hovering = false;
+  let resumeAt = 0;
+  let frame = 0;
+  let previous = 0;
+  let position = 0;
+  let cycle = 0;
+  let duplicate;
+
+  function tick(now) {
+    frame = 0;
+    if (paused || !visible || document.hidden || touching || hovering || rail.contains(document.activeElement)) return;
+    if (now >= resumeAt && cycle > 0) {
+      if (!previous) position = rail.scrollLeft;
+      position = (position + Math.min(now - (previous || now), 50) * 0.045) % cycle;
+      rail.scrollLeft = position;
+      previous = now;
+    }
+    frame = requestAnimationFrame(tick);
+  }
+
+  function sync() {
+    cancelAnimationFrame(frame);
+    previous = 0;
+    toggle.textContent = paused ? 'تشغيل الحركة' : 'إيقاف الحركة';
+    if (!paused && visible && !document.hidden) frame = requestAnimationFrame(tick);
+  }
+
+  function interact() {
+    resumeAt = performance.now() + 1800;
+    sync();
+  }
+
+  function measure() {
+    if (duplicate) cycle = duplicate.offsetLeft - cards[0].offsetLeft;
+  }
+
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    if (visible && !duplicate) {
+      for (const card of cards) {
+        const copy = card.cloneNode(true);
+        copy.tabIndex = -1;
+        copy.setAttribute('aria-hidden', 'true');
+        copy.querySelector('img').loading = 'lazy';
+        rail.append(copy);
+        duplicate ||= copy;
+      }
+    }
+    measure();
+    sync();
+  }).observe(rail);
+  new ResizeObserver(measure).observe(rail);
+  toggle.onclick = () => { paused = !paused; sync(); };
+  reduced.addEventListener('change', () => { paused = reduced.matches; sync(); });
+  rail.addEventListener('pointerdown', () => { touching = true; sync(); });
+  const release = () => { if (touching) { touching = false; interact(); } };
+  window.addEventListener('pointerup', release);
+  window.addEventListener('pointercancel', release);
+  rail.addEventListener('wheel', interact, {passive: true});
+  rail.addEventListener('pointerenter', e => { hovering = e.pointerType === 'mouse'; sync(); });
+  rail.addEventListener('pointerleave', () => { hovering = false; sync(); });
+  rail.addEventListener('focusin', sync);
+  rail.addEventListener('focusout', interact);
+  document.addEventListener('visibilitychange', sync);
+  sync();
+})();
