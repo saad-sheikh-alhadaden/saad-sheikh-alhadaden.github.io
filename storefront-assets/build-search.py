@@ -162,13 +162,48 @@ def add_decor_basin_sections(html):
                   add_cards, html, count=1, flags=re.S)
 
 
-# Keep the colour-first JAVA MIX selector and expose direct model links beneath it.
+def java_finish_panels(root, models):
+    home = (root / "index.html").read_text()
+    script = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
+    registry = (root / script).read_text()
+    finishes = json.loads(re.search(r'^const javaMixFinishes = (\{.*\});$', registry, re.M)[1])
+    cards = {slug: [] for slug in finishes}
+    for path, name in models:
+        key = path.strip("/")
+        model = json.loads(re.search(rf'^  "{re.escape(key)}": (\{{.*\}}),?$', registry, re.M)[1])
+        for slug, finish in finishes.items():
+            cards[slug].append(
+                f'<a class="hero mixer-product" style="margin:0" href="{path}?color={slug}">'
+                f'<img src="{escape(model["images"][finish])}" loading="lazy" width="992" height="1240" '
+                f'alt="{escape(name)} · {escape(finish)}"><div class="mixer-product-copy">'
+                f'<strong>{escape(name)}</strong><span dir="ltr">${model["prices"][finish]}</span></div></a>'
+            )
+    return "".join(
+        f'<section class="panel" id="java-mix-{slug}" data-java-finish="{slug}" hidden>'
+        f'<h1>أطقم خلاطات<br><bdi lang="en" dir="ltr">JAVA MIX · {escape(label)}</bdi></h1>'
+        f'<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">'
+        f'{"".join(cards[slug])}</div></section>'
+        for slug, label in finishes.items()
+    )
+
+
+# A finish opens a list of models. Individual model links keep the same finish.
+finish_panels = java_finish_panels(ROOT, java_models)
 model_links = "".join(f'<a href="{escape(path)}">{escape(name)}</a>' for path, name in java_models)
 model_list = f'<details><summary>تصفّح بحسب نوع الخلاط</summary><div class="collections category-list">{model_links}</div></details>'
+
+
+def add_java_collection(match):
+    panel = match[0].replace('href="/java-mix-mini-basin-mixer/?color=', 'href="/java-mix/?color=')
+    panel = panel.replace('<a class="contact-card" href="catalogs/java-mix-2027.pdf"',
+                          model_list + '<a class="contact-card" href="catalogs/java-mix-2027.pdf"', 1)
+    return panel + finish_panels
+
+
 for page in ROOT.rglob("index.html"):
     html = add_decor_basin_sections(category_links(page.read_text()))
-    html = html.replace('<a class="contact-card" href="catalogs/java-mix-2027.pdf"',
-                        model_list + '<a class="contact-card" href="catalogs/java-mix-2027.pdf"', 1)
+    html = re.sub(r'<section class="panel" id="java-mix"[^>]*>.*?</section>',
+                  add_java_collection, html, count=1, flags=re.S)
     page.write_text(html)
 
 home_path = ROOT / "index.html"
@@ -221,6 +256,14 @@ home_cover_js = Path(__file__).with_name("storefront-home-cover.js").read_text()
 home = (ROOT / "index.html").read_text()
 cart_script = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
 cart_js = (ROOT / cart_script).read_text()
+# Preserve old finish bookmarks and choose the matching model grid on direct entry.
+cart_js = cart_js.replace('/${firstJavaMixModel}/?color=${hash.slice(', '/java-mix/?color=${hash.slice(')
+initial_screen = 'const initialScreen = document.documentElement.dataset.screen || "home";'
+if cart_js.count(initial_screen) != 1:
+    raise ValueError("Missing storefront initial screen")
+cart_js = cart_js.replace(initial_screen, '''const baseScreen = document.documentElement.dataset.screen || "home";
+  const initialScreen = baseScreen === "java-mix" && Object.hasOwn(javaMixFinishes, requestedFinish)
+    ? "java-mix-" + requestedFinish : baseScreen;''')
 cart_hooks = {
     '  const syncOrder = () => {': '''  const confirmation = cartConfirmationFor(addButton);
   const syncOrder = () => {

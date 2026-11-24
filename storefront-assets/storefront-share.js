@@ -6,7 +6,13 @@ const shareOptions = JSON.parse(shareButton.dataset.sharePages);
 const shareFinishes = new Set(["chrome", "black", "gray", "gold", "brushed-gold", "rose-gold", "black-chrome", "black-rose-gold"]);
 
 function currentSharePage() {
-  const current = document.querySelector("main > section[id]:not([hidden])")?.id;
+  const screen = document.querySelector("main > section[id]:not([hidden])");
+  const current = screen?.id;
+  if (screen?.dataset.javaFinish) {
+    const url = new URL(shareOptions["java-mix"].path, location.origin);
+    url.searchParams.set("color", screen.dataset.javaFinish);
+    return { title: screen.querySelector("h1").innerText, url: url.href, label: "مشاركة المجموعة" };
+  }
   const page = Object.hasOwn(shareOptions, current) ? shareOptions[current] : shareOptions.home;
   const url = new URL(page.path, location.origin);
   const color = new URLSearchParams(location.search).get("color");

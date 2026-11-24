@@ -9,10 +9,12 @@
     const label = key => product.colorLabels?.[key] || key;
 
     if (screen.querySelector('[data-mixer-finish]')) {
-      return Object.entries(javaMixFinishes).map(([finish, key]) => {
-        const url = new URL(`/${screen.id}/`, document.baseURI);
-        url.searchParams.set('color', finish);
-        return {src: sources[key], label: label(key), href: url.href};
+      const finish = javaMixFinishes[javaMixFinish];
+      return [...screen.querySelectorAll('[data-mixer-choice]')].map(choice => {
+        const model = choice.dataset.mixerChoice;
+        const url = new URL(`/${model}/`, document.baseURI);
+        url.searchParams.set('color', javaMixFinish);
+        return {src: products[model].images[finish], label: choice.textContent.trim(), href: url.href};
       });
     }
 
