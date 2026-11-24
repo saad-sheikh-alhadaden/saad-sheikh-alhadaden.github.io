@@ -49,6 +49,12 @@
     const section = screen();
     if (!section) return;
     const model = section.id;
+    if (document.documentElement.hasAttribute("data-java-gallery") && section.classList.contains("java-gallery-model")) {
+      returnLink.href = "/java-mix/";
+      returnLink.textContent = "للألوان";
+      returnLink.setAttribute("aria-label", "الرجوع لألوان جافا مكس");
+      return;
+    }
     returnLink.textContent = "رجوع";
     if (model === "kitchen" && query.get("view") === "all") {
       returnLink.href = "/kitchen-mixers/";

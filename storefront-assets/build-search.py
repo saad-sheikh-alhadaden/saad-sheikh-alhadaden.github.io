@@ -151,6 +151,52 @@ def publish_product_photos(root):
         return names.sub(lambda match: photo_names[match[0]], text)
 
     registry = update_photo_names(registry)
+    java_page = 'const javaMixPage = javaMixModelIds.has(document.documentElement.dataset.screen);'
+    if java_page not in registry:
+        raise ValueError("Missing JAVA MIX product navigation in the storefront registry")
+    registry = registry.replace(java_page, """
+const javaFinishGallery = document.documentElement.dataset.screen === "java-mix"
+  && Object.hasOwn(javaMixFinishes, requestedFinish);
+const javaMixPage = javaFinishGallery || javaMixModelIds.has(document.documentElement.dataset.screen);
+
+if (javaFinishGallery) {
+  document.documentElement.dataset.javaGallery = "";
+  for (const screen of screens.filter(section => javaMixModelIds.has(section.id))) {
+    screen.classList.add("java-gallery-model");
+    const selector = document.createElement("nav");
+    selector.className = "java-gallery-selector";
+    selector.setAttribute("aria-label", "خلاطات الطقم");
+    const heading = document.createElement("p");
+    heading.className = "java-gallery-heading";
+    heading.dir = "ltr";
+    heading.textContent = "JAVA MIX · " + javaMixFinishes[javaMixFinish];
+    const thumbnails = document.createElement("div");
+    thumbnails.className = "java-gallery-thumbnails";
+    for (const choice of screen.querySelectorAll("[data-mixer-choice]")) {
+      const model = choice.dataset.mixerChoice;
+      const link = document.createElement("a");
+      link.href = "#" + model;
+      link.setAttribute("aria-label", choice.textContent.trim());
+      if (model === screen.id) link.setAttribute("aria-current", "true");
+      const image = document.createElement("img");
+      image.src = products[model].images[javaMixFinishes[javaMixFinish]];
+      image.alt = "";
+      image.width = 790;
+      image.height = 988;
+      image.loading = "lazy";
+      link.append(image);
+      thumbnails.append(link);
+    }
+    selector.append(heading, thumbnails);
+    screen.prepend(selector);
+  }
+}
+""".strip())
+    if '? "java-mix-" + requestedFinish : baseScreen;' not in registry:
+        raise ValueError("Missing JAVA MIX finish entry in the storefront registry")
+    registry = registry.replace('? "java-mix-" + requestedFinish : baseScreen;',
+                                '? firstJavaMixModel : baseScreen;')
+
     new_script = f"assets/storefront-{sha256(registry.encode()).hexdigest()[:12]}.js"
     (root / new_script).write_text(registry)
 
@@ -493,6 +539,60 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
 @media (min-width: 760px) {
     .java-finish-list { gap: 1.4rem 1.1rem; }
 }
+[data-java-gallery] main > .java-gallery-model:not([hidden]) {
+    max-width: 54rem;
+    margin-inline: auto;
+    background: #171512;
+    color: #f5eee2;
+}
+.java-gallery-selector {
+    padding: .8rem clamp(.8rem, 4vw, 1.4rem) .85rem;
+}
+.java-gallery-heading {
+    margin: 0 0 .65rem;
+    color: #e1c296;
+    text-align: center;
+    font-size: .8rem;
+    letter-spacing: .09em;
+}
+.java-gallery-thumbnails {
+    display: grid;
+    max-width: 23rem;
+    margin-inline: auto;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: .45rem;
+}
+.java-gallery-thumbnails > a {
+    display: block;
+    padding: 2px;
+    border: 1px solid #655541;
+    border-radius: .5rem;
+}
+.java-gallery-thumbnails > a[aria-current] { border-color: #e1c296; }
+.java-gallery-thumbnails img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    border-radius: .32rem;
+}
+[data-java-gallery] .java-gallery-model > .product-image > img {
+    width: 100%;
+    height: min(52svh, 34rem);
+    object-fit: contain;
+}
+[data-java-gallery] .java-gallery-model > .product-info {
+    background: #171512;
+    color: #f5eee2;
+    padding: 1rem clamp(1rem, 4vw, 2rem) 1.5rem;
+}
+[data-java-gallery] .java-gallery-model .product-info h1 {
+    font-size: clamp(1.45rem, 5vw, 2.05rem);
+}
+[data-java-gallery] .java-gallery-model .product-info .product-description,
+[data-java-gallery] .java-gallery-model .product-info .price-tag { color: #e1c296; }
+[data-java-gallery] .java-gallery-model :is(.store-photo-strip, .catalog-trail, .product-info .category,
+    .options:has([data-mixer-choice]), p:has(+ .options [data-mixer-choice])) { display: none; }
 </style>"""
     controls = (collection_alignment + f'<link rel="stylesheet" href="{finish_css}">'
                 f'<script defer src="{finish_picker}"></script>' + photo_controls)
