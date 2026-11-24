@@ -18,7 +18,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen"):
     name = f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
@@ -73,7 +73,11 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     section = replace_once(section, r'<section[^>]*>', f'<section id="{slug}" class="vanity-detail" data-nosnippet hidden>')
     section = replace_once(section, r'(<div class="product-image">)<img [^>]*>',
                            lambda match: match[1] + f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">')
-    section = replace_once(section, r'<h1>.*?</h1>', f'<h1>{name}</h1>')
+    heading = f'<h1>{name}</h1>'
+    if category == "mixers":
+        section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category">خلاطات المغاسل</p>')
+        heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
+    section = replace_once(section, r'<h1>.*?</h1>', heading)
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
     section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
     section = replace_once(section, r'<div class="options"[^>]*>.*?</div>',
@@ -103,7 +107,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     product = {
         "name": name,
         "search": f"{name} خلاطات مجلى {keywords} {price}",
-        "price": price, "category": "kitchen", "defaultColor": default_finish,
+        "price": price, "category": category, "defaultColor": default_finish,
         "colorLabels": labels, "images": {finish: photos[0] for finish, photos in images.items()},
         "favoriteKey": f"saad-saved-{slug}",
     }
@@ -343,6 +347,14 @@ publish_mixer(
     500, {"Black": "أسود مطفّي"}, 8,
     "Fima Galileo pull-out silicone black أسود مطفي فيما غاليليو سحب",
     after_card="antique-3in1-kitchen-mixer", brand="Fima",
+)
+
+publish_mixer(
+    "tall-mixer-aureo", "خلاط مغسلة توب آوريو", "Tall Mixer Aureo",
+    "خلاط مغسلة إيطالي بتشطيب ذهبي بملمس ناعم ولمعة هادئة. يجمع تصميمه الطويل بين جسم انسيابي ومصبّ ممتد فوق الحوض، ليناسب المغاسل الموضوعة على سطح الرخامة.",
+    250, {"Brushed Gold": "ذهبي فرش"}, 1,
+    "Aureo آوريو اوريو brushed gold براش غولد خلاط مغسلة طويل",
+    after_card="origini", category="mixers",
 )
 
 # Move archived kitchen mixer galleries before the title and description.
