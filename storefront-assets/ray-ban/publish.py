@@ -222,6 +222,14 @@ publish_mixer(
 )
 
 
+publish_mixer(
+    "antique-3in1-kitchen-mixer", "خلاط مجلى ثلاثي انتيك", "Kitchen Mixer 3in1 Antique",
+    "خلاط مجلى ثلاثي بتشطيب أسود مطفي، يجمع بين انحناءة المصب الكلاسيكية والمقبضين المحزّزين.",
+    225, {"Black": "أسود"}, 6, "antique 3in1 انتيك أنتيك أسود ثلاثي",
+    after_card="st-873-kitchen-mixer", italian=True,
+)
+
+
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
