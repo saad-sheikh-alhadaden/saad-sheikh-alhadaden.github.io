@@ -159,39 +159,9 @@ const javaFinishGallery = document.documentElement.dataset.screen === "java-mix"
   && Object.hasOwn(javaMixFinishes, requestedFinish);
 const javaMixPage = javaFinishGallery || javaMixModelIds.has(document.documentElement.dataset.screen);
 
-if (javaFinishGallery) {
-  document.documentElement.dataset.javaGallery = "";
-  for (const screen of screens.filter(section => javaMixModelIds.has(section.id))) {
-    screen.classList.add("java-gallery-model");
-    const selector = document.createElement("nav");
-    selector.className = "java-gallery-selector";
-    selector.setAttribute("aria-label", "خلاطات الطقم");
-    const heading = document.createElement("p");
-    heading.className = "java-gallery-heading";
-    heading.dir = "ltr";
-    heading.textContent = "JAVA MIX · " + javaMixFinishes[javaMixFinish];
-    const thumbnails = document.createElement("div");
-    thumbnails.className = "java-gallery-thumbnails";
-    for (const choice of screen.querySelectorAll("[data-mixer-choice]")) {
-      const model = choice.dataset.mixerChoice;
-      const link = document.createElement("a");
-      link.href = "#" + model;
-      link.setAttribute("aria-label", choice.textContent.trim());
-      if (model === screen.id) link.setAttribute("aria-current", "true");
-      const image = document.createElement("img");
-      image.src = products[model].images[javaMixFinishes[javaMixFinish]];
-      image.alt = "";
-      image.width = 790;
-      image.height = 988;
-      image.loading = "lazy";
-      link.append(image);
-      thumbnails.append(link);
-    }
-    selector.append(heading, thumbnails);
-    screen.prepend(selector);
-  }
-}
-""".strip())
+const selectJavaModel = javaFinishGallery ? createJavaGallery() : null;
+if (javaFinishGallery) document.documentElement.dataset.javaGallery = "";
+""".strip() + "\n" + Path(__file__).with_name("java-mix-rail.js").read_text())
     initial_active = "const active = screens.some((screen) => screen.id === hash) ? hash : initialScreen;"
     if initial_active not in registry:
         raise ValueError("Missing storefront screen selection")
@@ -200,14 +170,7 @@ if (javaFinishGallery) {
     screen_visibility = "for (const screen of screens) screen.hidden = screen.id !== active;"
     if screen_visibility not in registry:
         raise ValueError("Missing storefront screen visibility update")
-    registry = registry.replace(screen_visibility, """const visibleStrip = javaFinishGallery
-    ? document.querySelector("main > .java-gallery-model:not([hidden]) .java-gallery-thumbnails") : null;
-  const stripPosition = visibleStrip?.scrollLeft;
-  for (const screen of screens) screen.hidden = screen.id !== active;
-  if (stripPosition != null) {
-    const nextStrip = document.getElementById(active)?.querySelector(".java-gallery-thumbnails");
-    if (nextStrip && nextStrip !== visibleStrip) nextStrip.scrollLeft = stripPosition;
-  }""")
+    registry = registry.replace(screen_visibility, screen_visibility + "\n  selectJavaModel?.(active);")
     new_script = f"assets/storefront-{sha256(registry.encode()).hexdigest()[:12]}.js"
     (root / new_script).write_text(registry)
 
@@ -557,15 +520,44 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
     color: #f5eee2;
 }
 .java-gallery-selector {
-    padding: .8rem clamp(.8rem, 4vw, 1.4rem) .85rem;
+    position: sticky;
+    top: calc(var(--rail-header, 57px) + var(--rail-offset, 0px));
+    margin-block-end: calc(0px - min(var(--rail-offset, 0px), var(--rail-height, 0px)));
+    z-index: 3;
+    margin-inline: auto;
+    padding: 0 .75rem .4rem;
+    background: #191714;
+    border-block-end: 1px solid #554735;
+    touch-action: pan-x pinch-zoom;
+    user-select: none;
+    -webkit-user-select: none;
 }
-.java-gallery-heading {
-    margin: 0 0 .65rem;
-    color: #e1c296;
-    text-align: center;
-    font-size: .8rem;
-    letter-spacing: .09em;
+.java-gallery-selector[hidden] { display: none; }
+.java-gallery-selector[data-floating] { box-shadow: 0 4px 14px #0005; }
+.java-gallery-grip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    min-height: 44px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: #e2c697;
+    background: transparent;
+    font: 500 .82rem/1.2 system-ui, sans-serif;
+    letter-spacing: .08em;
+    cursor: grab;
+    touch-action: none;
 }
+.java-gallery-grip::before {
+    content: "";
+    width: 19px;
+    height: 5px;
+    border-block: 1.5px solid #c9ab7f;
+}
+.java-gallery-grip:active { cursor: grabbing; }
 .java-gallery-thumbnails {
     display: grid;
     max-width: 23rem;
@@ -575,13 +567,14 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
     gap: .45rem;
     overflow-x: auto;
     overflow-y: hidden;
+    touch-action: pan-x pinch-zoom;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
     padding-block: 2px;
 }
 .java-gallery-thumbnails::-webkit-scrollbar { display: none; }
 @media (pointer: coarse), (max-width: 540px) {
-    .java-gallery-thumbnails { grid-auto-columns: 22%; }
+    .java-gallery-thumbnails { grid-auto-columns: clamp(64px, 23%, 83px); }
 }
 .java-gallery-thumbnails > a {
     display: block;
@@ -595,6 +588,9 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
     width: 100%;
     height: auto;
     aspect-ratio: 4 / 5;
+    max-height: 4.1rem;
+    object-fit: contain;
+    background: #121211;
     border-radius: .32rem;
 }
 [data-java-gallery] .java-gallery-model > .product-image > img {
@@ -612,6 +608,20 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
 }
 [data-java-gallery] .java-gallery-model .product-info .product-description,
 [data-java-gallery] .java-gallery-model .product-info .price-tag { color: #e1c296; }
+[data-java-gallery] .java-gallery-model .qty button {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: #30291f;
+    border: 1px solid #bca079;
+    color: #fff3da;
+    font: 600 26px/1 system-ui, sans-serif;
+    touch-action: manipulation;
+}
+[data-java-gallery] .java-gallery-model .qty button:active { background: #51412f; }
+[data-java-gallery] .java-gallery-model .qty button:focus-visible { outline: 2px solid #ffdc9f; }
 [data-java-gallery] .java-gallery-model :is(.store-photo-strip, .catalog-trail, .product-info .category,
     .options:has([data-mixer-choice]), p:has(+ .options [data-mixer-choice])) { display: none; }
 </style>"""
