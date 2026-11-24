@@ -48,7 +48,7 @@
 /* These product photos already include the SAAD signature. */
 #kitchen .hero.mixer-product:has(> img)::after,
 [data-kitchen-mixer] > .product-image::after,
-:is(.hero.mixer-product, .product-image):has(> img[src^="/assets/java-mix-tall-"])::after {
+:is(.hero.mixer-product, .product-image):has(> img[src^="/assets/java-mix-cube-kitchen-mixer-"])::after {
   content: none;
 }
 

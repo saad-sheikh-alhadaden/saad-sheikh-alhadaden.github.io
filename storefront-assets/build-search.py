@@ -78,7 +78,7 @@ def set_product_preview(html, name, image):
 V20_PHOTO_ALT = "مغسلة V20 بخزانة سوداء مخدّدة وشريط ذهبي، وفوقها مرآة مضاءة بإطار ذهبي"
 
 
-def publish_v20_photo(root):
+def publish_product_photos(root):
     legacy = "cabinet-v20-black.webp"
     photo = Path(__file__).with_name("cabinet-v20-black-gold-90x50.webp")
     data = photo.read_bytes()
@@ -90,7 +90,18 @@ def publish_v20_photo(root):
     registry = (root / old_script).read_text()
     if legacy not in registry:
         raise ValueError("Missing V20 image in the storefront registry")
-    registry = registry.replace(legacy, photo.name)
+    # Reuse the approved standing Cube images for the tall model in each JAVA MIX set.
+    tall = json.loads(re.search(r'^  "java-mix-tall-mixer": (\{.*\}),?$', registry, re.M)[1])
+    photo_names = {legacy: photo.name}
+    for finish, path in tall["images"].items():
+        suffix = finish.lower().replace(" ", "-")
+        photo_names[Path(path).name] = f"java-mix-cube-kitchen-mixer-{suffix}-01.webp"
+    names = re.compile("|".join(re.escape(name) for name in photo_names))
+
+    def update_photo_names(text):
+        return names.sub(lambda match: photo_names[match[0]], text)
+
+    registry = update_photo_names(registry)
     new_script = f"assets/storefront-{sha256(registry.encode()).hexdigest()[:12]}.js"
     (root / new_script).write_text(registry)
 
@@ -99,7 +110,7 @@ def publish_v20_photo(root):
         html = html.replace(f'src="/assets/{legacy}" width="790" height="988"',
                             f'src="/assets/{photo.name}" width="1229" height="1536"')
         html = html.replace('alt="كابينت مغسلة V20 بلون أسود"', f'alt="{V20_PHOTO_ALT}"')
-        html = html.replace(legacy, photo.name)
+        html = update_photo_names(html)
         if page.parent.name == "cabinet-v20":
             html = html.replace("كابينت مغسلة V20 بلون أسود، مقاس",
                                 "مغسلة حمّام V20 مع خزانة سوداء معلّقة بواجهة مخدّدة وشريط ذهبي، مقاس")
@@ -107,7 +118,7 @@ def publish_v20_photo(root):
 
 
 run_path(str(Path(__file__).with_name("cabinet_b604.py")), run_name="__main__")
-publish_v20_photo(ROOT)
+publish_product_photos(ROOT)
 velato = run_path(str(Path(__file__).with_name("velato.py")))
 velato["publish"](ROOT, ORIGIN, STORE, meta, set_product_preview, schema_pattern, json_script)
 

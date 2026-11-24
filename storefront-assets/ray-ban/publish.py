@@ -311,13 +311,6 @@ publish_mixer(
     1, "جافا ميكس كيوب شك", after_card="mcpoloo-117-kitchen-mixer", italian=False, brand="Java Mix", finish_strip=True,
 )
 
-# The tall mixer in the JAVA MIX sets uses the same eight approved product photos.
-stand_prefix = "java-mix-cube-kitchen-mixer-"
-for photo in Path(__file__).parent.glob(stand_prefix + "*-01.webp"):
-    finish = photo.name.removeprefix(stand_prefix).removesuffix("-01.webp").replace("-&-", "-")
-    shutil.copyfile(photo, root / "assets" / f"java-mix-tall-{finish}.webp")
-
-
 publish_mixer(
     "java-mix-cube-wall-kitchen-mixer", "خلاط مجلى جافا كيوب جداري", "Wall Kitchen Mixer Java Mix Cube",
     "خلاط مجلى جداري بمصبّ مرتفع ومقبض أمامي مسطّح للتحكّم بحرارة المياه وتدفّقها.",
