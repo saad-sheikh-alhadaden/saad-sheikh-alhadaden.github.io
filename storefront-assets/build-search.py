@@ -197,6 +197,17 @@ if (javaFinishGallery) {
         raise ValueError("Missing storefront screen selection")
     registry = registry.replace(initial_active, """const active = screens.some((screen) => screen.id === hash)
     ? hash : javaFinishGallery ? firstJavaMixModel : initialScreen;""")
+    screen_visibility = "for (const screen of screens) screen.hidden = screen.id !== active;"
+    if screen_visibility not in registry:
+        raise ValueError("Missing storefront screen visibility update")
+    registry = registry.replace(screen_visibility, """const visibleStrip = javaFinishGallery
+    ? document.querySelector("main > .java-gallery-model:not([hidden]) .java-gallery-thumbnails") : null;
+  const stripPosition = visibleStrip?.scrollLeft;
+  for (const screen of screens) screen.hidden = screen.id !== active;
+  if (stripPosition != null) {
+    const nextStrip = document.getElementById(active)?.querySelector(".java-gallery-thumbnails");
+    if (nextStrip && nextStrip !== visibleStrip) nextStrip.scrollLeft = stripPosition;
+  }""")
     new_script = f"assets/storefront-{sha256(registry.encode()).hexdigest()[:12]}.js"
     (root / new_script).write_text(registry)
 
@@ -559,8 +570,18 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
     display: grid;
     max-width: 23rem;
     margin-inline: auto;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - 1.8rem) / 5);
     gap: .45rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding-block: 2px;
+}
+.java-gallery-thumbnails::-webkit-scrollbar { display: none; }
+@media (pointer: coarse), (max-width: 540px) {
+    .java-gallery-thumbnails { grid-auto-columns: 22%; }
 }
 .java-gallery-thumbnails > a {
     display: block;
