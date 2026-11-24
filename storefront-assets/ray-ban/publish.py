@@ -73,16 +73,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     section = replace_once(section, r'<section[^>]*>', f'<section id="{slug}" class="vanity-detail" data-nosnippet hidden>')
     section = replace_once(section, r'(<div class="product-image">)<img [^>]*>',
                            lambda match: match[1] + f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">')
-    heading = f'<h1>{name}</h1>'
-    if brand == "Java Mix":
-        heading = (
-            f'<h1 lang="ar" dir="rtl">{escape(title)}</h1>'
-            '<p class="product-model-name" lang="en" dir="ltr" '
-            'style="text-align:right;font-size:clamp(1rem,3.5vw,1.25rem);font-weight:600;'
-            'line-height:1.4;margin:0.25rem 0 0.85rem;color:var(--muted,#65533e)">'
-            f'{escape(model)}</p>'
-        )
-    section = replace_once(section, r'<h1>.*?</h1>', heading)
+    section = replace_once(section, r'<h1>.*?</h1>', f'<h1>{name}</h1>')
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
     section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
     section = replace_once(section, r'<div class="options"[^>]*>.*?</div>',
@@ -348,12 +339,20 @@ def format_kitchen_detail(match):
     section = match[0]
     if '<p class="category">خلاطات مجلى</p>' not in section:
         return section
-    if 'id="stick-kitchen-mixer"' in section:
-        section = section.replace(
-            "<h1>خلاط مجلى ستيك</h1>",
-            '<h1>خلاط مجلى ستيك</h1><p lang="en" dir="ltr">Kitchen mixer Steak</p>',
-            1,
-        )
+    heading = re.search(r'<h1>(.*?)</h1>', section, re.S)
+    if heading:
+        title, separator, model = heading[1].partition(" — ")
+        if not separator and 'id="stick-kitchen-mixer"' in section:
+            model = "Kitchen mixer Steak"
+        if model:
+            title_markup = (
+                f'<h1 lang="ar" dir="rtl">{title}</h1>'
+                '<p class="product-model-name" lang="en" dir="ltr" '
+                'style="text-align:right;font-size:clamp(1rem,3.5vw,1.25rem);font-weight:600;'
+                'line-height:1.4;margin:0.25rem 0 0.85rem;color:var(--muted,#65533e)">'
+                f'{model}</p>'
+            )
+            section = section[:heading.start()] + title_markup + section[heading.end():]
     if 'class="warranty"' not in section:
         section = cart_button.sub(lambda button: warranty + "\n            " + button[0], section, count=1)
     section = section.replace(">", " data-kitchen-mixer>", 1)
