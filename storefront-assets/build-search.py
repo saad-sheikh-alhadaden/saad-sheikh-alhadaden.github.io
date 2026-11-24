@@ -90,12 +90,21 @@ def publish_product_photos(root):
     registry = (root / old_script).read_text()
     if legacy not in registry:
         raise ValueError("Missing V20 image in the storefront registry")
-    # Reuse the approved standing Cube images for the tall model in each JAVA MIX set.
-    tall = json.loads(re.search(r'^  "java-mix-tall-mixer": (\{.*\}),?$', registry, re.M)[1])
+    # Each JAVA MIX set shows the matching Cube mixer photo in its selected finish.
+    wall_key = "java-mix-wall-kitchen-mixer"
+    old_label = "خلاط مجلى جداري"
+    wall_label = "خلاط مجلى أو مغسلة جداري"
+    wall_entry = re.compile(rf'^  "{wall_key}": .*$', re.M)
+    registry = wall_entry.sub(lambda m: m[0].replace(old_label, wall_label), registry)
+    # Match the standalone model name and its catalogue qualifiers in page templates.
+    wall_name_in_page = re.compile(re.escape(old_label) + r'(?=["<.]| [·–]| (?:من )?JAVA MIX)')
     photo_names = {legacy: photo.name}
-    for finish, path in tall["images"].items():
-        suffix = finish.lower().replace(" ", "-")
-        photo_names[Path(path).name] = f"java-mix-cube-kitchen-mixer-{suffix}-01.webp"
+    for model_key, prefix in (("java-mix-tall-mixer", "java-mix-cube-kitchen-mixer"),
+                              (wall_key, "java-mix-cube-wall-kitchen-mixer")):
+        model = json.loads(re.search(rf'^  "{model_key}": (\{{.*\}}),?$', registry, re.M)[1])
+        for finish, path in model["images"].items():
+            suffix = finish.lower().replace(" ", "-")
+            photo_names[Path(path).name] = f"{prefix}-{suffix}-01.webp"
     names = re.compile("|".join(re.escape(name) for name in photo_names))
 
     def update_photo_names(text):
@@ -111,6 +120,7 @@ def publish_product_photos(root):
                             f'src="/assets/{photo.name}" width="1229" height="1536"')
         html = html.replace('alt="كابينت مغسلة V20 بلون أسود"', f'alt="{V20_PHOTO_ALT}"')
         html = update_photo_names(html)
+        html = wall_name_in_page.sub(wall_label, html)
         if page.parent.name == "cabinet-v20":
             html = html.replace("كابينت مغسلة V20 بلون أسود، مقاس",
                                 "مغسلة حمّام V20 مع خزانة سوداء معلّقة بواجهة مخدّدة وشريط ذهبي، مقاس")
