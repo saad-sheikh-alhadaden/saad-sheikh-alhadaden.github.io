@@ -45,9 +45,10 @@
   display: none;
 }
 
-/* Kitchen mixer photos already include the SAAD logo. */
+/* These product photos already include the SAAD signature. */
 #kitchen .hero.mixer-product:has(> img)::after,
-[data-kitchen-mixer] > .product-image::after {
+[data-kitchen-mixer] > .product-image::after,
+:is(.hero.mixer-product, .product-image):has(> img[src^="/assets/java-mix-tall-"])::after {
   content: none;
 }
 
