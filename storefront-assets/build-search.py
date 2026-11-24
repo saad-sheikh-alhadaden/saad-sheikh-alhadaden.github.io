@@ -525,10 +525,10 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
     margin-block-end: calc(0px - min(var(--rail-offset, 0px), var(--rail-height, 0px)));
     z-index: 3;
     margin-inline: auto;
-    padding: 0 .75rem .4rem;
+    padding: 0 clamp(.8rem, 4vw, 1.4rem) .4rem;
     background: #191714;
     border-block-end: 1px solid #554735;
-    touch-action: pan-x pinch-zoom;
+    touch-action: pinch-zoom;
     user-select: none;
     -webkit-user-select: none;
 }
@@ -562,19 +562,8 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
     display: grid;
     max-width: 23rem;
     margin-inline: auto;
-    grid-auto-flow: column;
-    grid-auto-columns: calc((100% - 1.8rem) / 5);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: .45rem;
-    overflow-x: auto;
-    overflow-y: hidden;
-    touch-action: pan-x pinch-zoom;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
-    padding-block: 2px;
-}
-.java-gallery-thumbnails::-webkit-scrollbar { display: none; }
-@media (pointer: coarse), (max-width: 540px) {
-    .java-gallery-thumbnails { grid-auto-columns: clamp(64px, 23%, 83px); }
 }
 .java-gallery-thumbnails > a {
     display: block;
@@ -588,9 +577,6 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
     width: 100%;
     height: auto;
     aspect-ratio: 4 / 5;
-    max-height: 4.1rem;
-    object-fit: contain;
-    background: #121211;
     border-radius: .32rem;
 }
 [data-java-gallery] .java-gallery-model > .product-image > img {

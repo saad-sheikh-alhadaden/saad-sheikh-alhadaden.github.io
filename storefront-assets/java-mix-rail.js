@@ -61,24 +61,23 @@ function createJavaGallery() {
     if (!event.isPrimary || event.button !== 0) return;
     suppressClick = false;
     drag = { id: event.pointerId, x: event.clientX, y: event.clientY,
-      offset, scroll: thumbnails.scrollLeft, axis: null };
+      offset, moving: false };
   });
   selector.addEventListener('pointermove', event => {
     if (!drag || drag.id !== event.pointerId) return;
     const dx = event.clientX - drag.x;
     const dy = event.clientY - drag.y;
-    if (!drag.axis) {
+    if (!drag.moving) {
       if (Math.max(Math.abs(dx), Math.abs(dy)) < 6) return;
-      drag.axis = Math.abs(dy) >= Math.abs(dx) ? 'vertical' : 'horizontal';
-      if (drag.axis === 'horizontal' && event.pointerType !== 'mouse') {
-        drag = null;
-        return; // Horizontal touch scrolling stays native, including momentum in RTL.
-      }
-      selector.setPointerCapture(event.pointerId);
       suppressClick = true;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        drag = null;
+        return;
+      }
+      drag.moving = true;
+      selector.setPointerCapture(event.pointerId);
     }
-    if (drag.axis === 'vertical') place(drag.offset + dy);
-    else thumbnails.scrollLeft = drag.scroll - dx;
+    place(drag.offset + dy);
   });
   function endDrag(event) {
     if (drag?.id === event.pointerId) drag = null;
@@ -104,10 +103,6 @@ function createJavaGallery() {
         continue;
       }
       link.setAttribute('aria-current', 'true');
-      const item = link.getBoundingClientRect();
-      const strip = thumbnails.getBoundingClientRect();
-      if (item.left < strip.left) thumbnails.scrollLeft += item.left - strip.left;
-      else if (item.right > strip.right) thumbnails.scrollLeft += item.right - strip.right;
     }
   };
 }
