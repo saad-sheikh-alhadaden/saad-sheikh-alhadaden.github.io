@@ -243,12 +243,12 @@ def java_finish_panels(root, models):
                 f'<a class="hero mixer-product java-finish-card" href="{path}?color={slug}">'
                 f'<img src="{escape(model["images"][finish])}" loading="lazy" width="790" height="988" '
                 f'alt="{escape(name)} · {escape(finish)}"><div class="java-finish-copy">'
-                f'<strong>{escape(name)}</strong><span dir="ltr">${model["prices"][finish]}</span><span class="java-finish-arrow" aria-hidden="true">←</span></div></a>'
+                f'<strong>{escape(name)}</strong><span dir="ltr">${model["prices"][finish]}</span></div></a>'
             )
     return "".join(
         f'<section class="panel" id="java-mix-{slug}" data-java-finish="{slug}" hidden>'
         f'<header class="java-finish-heading"><h1 lang="en" dir="ltr">JAVA MIX</h1>'
-        f'<span><i aria-hidden="true"></i><bdi lang="en" dir="ltr">{escape(label)}</bdi></span></header>'
+        f'<span><bdi lang="en" dir="ltr">{escape(label)}</bdi></span></header>'
         f'<div class="java-finish-list">'
         f'{"".join(cards[slug])}</div></section>'
         for slug, label in finishes.items()
@@ -419,80 +419,79 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
 .velato-feature > span { text-align: center; }
 [data-java-finish] {
     --java-gold: #dfbd86;
-    max-width: 56rem;
+    max-width: 45rem;
     margin-inline: auto;
 }
 .java-finish-heading {
-    padding-block: .4rem 1.05rem;
-    margin-block-end: 1rem;
-    border-block-end: 1px solid #664e34;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    padding-block: .3rem .8rem;
+    margin-block-end: .95rem;
+    border-block-end: 1px solid #6e5739;
 }
-.java-finish-heading h1 {
-    margin: 0 0 .55rem;
-    text-align: right;
-    font-size: clamp(1.65rem, 5vw, 2.4rem);
-    letter-spacing: .045em;
+[data-java-finish] .java-finish-heading h1 {
+    margin: 0;
+    font-size: clamp(1.45rem, 4.8vw, 2rem);
+    letter-spacing: .065em;
 }
 .java-finish-heading > span {
     color: var(--java-gold);
-    display: inline-flex;
-    align-items: center;
-    gap: .45rem;
-    font-size: .85rem;
+    font-size: .78rem;
+    letter-spacing: .035em;
 }
-.java-finish-heading i {
-    inline-size: 1rem;
-    block-size: 1px;
-    background: currentColor;
-}
-.java-finish-list { display: grid; gap: .8rem; }
-[data-java-finish] .java-finish-card {
+.java-finish-list {
     display: grid;
-    grid-template-columns: minmax(0, 45%) minmax(0, 1fr);
-    align-items: stretch;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem .8rem;
+}
+[data-java-finish] .java-finish-card {
+    display: block;
+    align-self: start;
     margin: 0;
-    padding: 0;
-    overflow: hidden;
+    padding: 0 0 .65rem;
     color: #f7f0e6;
-    border: 1px solid #534534;
-    border-radius: 1rem;
-    background: linear-gradient(145deg, #27221c, #151310);
+    background: transparent;
+    border: 0;
+    border-block-end: 1px solid #594936;
+    border-radius: 0;
     text-decoration: none;
 }
+.java-finish-card:first-child { grid-column: 1 / -1; }
 [data-java-finish] .java-finish-card > img {
     display: block;
-    align-self: center;
     width: 100%;
     height: auto;
     margin: 0;
-    border-radius: 0;
+    border-radius: .45rem;
     aspect-ratio: 790 / 988;
     object-fit: contain;
 }
+[data-java-finish] .java-finish-card:first-child > img {
+    max-height: min(59svh, 30rem);
+    background: #17191a;
+}
 .java-finish-copy {
-    min-inline-size: 0;
     display: grid;
-    align-content: center;
-    justify-items: start;
-    gap: .45rem;
-    padding: .8rem;
+    gap: .25rem;
+    padding: .52rem .1rem 0;
     text-align: start;
 }
-.java-finish-copy strong { font-size: clamp(1rem, 3.6vw, 1.2rem); line-height: 1.5; }
-.java-finish-copy > span { color: var(--java-gold); font-weight: 600; }
-.java-finish-copy .java-finish-arrow {
-    display: grid;
-    place-items: center;
-    inline-size: 1.85rem;
-    block-size: 1.85rem;
-    border: 1px solid #796142;
-    border-radius: 50%;
-    margin-block-start: .15rem;
+.java-finish-copy strong { font-size: .92rem; line-height: 1.5; }
+.java-finish-copy > span { color: var(--java-gold); font-size: .87rem; justify-self: start; }
+.java-finish-card:first-child .java-finish-copy {
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: .55rem;
 }
-.java-finish-card:focus-visible { outline: 2px solid var(--java-gold); outline-offset: 2px; }
+.java-finish-card:first-child .java-finish-copy strong {
+    font-size: clamp(1.08rem, 3.8vw, 1.35rem);
+}
+.java-finish-card:focus-visible { outline: 2px solid var(--java-gold); outline-offset: 3px; }
 @media (min-width: 760px) {
-    .java-finish-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-    .java-finish-copy { padding: 1.25rem; }
+    .java-finish-list { gap: 1.4rem 1.1rem; }
 }
 </style>"""
     controls = (collection_alignment + f'<link rel="stylesheet" href="{finish_css}">'
