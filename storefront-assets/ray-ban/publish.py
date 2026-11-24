@@ -322,6 +322,14 @@ publish_mixer(
     1, "جافا ميكس كيوب جداري", after_card="java-mix-cube-kitchen-mixer", italian=False, brand="Java Mix", finish_strip=True,
 )
 
+publish_mixer(
+    "magic-360-kitchen-mixer", "خلاط مجلى ماجيك 360 درجة", "Wall Kitchen Mixer Magic 360°",
+    "خلاط مجلى ماجيك 360° بتصميم أسطواني ومصبّ مائل ومقبض جانبي للتحكّم بتدفّق المياه وحرارتها.",
+    225, {"GRAY": "الرمادي", "WHITE": "الأبيض"}, 8,
+    "ماجيك 360 رمادي أبيض إيطالي",
+    after_card="java-mix-cube-wall-kitchen-mixer", italian=True,
+)
+
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
