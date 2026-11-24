@@ -247,6 +247,16 @@ publish_mixer(
 )
 
 
+publish_mixer(
+    "gessi-meccanica-316-kitchen-mixer", "خلاط مجلى جيسي 316", "Kitchen mixer GESSI Meccanica 316",
+    "تزيّن النقوش الهندسية المحفورة على المعدن جسم الخلاط والذراع الأفقية. "
+    "يأتي بقوس أسود أملس في النسخة بالذهبي والأسود، وبقوس ذهبي حلزوني في النسخة الذهبية بالكامل.",
+    150, {"GOLD & BLACK": "ذهبي وأسود", "Full GOLD": "ذهبي بالكامل"},
+    {"GOLD & BLACK": 8, "Full GOLD": 9}, "جيسي ميكانيكا 316 نقوش هندسية ذهبي أسود",
+    after_card="piano-wall-kitchen-mixer", italian=True,
+)
+
+
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
