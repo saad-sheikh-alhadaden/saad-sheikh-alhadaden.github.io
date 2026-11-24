@@ -45,7 +45,8 @@
   display: none;
 }
 
-/* These product photos already include the SAAD signature. */
+/* These covers and product photos already include the SAAD signature. */
+#java-mix .hero:has(> img[src^="/assets/java-mix-set-"])::after,
 #kitchen .hero.mixer-product:has(> img)::after,
 [data-kitchen-mixer] > .product-image::after,
 :is(.hero.mixer-product, .product-image):has(> img[src^="/assets/java-mix-cube-kitchen-mixer-"], > img[src^="/assets/java-mix-cube-wall-kitchen-mixer-"], > img[src^="/assets/java-mix-bath-cube-"], > img[src^="/assets/java-mix-mini-cube-"], > img[src^="/assets/java-mix-toilet-cube-"])::after {
