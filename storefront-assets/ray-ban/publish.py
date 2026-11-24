@@ -1,5 +1,6 @@
 """Add kitchen mixers to the assembled storefront."""
 import hashlib
+from html import escape, unescape
 import json
 from pathlib import Path
 import re
@@ -72,7 +73,16 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     section = replace_once(section, r'<section[^>]*>', f'<section id="{slug}" class="vanity-detail" data-nosnippet hidden>')
     section = replace_once(section, r'(<div class="product-image">)<img [^>]*>',
                            lambda match: match[1] + f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">')
-    section = replace_once(section, r'<h1>.*?</h1>', f'<h1>{name}</h1>')
+    heading = f'<h1>{name}</h1>'
+    if brand == "Java Mix":
+        heading = (
+            f'<h1 lang="ar" dir="rtl">{escape(title)}</h1>'
+            '<p class="product-model-name" lang="en" dir="ltr" '
+            'style="text-align:right;font-size:clamp(1rem,3.5vw,1.25rem);font-weight:600;'
+            'line-height:1.4;margin:0.25rem 0 0.85rem;color:var(--muted,#65533e)">'
+            f'{escape(model)}</p>'
+        )
+    section = replace_once(section, r'<h1>.*?</h1>', heading)
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
     section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
     section = replace_once(section, r'<div class="options"[^>]*>.*?</div>',
@@ -114,10 +124,21 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         shutil.copyfile(Path(__file__).with_name(Path(asset).name), root / asset[1:])
     (root / new_registry).write_text(registry)
 
+    # Sharing and return-to-collection navigation both use these canonical paths.
+    def add_share_path(match):
+        pages = json.loads(unescape(match[1]))
+        pages[slug] = {
+            "path": f"/{slug}/",
+            "title": f"{name} | شركة سعد شيخ الحدادين",
+            "label": "مشاركة المنتج",
+        }
+        return f'data-share-pages="{escape(json.dumps(pages, ensure_ascii=False), quote=True)}"'
+
     for page in root.rglob("index.html"):
         html = page.read_text()
         if old_registry not in html:
             continue
+        html = re.sub(r'data-share-pages="([^"]*)"', add_share_path, html, count=1)
         if not re.search(section_pattern, html, re.S):
             page.write_text(html.replace(old_registry, new_registry))
             continue
