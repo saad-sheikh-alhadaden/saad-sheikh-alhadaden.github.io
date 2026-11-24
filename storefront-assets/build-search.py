@@ -130,6 +130,12 @@ def publish_product_photos(root):
             source = Path(__file__).with_name(folder) / filename
             (root / "assets" / filename).write_bytes(source.read_bytes())
             photo_names[Path(path).name] = filename
+    finishes = json.loads(re.search(r'^const javaMixFinishes = (\{.*\});$', registry, re.M)[1])
+    for slug in finishes:
+        filename = f"java-mix-set-{slug}.webp"
+        source = Path(__file__).with_name("java-covers") / filename
+        (root / "assets" / filename).write_bytes(source.read_bytes())
+        photo_names[f"java-mix-{slug}-cover.webp"] = filename
     names = re.compile("|".join(re.escape(name) for name in photo_names))
 
     def update_photo_names(text):
