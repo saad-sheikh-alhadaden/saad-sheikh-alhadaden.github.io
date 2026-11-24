@@ -17,7 +17,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None):
     name = f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
@@ -72,6 +72,12 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     if not italian:
         section = re.sub(r'<p class="origin"[^>]*>.*?</p>', "", section)
         section = re.sub(r'<img class="milano-brand"[^>]*>', "", section)
+    if brand_logo:
+        section = re.sub(r'<img class="milano-brand"[^>]*>', "", section)
+        signature = (f'<img class="milano-brand" src="/assets/{brand_logo}" alt="{brand}" '
+                     'style="filter:none;height:auto">')
+        section = replace_once(section, r'<p class="origin"[^>]*>.*?</p>', lambda match: match[0] + signature)
+        shutil.copyfile(Path(__file__).with_name(brand_logo), root / "assets" / brand_logo)
     card = (f'<a class="hero mixer-product" href="/{slug}/">'
             f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">'
             f'<div class="mixer-product-copy"><strong>{title}</strong>'
@@ -124,6 +130,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             .replace(data["name"], name).replace(data["description"], description))
     if not italian:
         data.pop("countryOfOrigin", None)
+    if brand:
+        data["brand"] = {"@type": "Brand", "name": brand}
     data.update(name=name, description=description, sku=slug, url=url, color=[model_finish] if model_finish else list(labels),
                 image=[origin + image for image in gallery])
     data["offers"].update(price=price, url=url)
@@ -256,6 +264,14 @@ publish_mixer(
     after_card="piano-wall-kitchen-mixer", italian=True,
 )
 
+
+publish_mixer(
+    "mcpoloo-117-kitchen-mixer", "خلاط مجلى فول أوبشن", "Kitchen mixer McPoLOO 117 — Full option",
+    "تنساب المياه من حافة القاعدة المسطّحة على شكل شلّال عريض يغسل الخضروات والفواكه برفق. يمتدّ رأس الرشّ المرن إلى زوايا الحوض، وبضغطة زر يمكنك تغيير نمط تدفّق المياه. ويتيح لك المقبض الجانبي ضبط حرارة المياه وقوّة تدفّقها بيد واحدة.",
+    250, {"GRAY": "الرمادي", "GOLD": "الذهبي", "BLACK": "الأسود", "CHROME": "الكروم"}, 6,
+    "شلال سحب مكبولو فول أوبشن", after_card="gessi-meccanica-316-kitchen-mixer",
+    brand="McPoLOO", brand_logo="mcpoloo-117-brand.png",
+)
 
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
