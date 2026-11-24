@@ -25,6 +25,12 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         for finish in labels
     }
     default_finish = next(iter(labels))
+    prices = price if isinstance(price, dict) else None
+    if prices:
+        if set(prices) != set(labels):
+            raise ValueError(f"Missing or unexpected finish price for {slug}")
+        price = prices[default_finish]
+    card_price = f"${min(prices.values())}–${max(prices.values())}" if prices else f"${price}"
     cover = images[default_finish][0]
     gallery = [asset for photos in images.values() for asset in photos]
 
@@ -82,7 +88,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">'
             f'<div class="mixer-product-copy"><strong>{title}</strong>'
             f'<small><bdi lang="en" dir="ltr">{model}</bdi></small>'
-            f'<span dir="ltr">${price}</span></div></a>')
+            f'<span dir="ltr">{card_price}</span></div></a>')
 
     registry_pattern = r'<script src="/(assets/storefront-[a-f0-9]+\.js)"'
     home = (root / "index.html").read_text()
@@ -95,6 +101,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         "colorLabels": labels, "images": {finish: photos[0] for finish, photos in images.items()},
         "favoriteKey": f"saad-saved-{slug}",
     }
+    if prices:
+        product["prices"] = prices
     registry = replace_once(registry, r'const products = \{',
                             lambda match: match[0] + f'\n  "{slug}": {json.dumps(product, ensure_ascii=False)},')
     new_registry = f"assets/storefront-{hashlib.sha256(registry.encode()).hexdigest()[:12]}.js"
@@ -135,6 +143,10 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     data.update(name=name, description=description, sku=slug, url=url, color=[model_finish] if model_finish else list(labels),
                 image=[origin + image for image in gallery])
     data["offers"].update(price=price, url=url)
+    if prices:
+        data["offers"] = {"@type": "AggregateOffer", "priceCurrency": "USD",
+                          "lowPrice": min(prices.values()), "highPrice": max(prices.values()),
+                          "offerCount": len(prices), "url": url}
     head = replace_once(head, r'(<script type="application/ld\+json">).*?(</script>)',
                         lambda match: match[1] + json.dumps(data, ensure_ascii=False) + match[2])
     body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail">',
@@ -271,6 +283,17 @@ publish_mixer(
     250, {"GRAY": "الرمادي", "GOLD": "الذهبي", "BLACK": "الأسود", "CHROME": "الكروم"}, 6,
     "شلال سحب مكبولو فول أوبشن", after_card="gessi-meccanica-316-kitchen-mixer",
     brand="McPoLOO", brand_logo="mcpoloo-117-brand.png",
+)
+
+publish_mixer(
+    "java-mix-cube-kitchen-mixer", "خلاط مجلى جافا كيوب شك", "Stand Kitchen Mixer Java Mix Cube",
+    "خلاط مجلى قائم بقاعدة مربّعة ومصبّ مرتفع يمتدّ فوق الحوض، مع مقبض جانبي مسطّح ينسجم مع خطوطه الهندسية.",
+    {"Chrome": 50, "Black": 60, "Gray": 90, "Brushed Gold": 90, "Gold": 70, "Rose Gold": 70,
+     "Black & Chrome": 65, "Black & Rose Gold": 75},
+    {"Chrome": "الكروم", "Black": "الأسود", "Gray": "الرمادي", "Brushed Gold": "البراش غولد",
+     "Gold": "الذهبي", "Rose Gold": "الروز غولد", "Black & Chrome": "الأسود والكروم",
+     "Black & Rose Gold": "الأسود والروز غولد"},
+    1, "جافا ميكس كيوب شك", after_card="mcpoloo-117-kitchen-mixer", italian=False, brand="Java Mix",
 )
 
 # Use the shared overlay style for older product cards from the storefront archive.
