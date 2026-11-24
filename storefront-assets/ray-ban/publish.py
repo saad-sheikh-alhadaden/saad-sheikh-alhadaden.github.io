@@ -82,6 +82,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     if not italian:
         section = re.sub(r'<p class="origin"[^>]*>.*?</p>', "", section)
         section = re.sub(r'<img class="milano-brand"[^>]*>', "", section)
+    if brand and not brand_logo:
+        section = re.sub(r'<img class="milano-brand"[^>]*>', "", section)
     if brand_logo:
         section = re.sub(r'<img class="milano-brand"[^>]*>', "", section)
         signature = (f'<img class="milano-brand" src="/assets/{brand_logo}" alt="{brand}" '
@@ -334,6 +336,15 @@ publish_mixer(
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
 )
+
+publish_mixer(
+    "fima-galileo-kitchen-mixer", "خلاط مجلى فيما غاليليو", "Kitchen mixer Fima Galileo",
+    "خلاط مجلى إيطالي بتصميم معاصر وتشطيب أسود مطفّي يبرز انحناءة الخرطوم وخطوط الخلاط. يخرج رأس الرشّاش من حامله بحركة سهلة، ويمنحك خرطوم السيليكون الأسود المرن والمقوّى حرية توجيه الماء إلى زوايا الحوض، لشطف الأواني وتنظيف المجلى براحة أكبر.",
+    500, {"Black": "أسود مطفّي"}, 8,
+    "Fima Galileo pull-out silicone black أسود مطفي فيما غاليليو سحب",
+    after_card="antique-3in1-kitchen-mixer", brand="Fima",
+)
+
 # Move archived kitchen mixer galleries before the title and description.
 kitchen_detail = re.compile(r'<section\b[^>]*\bclass="vanity-detail"[^>]*>.*?</section>', re.S)
 photo_strip = re.compile(r'<div class="product-gallery"[^>]*>.*?</div>', re.S)
