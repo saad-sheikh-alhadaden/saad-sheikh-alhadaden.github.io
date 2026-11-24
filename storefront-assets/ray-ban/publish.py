@@ -299,6 +299,17 @@ publish_mixer(
     1, "جافا ميكس كيوب شك", after_card="mcpoloo-117-kitchen-mixer", italian=False, brand="Java Mix", finish_strip=True,
 )
 
+publish_mixer(
+    "java-mix-cube-wall-kitchen-mixer", "خلاط مجلى جافا كيوب جداري", "Wall Kitchen Mixer Java Mix Cube",
+    "خلاط مجلى جداري بمصبّ مرتفع ومقبض أمامي مسطّح للتحكّم بحرارة المياه وتدفّقها.",
+    {"Chrome": 50, "Black": 60, "Gray": 90, "Brushed Gold": 90, "Gold": 70, "Rose Gold": 70,
+     "Black & Chrome": 65, "Black & Rose Gold": 75},
+    {"Chrome": "الكروم", "Black": "الأسود", "Gray": "الرمادي", "Brushed Gold": "البراش غولد",
+     "Gold": "الذهبي", "Rose Gold": "الروز غولد", "Black & Chrome": "الأسود والكروم",
+     "Black & Rose Gold": "الأسود والروز غولد"},
+    1, "جافا ميكس كيوب جداري", after_card="java-mix-cube-kitchen-mixer", italian=False, brand="Java Mix", finish_strip=True,
+)
+
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
