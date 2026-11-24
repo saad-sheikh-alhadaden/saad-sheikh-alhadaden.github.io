@@ -357,6 +357,14 @@ publish_mixer(
     after_card="origini", category="mixers",
 )
 
+publish_mixer(
+    "tall-mixer-luxe", "خلاط مغسلة توب لوكس", "Tall Mixer Luxe",
+    "خلاط مغسلة إيطالي طويل بخطوط هندسية ومصبّ ممتد فوق الحوض. يجمع جسم الكروم مع مقبض وردي أو أزرق، ليناسب المغاسل الموضوعة على سطح الرخامة.",
+    250, {"Pink & Chrome": "وردي وكروم", "Blue & Chrome": "أزرق وكروم"}, 1,
+    "Luxe لوكس pink blue chrome وردي أزرق كروم خلاط مغسلة طويل",
+    after_card="tall-mixer-aureo", category="mixers",
+)
+
 # Move archived kitchen mixer galleries before the title and description.
 kitchen_detail = re.compile(r'<section\b[^>]*\bclass="vanity-detail"[^>]*>.*?</section>', re.S)
 photo_strip = re.compile(r'<div class="product-gallery"[^>]*>.*?</div>', re.S)
