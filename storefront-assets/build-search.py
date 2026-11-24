@@ -192,11 +192,11 @@ if (javaFinishGallery) {
   }
 }
 """.strip())
-    if '? "java-mix-" + requestedFinish : baseScreen;' not in registry:
-        raise ValueError("Missing JAVA MIX finish entry in the storefront registry")
-    registry = registry.replace('? "java-mix-" + requestedFinish : baseScreen;',
-                                '? firstJavaMixModel : baseScreen;')
-
+    initial_active = "const active = screens.some((screen) => screen.id === hash) ? hash : initialScreen;"
+    if initial_active not in registry:
+        raise ValueError("Missing storefront screen selection")
+    registry = registry.replace(initial_active, """const active = screens.some((screen) => screen.id === hash)
+    ? hash : javaFinishGallery ? firstJavaMixModel : initialScreen;""")
     new_script = f"assets/storefront-{sha256(registry.encode()).hexdigest()[:12]}.js"
     (root / new_script).write_text(registry)
 
