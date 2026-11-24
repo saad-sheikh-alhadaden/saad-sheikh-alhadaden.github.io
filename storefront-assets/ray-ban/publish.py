@@ -247,6 +247,12 @@ def format_kitchen_detail(match):
     section = match[0]
     if '<p class="category">خلاطات مجلى</p>' not in section:
         return section
+    if 'id="stick-kitchen-mixer"' in section:
+        section = section.replace(
+            "<h1>خلاط مجلى ستيك</h1>",
+            '<h1>خلاط مجلى ستيك</h1><p lang="en" dir="ltr">Kitchen mixer Steak</p>',
+            1,
+        )
     if 'class="warranty"' not in section:
         section = cart_button.sub(lambda button: warranty + "\n            " + button[0], section, count=1)
     section = section.replace(">", " data-kitchen-mixer>", 1)
@@ -268,6 +274,7 @@ def format_kitchen_listing(match):
     section = match[0]
     gallery_start = '<div class="cabinet-gallery">'
     before, gallery = section.split(gallery_start, 1)
+    gallery = gallery.replace(">Stick Kitchen Mixer</bdi>", ">Kitchen mixer Steak</bdi>")
     gallery = re.sub(r'<img\b(?![^>]*\bloading=)', '<img loading="lazy"', gallery)
     if " hidden" not in before.split(">", 1)[0]:
         gallery = gallery.replace('loading="lazy"', 'loading="eager"', 1)
