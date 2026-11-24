@@ -17,7 +17,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False):
     name = f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
@@ -53,6 +53,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
 
     gallery_markup = f'<div class="product-gallery">{thumbs}</div>'
     options_markup = f'<div class="options" aria-label="الألوان المتوفرة">{options}</div>'
+    if finish_strip:
+        # The shared variant strip selects the finish and updates its price.
+        gallery_markup = ""
     if model_finish:
         # The shared variant strip builds a selectable thumbnail for each model.
         gallery_markup = ""
@@ -293,7 +296,7 @@ publish_mixer(
     {"Chrome": "الكروم", "Black": "الأسود", "Gray": "الرمادي", "Brushed Gold": "البراش غولد",
      "Gold": "الذهبي", "Rose Gold": "الروز غولد", "Black & Chrome": "الأسود والكروم",
      "Black & Rose Gold": "الأسود والروز غولد"},
-    1, "جافا ميكس كيوب شك", after_card="mcpoloo-117-kitchen-mixer", italian=False, brand="Java Mix",
+    1, "جافا ميكس كيوب شك", after_card="mcpoloo-117-kitchen-mixer", italian=False, brand="Java Mix", finish_strip=True,
 )
 
 # Use the shared overlay style for older product cards from the storefront archive.
