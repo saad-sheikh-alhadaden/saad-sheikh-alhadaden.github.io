@@ -240,15 +240,16 @@ def java_finish_panels(root, models):
         model = json.loads(re.search(rf'^  "{re.escape(key)}": (\{{.*\}}),?$', registry, re.M)[1])
         for slug, finish in finishes.items():
             cards[slug].append(
-                f'<a class="hero mixer-product" style="margin:0" href="{path}?color={slug}">'
-                f'<img src="{escape(model["images"][finish])}" loading="lazy" width="992" height="1240" '
-                f'alt="{escape(name)} · {escape(finish)}"><div class="mixer-product-copy">'
-                f'<strong>{escape(name)}</strong><span dir="ltr">${model["prices"][finish]}</span></div></a>'
+                f'<a class="hero mixer-product java-finish-card" href="{path}?color={slug}">'
+                f'<img src="{escape(model["images"][finish])}" loading="lazy" width="790" height="988" '
+                f'alt="{escape(name)} · {escape(finish)}"><div class="java-finish-copy">'
+                f'<strong>{escape(name)}</strong><span dir="ltr">${model["prices"][finish]}</span><span class="java-finish-arrow" aria-hidden="true">←</span></div></a>'
             )
     return "".join(
         f'<section class="panel" id="java-mix-{slug}" data-java-finish="{slug}" hidden>'
-        f'<h1>أطقم خلاطات<br><bdi lang="en" dir="ltr">JAVA MIX · {escape(label)}</bdi></h1>'
-        f'<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">'
+        f'<header class="java-finish-heading"><h1 lang="en" dir="ltr">JAVA MIX</h1>'
+        f'<span><i aria-hidden="true"></i><bdi lang="en" dir="ltr">{escape(label)}</bdi></span></header>'
+        f'<div class="java-finish-list">'
         f'{"".join(cards[slug])}</div></section>'
         for slug, label in finishes.items()
     )
@@ -416,6 +417,83 @@ a.top-ten-entry { position: relative; justify-content: center; text-align: cente
 .top-ten-entry .top-ten-title { text-align: center; }
 a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
 .velato-feature > span { text-align: center; }
+[data-java-finish] {
+    --java-gold: #dfbd86;
+    max-width: 56rem;
+    margin-inline: auto;
+}
+.java-finish-heading {
+    padding-block: .4rem 1.05rem;
+    margin-block-end: 1rem;
+    border-block-end: 1px solid #664e34;
+}
+.java-finish-heading h1 {
+    margin: 0 0 .55rem;
+    text-align: right;
+    font-size: clamp(1.65rem, 5vw, 2.4rem);
+    letter-spacing: .045em;
+}
+.java-finish-heading > span {
+    color: var(--java-gold);
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .85rem;
+}
+.java-finish-heading i {
+    inline-size: 1rem;
+    block-size: 1px;
+    background: currentColor;
+}
+.java-finish-list { display: grid; gap: .8rem; }
+[data-java-finish] .java-finish-card {
+    display: grid;
+    grid-template-columns: minmax(0, 45%) minmax(0, 1fr);
+    align-items: stretch;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    color: #f7f0e6;
+    border: 1px solid #534534;
+    border-radius: 1rem;
+    background: linear-gradient(145deg, #27221c, #151310);
+    text-decoration: none;
+}
+[data-java-finish] .java-finish-card > img {
+    display: block;
+    align-self: center;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    border-radius: 0;
+    aspect-ratio: 790 / 988;
+    object-fit: contain;
+}
+.java-finish-copy {
+    min-inline-size: 0;
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: .45rem;
+    padding: .8rem;
+    text-align: start;
+}
+.java-finish-copy strong { font-size: clamp(1rem, 3.6vw, 1.2rem); line-height: 1.5; }
+.java-finish-copy > span { color: var(--java-gold); font-weight: 600; }
+.java-finish-copy .java-finish-arrow {
+    display: grid;
+    place-items: center;
+    inline-size: 1.85rem;
+    block-size: 1.85rem;
+    border: 1px solid #796142;
+    border-radius: 50%;
+    margin-block-start: .15rem;
+}
+.java-finish-card:focus-visible { outline: 2px solid var(--java-gold); outline-offset: 2px; }
+@media (min-width: 760px) {
+    .java-finish-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .java-finish-copy { padding: 1.25rem; }
+}
 </style>"""
     controls = (collection_alignment + f'<link rel="stylesheet" href="{finish_css}">'
                 f'<script defer src="{finish_picker}"></script>' + photo_controls)
