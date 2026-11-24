@@ -398,10 +398,39 @@ for page in root.rglob("index.html"):
     html = page.read_text()
     updated = legacy_favorite.sub(r"\1circle\2", html)
     updated = kitchen_detail.sub(format_kitchen_detail, updated)
+    updated = updated.replace(
+        '<p class="category">خلاطات مجلى</p>',
+        '<p class="category"><a href="/kitchen-mixers/" style="color:inherit">خلاطات مجلى</a></p>',
+    )
     updated = kitchen_listing.sub(format_kitchen_listing, updated)
     if updated != html:
         page.write_text(updated)
 
+
+# Derive the collection's search data from the published cards, including later additions.
+collection_file = root / "kitchen-mixers/index.html"
+collection_html = collection_file.read_text()
+collection_panel = kitchen_listing.search(collection_html)[0]
+model_paths = re.findall(r'<a class="hero mixer-product" href="(/[^"]+/)"', collection_panel)
+schema_pattern = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
+
+
+def kitchen_collection_schema(match):
+    data = json.loads(match[1])
+    if data.get("@type") != "CollectionPage":
+        return match[0]
+    data["mainEntity"] = {
+        "@type": "ItemList",
+        "numberOfItems": len(model_paths),
+        "itemListElement": [
+            {"@type": "ListItem", "position": i, "url": origin + path}
+            for i, path in enumerate(model_paths, 1)
+        ],
+    }
+    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + '</script>'
+
+
+collection_file.write_text(schema_pattern.sub(kitchen_collection_schema, collection_html))
 
 # Attach the catalog-wide photo strip to pages using the shared storefront registry.
 gallery_assets = Path(__file__).resolve().parent.parent

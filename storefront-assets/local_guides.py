@@ -28,12 +28,17 @@ GUIDES = {
     },
     KITCHEN: {
         "title": "خلاطات مطبخ في دمشق",
-        "intro": "إذا عم تبدّل خلاط المجلى، شوف أول شي من وين بتطلع التمديدات. هون بتلاقي خيارين من JAVA MIX، مع صور الألوان وسعر كل خيار بصفحة الموديل.",
+        "intro": "قارن خلاطات المطبخ حسب مكان التركيب وطريقة استخدام الحوض. شوف صور الموديلات وأسعارها، أو اسألنا بفرع المناخلية بدمشق أو عين ترما بريف دمشق.",
         "groups": [
             ("اختَر حسب مكان التركيب", "الخلاط الجداري بيركب على تمديدات الحائط. أمّا إذا عندك فتحة على المجلى أو الرخامة، فشوف موديل الشكّ العالي وتأكد من المساحة المتاحة خلفه.",
              [("java-mix-wall-kitchen-mixer", "خلاط مجلى جداري", "JAVA MIX"), ("java-mix-tall-mixer", "خلاط مجلى شكّ عالي", "JAVA MIX")]),
+            ("خلاطات للحوض الواسع", "إذا كان الحوض عريض، قارن شكل المصبّ ومدى وصوله إلى الأطراف. صور كل موديل بتبيّن مكان المقبض والمساحة اللي بيحتاجها عند التركيب.",
+             [("gessi-venti-semi-pro", "خلاط مجلى فينتي", "Gessi Venti Semi-Pro"), ("rs-kitchen-mixer", "خلاط مجلى RS", "Kitchen Mixer RS")]),
         ],
-        "related": [(f"/{KITCHEN_COLLECTION}/", "تصفّح قسم خلاطات مجلى"), ("/java-mix/", "كل أطقم JAVA MIX"), ("/mixers/", "كل الخلاطات"),
+        "related": [("/java-mix-cube-wall-kitchen-mixer/", "جافا كيوب جداري وأسعار ألوانه"),
+                    ("/java-mix-cube-kitchen-mixer/", "جافا كيوب شك للمجلى"),
+                    ("/magic-360-kitchen-mixer/", "صور خلاط ماجيك 360°"),
+                    (f"/{KITCHEN_COLLECTION}/", "كل خلاطات المجلى وأسعارها"), ("/java-mix/", "كل أطقم JAVA MIX"), ("/mixers/", "كل الخلاطات"),
                     (f"/{BATH}/", "تجهيزات الحمّام")],
     },
 }
@@ -172,7 +177,8 @@ def publish_guides(root):
 
     heading = ('<header class="cabinet-heading"><h1><small>خلاطات مجلى</small>'
                '<bdi lang="en" dir="ltr">Kitchen Mixers</bdi></h1></header>'
-               '<p class="catalog-intro">تصفّح خلاطات المجلى وقارن التصاميم والتشطيبات والأسعار.</p>')
+               '<p class="catalog-intro">قارن أسعار خلاطات المجلى الجدارية والشكّ وخلاطات السحب، وشوف الألوان المتاحة لكل موديل. '
+               f'<a href="/{KITCHEN}/">كيف تختار خلاط المطبخ المناسب لحوضك؟</a></p>')
     panel = re.compile(r'(<section class="panel" id="kitchen"[^>]*>)\s*<h1>.*?</h1>', re.S)
 
     for page in root.rglob("index.html"):
@@ -195,8 +201,8 @@ def publish_guides(root):
     if count != 1 or heading not in collection_page:
         raise ValueError("Missing kitchen collection panel")
     url = f"{ORIGIN}/{KITCHEN_COLLECTION}/"
-    title = f"خلاطات مجلى | Kitchen Mixers | {STORE}"
-    description = "قسم خلاطات مجلى في متجر شركة سعد شيخ الحدادين."
+    title = f"خلاطات مجلى ومطبخ في دمشق – الموديلات والأسعار | {STORE}"
+    description = "قارن أسعار خلاطات المجلى الجدارية والشكّ والسحب من شركة سعد شيخ الحدادين. تصفّح صور الموديلات وألوانها، وشاهد عناوين فرعَي دمشق وعين ترما."
     collection_page = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", collection_page, count=1)
     collection_page = collection_page.replace(f'rel="canonical" href="{ORIGIN}/"', f'rel="canonical" href="{url}"', 1)
     for key, value in {"description": description, "og:description": description, "og:url": url,

@@ -115,6 +115,14 @@ def publish(root, origin, store, branches):
     parents = {model: group for group, links in members.items() for model in links if model in products}
 
     home = (root / "index.html").read_text()
+    # Describe the full catalogue on the canonical homepage.
+    home_description = (
+        "شركة سعد شيخ الحدادين لتجارة الأدوات الصحية منذ 1910. قارن أسعار خلاطات المطبخ والحمام "
+        "والشاورات والمغاسل، وتعرّف على فرع المناخلية بدمشق وفرع عين ترما بريف دمشق."
+    )
+    home = re.sub(r'(<meta (?:name="description"|property="og:description") content=")[^"]*',
+                  lambda m: m[1] + escape(home_description, quote=True), home)
+    (root / "index.html").write_text(home)
     registry_path = re.search(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"', home)[1]
     registry = (root / registry_path).read_text()
     finishes = json.loads(re.search(r'^const javaMixFinishes = (\{[^\n]+\})', registry, re.M)[1])
