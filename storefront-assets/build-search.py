@@ -105,6 +105,18 @@ def publish_product_photos(root):
         for finish, path in model["images"].items():
             suffix = finish.lower().replace(" ", "-")
             photo_names[Path(path).name] = f"{prefix}-{suffix}-01.webp"
+    bath_key = "java-mix-shower-mixer"
+    bath_label = "خلاط بانيو كيوب"
+    bath_entry = re.compile(rf'^  "{bath_key}": .*$', re.M)
+    registry = bath_entry.sub(lambda m: m[0].replace("خلاط حمام", bath_label), registry)
+    bath_name_in_page = re.compile(r'خلاط حمام(?=["<.]|، خلاط تواليت| [·–]| (?:من )?JAVA MIX)')
+    bath = json.loads(re.search(rf'^  "{bath_key}": (\{{.*\}}),?$', registry, re.M)[1])
+    for finish, path in bath["images"].items():
+        slug = finish.lower().replace(" & ", " ").replace(" ", "-")
+        filename = f"java-mix-bath-cube-{slug}.webp"
+        source = Path(__file__).with_name("bath-cube") / filename
+        (root / "assets" / filename).write_bytes(source.read_bytes())
+        photo_names[Path(path).name] = filename
     names = re.compile("|".join(re.escape(name) for name in photo_names))
 
     def update_photo_names(text):
@@ -121,6 +133,7 @@ def publish_product_photos(root):
         html = html.replace('alt="كابينت مغسلة V20 بلون أسود"', f'alt="{V20_PHOTO_ALT}"')
         html = update_photo_names(html)
         html = wall_name_in_page.sub(wall_label, html)
+        html = bath_name_in_page.sub(bath_label, html)
         if page.parent.name == "cabinet-v20":
             html = html.replace("كابينت مغسلة V20 بلون أسود، مقاس",
                                 "مغسلة حمّام V20 مع خزانة سوداء معلّقة بواجهة مخدّدة وشريط ذهبي، مقاس")
