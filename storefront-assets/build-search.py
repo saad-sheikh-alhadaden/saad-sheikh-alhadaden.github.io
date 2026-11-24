@@ -114,8 +114,15 @@ def publish_product_photos(root):
         return re.sub(r"Mini Basin Mixer Tap", "Mixer Basin Cube Mini",
                       text.replace("خلاط مغسلة شك ميني", "خلاط مغسلة كيوب يميني"), flags=re.I)
 
+    def rename_toilet(text):
+        text = re.sub(r'خلاط تواليت(?=["<.]|، خلاط مجلى| [·–]| (?:من )?JAVA MIX)', "خلاط تواليت كيوب", text)
+        return re.sub(r'(?<!Concealed )\bToilet Mixer(?=["<]| [·|])', "Mixer Toilet Cube", text)
+
+    toilet_entry = re.compile(r'^  "java-mix-toilet-mixer": .*$', re.M)
+    registry = toilet_entry.sub(lambda m: rename_toilet(m[0].replace("خلاط تواليت", "خلاط تواليت كيوب")), registry)
     registry = rename_mini(registry)
-    for model_key, folder in ((bath_key, "bath-cube"), ("java-mix-mini-basin-mixer", "mini-cube")):
+    for model_key, folder in ((bath_key, "bath-cube"), ("java-mix-mini-basin-mixer", "mini-cube"),
+                              ("java-mix-toilet-mixer", "toilet-cube")):
         model = json.loads(re.search(rf'^  "{model_key}": (\{{.*\}}),?$', registry, re.M)[1])
         for finish, path in model["images"].items():
             slug = finish.lower().replace(" & ", " ").replace(" ", "-")
@@ -139,7 +146,7 @@ def publish_product_photos(root):
         html = html.replace('alt="كابينت مغسلة V20 بلون أسود"', f'alt="{V20_PHOTO_ALT}"')
         html = update_photo_names(html)
         html = wall_name_in_page.sub(wall_label, html)
-        html = rename_mini(bath_name_in_page.sub(bath_label, html))
+        html = rename_toilet(rename_mini(bath_name_in_page.sub(bath_label, html)))
         if page.parent.name == "cabinet-v20":
             html = html.replace("كابينت مغسلة V20 بلون أسود، مقاس",
                                 "مغسلة حمّام V20 مع خزانة سوداء معلّقة بواجهة مخدّدة وشريط ذهبي، مقاس")
