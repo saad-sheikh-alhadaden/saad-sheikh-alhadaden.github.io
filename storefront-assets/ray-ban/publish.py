@@ -238,6 +238,15 @@ publish_mixer(
 )
 
 
+publish_mixer(
+    "piano-wall-kitchen-mixer", "خلاط مجلى جداري بيانو", "Wall kitchen Mixer Piano",
+    "خلاط جداري بقوس مرتفع ورشّاش يدوي بخرطوم حلزوني، مع زرين أماميين على شكل مفاتيح البيانو.",
+    150, {"Gold": "ذهبي", "Chrome": "كروم", "Black": "أسود", "Gray": "رمادي"}, 2,
+    "بيانو جداري piano wall kitchen mixer ذهبي كروم أسود رمادي",
+    after_card="nero-white-kitchen-mixer", italian=True,
+)
+
+
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
