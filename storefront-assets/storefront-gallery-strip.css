@@ -145,3 +145,27 @@ body:has(#kitchen:not([hidden], .kitchen-grid)) { overflow: hidden; overscroll-b
   #kitchen:not([hidden], .kitchen-grid) { grid-template-rows: auto minmax(0,max-content) minmax(max-content,1fr); gap: 4px; padding-block-end: 4px; }
   #kitchen:not(.kitchen-grid) .catalog-intro { display: none; }
 }
+
+/* Toilet photos already carry their own signature. */
+[data-toilet-chair] > .product-image::after,
+:is([data-toilet-rail], [data-toilet-cards]) > .mixer-product::after { content: none; }
+
+#toilets [data-toilet-rail] {
+  display: flex;
+  gap: 12px;
+  margin-block-start: 16px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  padding-block-end: 8px;
+}
+#toilets [data-toilet-rail] > .mixer-product {
+  flex: 0 0 min(84%, 390px);
+  scroll-snap-align: start;
+}
+#toilets [data-toilet-rail].kitchen-marquee {
+  direction: ltr;
+  scroll-snap-type: none;
+}
+#toilets [data-toilet-rail].kitchen-marquee > a { direction: rtl; }
+[data-toilet-rail] img, [data-toilet-cards] img { aspect-ratio: 4 / 5; object-fit: contain; }

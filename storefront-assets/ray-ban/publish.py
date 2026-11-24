@@ -77,8 +77,10 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     if category == "mixers":
         section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category">خلاطات المغاسل</p>')
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
-    if category == "stand-toilets":
-        section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category"><a href="/#stand-toilets">تواليتات أرضية</a></p>')
+    if category in ("stand-toilets", "wall-toilets"):
+        label = {"stand-toilets": "تواليتات أرضية", "wall-toilets": "تواليتات معلقة"}[category]
+        section = section.replace(' data-nosnippet hidden>', ' data-toilet-chair data-nosnippet hidden>', 1)
+        section = section.replace('<p class="category">خلاطات مجلى</p>', f'<p class="category"><a href="/#{category}">{label}</a></p>')
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
     section = replace_once(section, r'<h1>.*?</h1>', heading)
@@ -145,9 +147,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             continue
         html = replace_once(html, section_pattern, lambda match: match[0] + "\n" + section)
         anchor = rf'<a class="hero mixer-product" href="/{after_card or "gessi-venti-semi-pro"}/">.*?</a>'
-        if category == "stand-toilets":
-            html = replace_once(html, r'(<section class="panel" id="stand-toilets"[^>]*>\s*<h1>.*?</h1>)',
-                                lambda match: match[0] + f'<div class="cabinet-gallery">{card}</div>')
+        if category in ("stand-toilets", "wall-toilets"):
+            html = replace_once(html, rf'(<section class="panel" id="{category}"[^>]*>\s*<h1>.*?</h1>)(?:<div class="cabinet-gallery" data-toilet-cards>(.*?)</div>(?=\s*<a class="action"))?',
+                                lambda match: match[1] + f'<div class="cabinet-gallery" data-toilet-cards>{match[2] or ""}{card}</div>')
         else:
             html = replace_once(html, anchor, lambda match: match[0] + card if after_card else card + match[0])
         for attribute in ("data-saved", "data-search-product"):
@@ -180,8 +182,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                         lambda match: match[1] + json.dumps(data, ensure_ascii=False) + match[2])
     body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail">',
                         '<section id="rs-kitchen-mixer" class="vanity-detail" data-nosnippet hidden>', 1)
-    body = body.replace(f'<section id="{slug}" class="vanity-detail" data-nosnippet hidden>',
-                        f'<section id="{slug}" class="vanity-detail">', 1)
+    body = replace_once(body, rf'(<section id="{slug}" class="vanity-detail"[^>]*?) data-nosnippet hidden>', r'\1>')
     destination = root / slug / "index.html"
     destination.parent.mkdir()
     destination.write_text(head + '<div class="app">' + body)
@@ -450,6 +451,14 @@ for page in root.rglob("index.html"):
         '<p class="category"><a href="/kitchen-mixers/" style="color:inherit">خلاطات مجلى</a></p>',
     )
     updated = kitchen_listing.sub(format_kitchen_listing, updated)
+    toilet_cards = []
+    for category in ("stand-toilets", "wall-toilets"):
+        panel = re.search(rf'<section class="panel" id="{category}"[^>]*>.*?</section>', updated, re.S)
+        if panel:
+            toilet_cards.extend(re.findall(r'<a class="hero mixer-product"[^>]*>.*?</a>', panel[0], re.S))
+    if toilet_cards:
+        updated = replace_once(updated, r'(<section class="panel" id="toilets"[^>]*>.*?</div>)',
+                               lambda match: match[0] + '<div class="cabinet-gallery" data-toilet-rail aria-label="موديلات كراسي التواليت">' + "".join(toilet_cards) + '</div>')
     if updated != html:
         page.write_text(updated)
 

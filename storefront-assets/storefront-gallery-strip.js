@@ -122,10 +122,9 @@
   }).observe(content, {subtree: true, attributes: true, attributeFilter: ['hidden']});
 })();
 
-(() => {
-  const rail = document.querySelector('#kitchen .cabinet-gallery');
+document.querySelectorAll('#kitchen .cabinet-gallery, [data-toilet-rail]').forEach(rail => {
   if (!rail || rail.children.length < 2) return;
-  if (new URLSearchParams(location.search).get('view') === 'all') {
+  if (rail.closest('#kitchen') && new URLSearchParams(location.search).get('view') === 'all') {
     rail.closest('#kitchen').classList.add('kitchen-grid');
     for (const card of rail.children) {
       const url = new URL(card.href);
@@ -203,4 +202,4 @@
   rail.addEventListener('focusout', interact);
   document.addEventListener('visibilitychange', sync);
   sync();
-})();
+});
