@@ -230,6 +230,14 @@ publish_mixer(
 )
 
 
+publish_mixer(
+    "nero-white-kitchen-mixer", "خلاط مجلى نيرو وايت", "Kitchen mixer Nero White",
+    "خلاط مجلى أبيض بقوس مرتفع ومقبض جانبي رفيع مع تحزيز عند الطرف.",
+    170, {"White": "أبيض"}, 4, "nero white نيرو وايت أبيض ابيض",
+    after_card="antique-3in1-kitchen-mixer", italian=True,
+)
+
+
 # Use the shared overlay style for older product cards from the storefront archive.
 legacy_favorite = re.compile(
     r'(<div class="product-image"[^>]*>\s*<img [^>]*>\s*<button class=")save("(?=[^>]*\sdata-save\b))'
