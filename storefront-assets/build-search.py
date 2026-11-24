@@ -93,7 +93,7 @@ def publish_product_photos(root):
     # Each JAVA MIX set shows the matching Cube mixer photo in its selected finish.
     wall_key = "java-mix-wall-kitchen-mixer"
     old_label = "خلاط مجلى جداري"
-    wall_label = "خلاط مجلى أو مغسلة جداري"
+    wall_label = "خلاط جداري كيوب"
     wall_entry = re.compile(rf'^  "{wall_key}": .*$', re.M)
     registry = wall_entry.sub(lambda m: m[0].replace(old_label, wall_label), registry)
     # Match the standalone model name and its catalogue qualifiers in page templates.
@@ -136,6 +136,15 @@ def publish_product_photos(root):
         source = Path(__file__).with_name("java-covers") / filename
         (root / "assets" / filename).write_bytes(source.read_bytes())
         photo_names[f"java-mix-{slug}-cover.webp"] = filename
+    cube_names = (
+        ("خلاط مجلى أو مغسلة شك عالي", "خلاط مجلى كيوب", "Kitchen or Tall Basin Mixer",
+         "Mixer Kitchen Cube", "خلاط شك عالي يُركّب على سطح المجلى أو المغسلة، بمصبّ مرتفع يترك مساحة أوسع تحت الخلاط، ومقبض جانبي للتحكّم بتدفّق المياه وحرارتها."),
+        ("خلاط مجلى أو مغسلة جداري", wall_label, "Wall-mounted Kitchen Mixer",
+         "Wall Mixer Cube", "خلاط يُركّب على الحائط فوق المجلى أو المغسلة، بمصبّ مقوّس مرتفع ومقبض أمامي مسطّح للتحكّم بتدفّق المياه وحرارتها."),
+    )
+    for old_ar, new_ar, old_en, new_en, _ in cube_names:
+        registry = registry.replace(old_ar, new_ar).replace(old_en, new_en)
+
     names = re.compile("|".join(re.escape(name) for name in photo_names))
 
     def update_photo_names(text):
@@ -153,6 +162,11 @@ def publish_product_photos(root):
         html = update_photo_names(html)
         html = wall_name_in_page.sub(wall_label, html)
         html = rename_toilet(rename_mini(bath_name_in_page.sub(bath_label, html)))
+        for old_ar, new_ar, old_en, new_en, description in cube_names:
+            subtitle = f'<p class="product-description"><bdi dir="ltr">{old_en}</bdi></p>'
+            replacement = (f'<p class="product-description"><bdi lang="en" dir="ltr">{new_en}</bdi></p>'
+                           f'<p class="product-description" lang="ar" dir="rtl">{description}</p>')
+            html = html.replace(subtitle, replacement).replace(old_en, new_en).replace(old_ar, new_ar)
         if page.parent.name == "cabinet-v20":
             html = html.replace("كابينت مغسلة V20 بلون أسود، مقاس",
                                 "مغسلة حمّام V20 مع خزانة سوداء معلّقة بواجهة مخدّدة وشريط ذهبي، مقاس")
