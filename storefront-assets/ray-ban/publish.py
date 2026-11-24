@@ -77,6 +77,10 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     if category == "mixers":
         section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category">خلاطات المغاسل</p>')
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
+    if category == "stand-toilets":
+        section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category"><a href="/#stand-toilets">تواليتات أرضية</a></p>')
+        section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
+        heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
     section = replace_once(section, r'<h1>.*?</h1>', heading)
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
     section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
@@ -141,7 +145,11 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             continue
         html = replace_once(html, section_pattern, lambda match: match[0] + "\n" + section)
         anchor = rf'<a class="hero mixer-product" href="/{after_card or "gessi-venti-semi-pro"}/">.*?</a>'
-        html = replace_once(html, anchor, lambda match: match[0] + card if after_card else card + match[0])
+        if category == "stand-toilets":
+            html = replace_once(html, r'(<section class="panel" id="stand-toilets"[^>]*>\s*<h1>.*?</h1>)',
+                                lambda match: match[0] + f'<div class="cabinet-gallery">{card}</div>')
+        else:
+            html = replace_once(html, anchor, lambda match: match[0] + card if after_card else card + match[0])
         for attribute in ("data-saved", "data-search-product"):
             link = f'<a href="/{slug}/" {attribute}="{slug}" hidden>{name}</a>'
             html = replace_once(html, rf'<a href="/rs-kitchen-mixer/" {attribute}="rs-kitchen-mixer" hidden>.*?</a>',
@@ -363,6 +371,14 @@ publish_mixer(
     250, {"Pink & Chrome": "وردي وكروم", "Blue & Chrome": "أزرق وكروم"}, 1,
     "Luxe لوكس pink blue chrome وردي أزرق كروم خلاط مغسلة طويل",
     after_card="tall-mixer-aureo", category="mixers",
+)
+
+publish_mixer(
+    "floor-toilet-sofa", "تواليت أرضي كنباية", "Floor toilet sofa",
+    "تواليت أرضي أبيض بخطوط منحنية وظهر يحتضن الغطاء، بتصميم مستوحى من شكل الكنباية. غطاؤه من الميلامين المقاوم للكسر، وحوضه بنظام ريملس (Rimless) من دون حافة داخلية، لسهولة التنظيف وتقليل الأماكن التي قد تتراكم فيها البكتيريا.",
+    250, {"WHITE": "أبيض"}, 4,
+    "تواليت أرضي كنباية ريملس ميلامين أبيض sofa rimless white",
+    italian=False, category="stand-toilets",
 )
 
 # Move archived kitchen mixer galleries before the title and description.
