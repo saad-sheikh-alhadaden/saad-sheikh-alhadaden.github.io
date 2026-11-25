@@ -19,7 +19,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None):
     name = f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
@@ -98,7 +98,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = re.sub(r'<p class="product-model-name"[^>]*>.*?</p>', '', section, flags=re.S)
         section = re.sub(r'<img class="milano-brand"[^>]*>', '', section)
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
-        options_markup = f'<p>المقاس <bdi dir="ltr">45 cm</bdi></p><p>اللون {labels[default_finish]}</p>'
+        options_markup = f'<p>المقاس <bdi dir="ltr">{pedestal_size}</bdi></p><p>اللون {labels[default_finish]}</p>'
     if category == "granite":
         section = section.replace(' data-nosnippet hidden>', ' data-granite-basin data-nosnippet hidden>', 1)
         section = replace_once(section, r'<p class="category">.*?</p>',
@@ -180,8 +180,13 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             continue
         html = re.sub(r'data-share-pages="([^"]*)"', add_share_path, html, count=1)
         if category == "freestanding-pedestal-basins":
-            html = re.sub(r'(<section class="panel" id="freestanding-pedestal-basins"[^>]*>\s*<h1>.*?</h1>)\s*<p>ستُضاف الموديلات قريباً\.</p>',
-                          lambda match: match[1] + f'<div class="cabinet-gallery">{card}</div>', html, count=1, flags=re.S)
+            html = re.sub(
+                r'(<section class="panel" id="freestanding-pedestal-basins"[^>]*>\s*<h1>.*?</h1>)'
+                r'\s*(?:<p>ستُضاف الموديلات قريباً\.</p>|'
+                r'<div class="cabinet-gallery" data-pedestal-cards>(.*?)</div>(?=\s*<a class="contact-card"))',
+                lambda match: match[1] + f'<div class="cabinet-gallery" data-pedestal-cards>{match[2] or ""}{card}</div>',
+                html, count=1, flags=re.S,
+            )
         if not re.search(section_pattern, html, re.S):
             page.write_text(html.replace(old_registry, new_registry))
             continue
@@ -225,7 +230,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     if category == "porcelain":
         data["material"] = "Porcelain"
     if category == "freestanding-pedestal-basins":
-        data["size"] = "45 cm"
+        data["size"] = pedestal_size
     if sizes:
         data["size"] = list(sizes.values())
         data["color"] = pattern
@@ -371,9 +376,18 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             piega_slug, "مغسلة برميل بييغا", "Freestanding Basin PIEGA",
             "من طيّات ورقة مجعّدة استُلهمت بييغا. مغسلة إيطالية قائمة بذاتها، تتشكّل كتلتها البيضاء من انحناءات غير متماثلة وتفاصيل نحتية دقيقة. يمرّ الضوء على الطيّات فيبرز عمقها، فيما يوازن هدوء الأبيض جرأة الشكل.",
             760, {"White": "أبيض"}, 6, "PIEGA بييغا مغسلة برميل ديكور إيطالية",
-            category="freestanding-pedestal-basins",
+            category="freestanding-pedestal-basins", pedestal_size="45 cm",
         )
         add_to_sitemap(piega_slug)
+    die_slug = "die-freestanding-basin"
+    if not (root / die_slug / "index.html").exists():
+        publish_mixer(
+            die_slug, "مغسلة برميل النَرْد 🎲", "Freestanding Basin DIE 🎲",
+            "حجرَا نرد، أحدهما فوق الآخر، في مغسلة إيطالية قائمة بذاتها. تلين الحواف المستديرة هندسة المكعّبين، وتلتقط التجويفات الدائرية الضوء والظل. فكرة مرحة بصياغة نحتية هادئة، تمنح الحمّام نقطة ارتكاز يُبنى حولها التصميم.",
+            970, {"Craig": "Craig"}, 5, "DIE نرد مغسلة برميل ديكور إيطالية dice",
+            category="freestanding-pedestal-basins", pedestal_size="43 cm",
+        )
+        add_to_sitemap(die_slug)
     sys.exit(0)
 
 
