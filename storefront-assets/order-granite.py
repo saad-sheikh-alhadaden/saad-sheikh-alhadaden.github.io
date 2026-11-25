@@ -413,19 +413,6 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   color: #e1bd80;
   text-align: right;
 }
-[data-pedestal-detail] .pedestal-origin {
-  display: flex;
-  align-items: center;
-  gap: .65rem;
-  margin-block: .45rem .85rem;
-}
-[data-pedestal-detail] .pedestal-origin > .milano-brand {
-  width: clamp(4rem, 17%, 6rem);
-  height: auto;
-}
-[data-pedestal-detail] .pedestal-origin > .origin {
-  margin: 0;
-}
 </style>"""
 
 
@@ -433,18 +420,7 @@ def format_pedestal_section(match):
     section = match[0]
     if 'href="/freestanding-pedestal-basins/"' not in section or 'data-pedestal-detail' in section:
         return section
-    section = section.replace('class="vanity-detail"', 'class="vanity-detail" data-pedestal-detail', 1)
-    origin = milano_brand.ITALIAN_ORIGIN.search(section)
-    logo = re.search(r'<img class="milano-brand"[^>]*>', section)
-    subtitle = re.search(r'<p class="product-model-name"[^>]*>.*?</p>', section, re.S)
-    if not (origin and logo and subtitle):
-        return section
-
-    brand = f'<div class="pedestal-origin">{logo[0]}{origin[0]}</div>'
-    updated, count = re.subn(re.escape(origin[0]) + r'\s*' + re.escape(logo[0]), '', section, count=1)
-    if not count:
-        return section
-    return updated[:subtitle.end()] + brand + updated[subtitle.end():]
+    return section.replace('class="vanity-detail"', 'class="vanity-detail" data-pedestal-detail', 1)
 
 
 if __name__ == "__main__":

@@ -56,6 +56,11 @@
       return;
     }
     returnLink.textContent = "رجوع";
+    if (model === "freestanding-pedestal-basins") {
+      returnLink.href = productPath("washbasins") || "/washbasins/";
+      returnLink.setAttribute("aria-label", "الرجوع إلى المغاسل والكبائن");
+      return;
+    }
     if (model === "kitchen" && query.get("view") === "all") {
       returnLink.href = "/kitchen-mixers/";
     }
@@ -86,11 +91,13 @@
     const group = Object.hasOwn(product.collectionImages || {}, from) ? from : product.category || "mixers";
     const filtered = group === "cabinet-luxury" && bandButton;
     const collection = document.getElementById(filtered ? "washbasins" : group);
-    if (!collection || !productPath(collection.id)) return;
+    const collectionPath = collection && (productPath(collection.id)
+      || (group === "freestanding-pedestal-basins" ? "/freestanding-pedestal-basins/" : null));
+    if (!collectionPath) return;
     if (filtered) bandButton.click();
     const cards = Array.from(collection.querySelectorAll("a.mixer-product"));
     const path = productPath(model);
-    const target = new URL(productPath(collection.id), location.origin);
+    const target = new URL(collectionPath, location.origin);
     target.searchParams.set("model", model);
     const kitchenGrid = group === "kitchen" && query.get("view") === "all";
     if (kitchenGrid) target.searchParams.set("view", "all");
