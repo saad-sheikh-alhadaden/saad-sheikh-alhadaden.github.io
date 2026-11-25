@@ -18,7 +18,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", size=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None):
     name = f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
@@ -88,8 +88,17 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category"><a href="/#granite-classic">مغاسل غرانيت كلاسيك</a></p>')
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1>'
-        options_markup = (f'<div class="options" aria-label="النقشة">{options.replace(default_finish + "</bdi>", labels[default_finish] + "</bdi>")}</div>'
-                          f'<p class="product-size">المقاس <bdi dir="ltr">{size}</bdi></p>')
+        if sizes:
+            if set(sizes) != set(labels):
+                raise ValueError(f"Missing size for {slug}")
+            size_options = "".join(
+                f'<button class="option" type="button" data-color="{escape(key, quote=True)}" '
+                f'aria-pressed="{str(key == default_finish).lower()}"><bdi dir="ltr">{escape(value)}</bdi></button>'
+                for key, value in sizes.items()
+            )
+            gallery_markup = ""
+            options_markup = f'<p>اختر المقاس</p><div class="options" aria-label="المقاس">{size_options}</div>'
+
     section = replace_once(section, r'<h1>.*?</h1>', heading)
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
     section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
@@ -199,6 +208,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     data.update(name=name, description=description, sku=slug, url=url, color=[model_finish] if model_finish else list(labels),
                 image=[origin + image for image in gallery])
     data["offers"].update(price=price, url=url)
+    if sizes:
+        data["size"] = list(sizes.values())
+        data["color"] = "أسود مرخّم رمادي"
     if prices:
         data["offers"] = {"@type": "AggregateOffer", "priceCurrency": "USD",
                           "lowPrice": min(prices.values()), "highPrice": max(prices.values()),
@@ -408,11 +420,13 @@ publish_mixer(
 )
 
 publish_mixer(
-    "granite-black-gray-60x50", "مغسلة غرانيت أسود مرخم رمادي", "60 × 50 cm",
-    "مغسلة غرانيت أسود بعروق رمادية، يرافقها رف ديكور بالنقشة نفسها ومراية بإضاءة محيطية بثلاث درجات لونية، بتتحكّم فيها باللمس. الرف بيوفّر مساحة للمناشف والإكسسوارات، وبيكمّل شكل المغسلة بخطوط متناسقة.",
-    135, {"Black with Gray Veining": "أسود مرخّم رمادي"}, 1,
-    "مغسلة غرانيت كلاسيك رف مرآة تاتش 60x50 أسود رمادي",
-    italian=False, category="granite-classic", size="60 × 50 cm",
+    "granite-black-gray-60x50", "مغسلة غرانيت أسود مرخم رمادي", "60 × 50 / 80 × 50 cm",
+    "مغسلة غرانيت أسود بعروق رمادية، معها رف ديكور بالنقشة نفسها ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس. الرف بيكمّل شكل المغسلة وبيوفّر مساحة للمناشف والإكسسوارات.",
+    {"Black with Gray Veining": 135, "80x50": 145},
+    {"Black with Gray Veining": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
+    "مغسلة غرانيت كلاسيك رف مرآة تاتش 60x50 80x50 أسود رمادي",
+    italian=False, category="granite-classic",
+    sizes={"Black with Gray Veining": "60 × 50 سم", "80x50": "80 × 50 سم"},
 )
 
 # Move archived kitchen mixer galleries before the title and description.
