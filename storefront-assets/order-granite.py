@@ -81,31 +81,41 @@ STYLE = """<style id="granite-card-style">
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 8px 14px;
-  padding: 10px 14px;
+  gap: 6px 12px;
+  padding: 8px 10px;
   background: #15120f;
   color: #f5eee2;
   border-bottom: 1px solid #9d7d4c65;
+  font-size: 13px;
 }
-[data-granite-basin] .granite-size-picker .options {
+.granite-size-picker .granite-size-options {
   display: flex;
-  flex-wrap: wrap;
-  margin: 0;
-  gap: 6px;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid #9d7d4c65;
+  border-radius: 10px;
+  background: #211c16;
 }
-[data-granite-basin] .granite-size-picker .option {
+.granite-size-options > button {
   min-height: 44px;
-  padding: 6px 10px;
-  border: 1px solid #9d7d4c;
-  border-radius: 8px;
-  background: transparent;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: #211c16;
   color: #f5eee2;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
   white-space: nowrap;
 }
-[data-granite-basin] .granite-size-picker .option[aria-pressed="true"] {
+.granite-size-options > button[aria-pressed="true"] {
   background: #e1bd80;
   border-color: #e1bd80;
   color: #15120f;
+}
+.granite-size-options > button:focus-visible {
+  outline: 2px solid #f5eee2;
+  outline-offset: 1px;
 }
 </style>"""
 
@@ -120,7 +130,9 @@ def move_size_picker(match):
     options = SIZE_OPTIONS.search(section)
     if not options:
         return section
-    picker = f'<div class="granite-size-picker"><strong>اختر المقاس</strong>{options[1]}</div>'
+    buttons = options[1].replace('class="options"', 'class="granite-size-options" role="group"', 1)
+    buttons = buttons.replace('class="option" ', '')
+    picker = f'<div class="granite-size-picker"><strong>المقاس</strong>{buttons}</div>'
     section = section[:options.start()] + section[options.end():]
     return section.replace('<div class="product-image">', picker + '<div class="product-image">', 1)
 
