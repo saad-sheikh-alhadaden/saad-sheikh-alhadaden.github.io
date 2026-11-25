@@ -92,6 +92,13 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1>'
         options_markup = f'<p>المقاس <bdi dir="ltr">{model}</bdi></p><p>اللون {labels[default_finish]}</p>'
+    if category == "freestanding-pedestal-basins":
+        section = replace_once(section, r'<p class="category">.*?</p>',
+                               '<p class="category"><a href="/freestanding-pedestal-basins/">مغاسل برميل ديكور</a></p>')
+        section = re.sub(r'<p class="product-model-name"[^>]*>.*?</p>', '', section, flags=re.S)
+        section = re.sub(r'<img class="milano-brand"[^>]*>', '', section)
+        heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
+        options_markup = f'<p>المقاس <bdi dir="ltr">45 cm</bdi></p><p>اللون {labels[default_finish]}</p>'
     if category == "granite":
         section = section.replace(' data-nosnippet hidden>', ' data-granite-basin data-nosnippet hidden>', 1)
         section = replace_once(section, r'<p class="category">.*?</p>',
@@ -172,6 +179,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         if old_registry not in html:
             continue
         html = re.sub(r'data-share-pages="([^"]*)"', add_share_path, html, count=1)
+        if category == "freestanding-pedestal-basins":
+            html = re.sub(r'(<section class="panel" id="freestanding-pedestal-basins"[^>]*>\s*<h1>.*?</h1>)\s*<p>ستُضاف الموديلات قريباً\.</p>',
+                          lambda match: match[1] + f'<div class="cabinet-gallery">{card}</div>', html, count=1, flags=re.S)
         if not re.search(section_pattern, html, re.S):
             page.write_text(html.replace(old_registry, new_registry))
             continue
@@ -188,7 +198,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         elif category in ("stand-toilets", "wall-toilets"):
             html = replace_once(html, rf'(<section class="panel" id="{category}"[^>]*>\s*<h1>.*?</h1>)(?:<div class="cabinet-gallery" data-toilet-cards>(.*?)</div>(?=\s*<a class="action"))?',
                                 lambda match: match[1] + f'<div class="cabinet-gallery" data-toilet-cards>{match[2] or ""}{card}</div>')
-        else:
+        elif category != "freestanding-pedestal-basins":
             html = replace_once(html, anchor, lambda match: match[0] + card if after_card else card + match[0])
         for attribute in ("data-saved", "data-search-product"):
             link = f'<a href="/{slug}/" {attribute}="{slug}" hidden>{name}</a>'
@@ -214,6 +224,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     data["offers"].update(price=price, url=url)
     if category == "porcelain":
         data["material"] = "Porcelain"
+    if category == "freestanding-pedestal-basins":
+        data["size"] = "45 cm"
     if sizes:
         data["size"] = list(sizes.values())
         data["color"] = pattern
@@ -225,7 +237,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                         lambda match: match[1] + json.dumps(data, ensure_ascii=False) + match[2])
     body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail">',
                         '<section id="rs-kitchen-mixer" class="vanity-detail" data-nosnippet hidden>', 1)
-    if category in ("granite", "porcelain"):
+    if category in ("granite", "porcelain", "freestanding-pedestal-basins"):
         body = re.sub(r'(<section id="rs-kitchen-mixer" class="vanity-detail"[^>]*)(?<! hidden)>',
                       r'\g<1> data-nosnippet hidden>', body, count=1)
     body = replace_once(body, rf'(<section id="{slug}" class="vanity-detail"[^>]*?) data-nosnippet hidden>', r'\1>')
@@ -353,6 +365,15 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             sizes={"White": "50 × 31 سم"}, pattern="أبيض",
         )
         add_to_sitemap(revirs_slug)
+    piega_slug = "piega-freestanding-basin"
+    if not (root / piega_slug / "index.html").exists():
+        publish_mixer(
+            piega_slug, "مغسلة برميل بييغا", "Freestanding Basin PIEGA",
+            "من طيّات ورقة مجعّدة استُلهمت بييغا. مغسلة إيطالية قائمة بذاتها، تتشكّل كتلتها البيضاء من انحناءات غير متماثلة وتفاصيل نحتية دقيقة. يمرّ الضوء على الطيّات فيبرز عمقها، فيما يوازن هدوء الأبيض جرأة الشكل.",
+            760, {"White": "أبيض"}, 6, "PIEGA بييغا مغسلة برميل ديكور إيطالية",
+            category="freestanding-pedestal-basins",
+        )
+        add_to_sitemap(piega_slug)
     sys.exit(0)
 
 
@@ -715,3 +736,4 @@ for page in root.rglob("index.html"):
     updated = storefront_script.sub(lambda match: match[0] + "".join(strip_tags), html, count=1)
     if updated != html:
         page.write_text(updated)
+
