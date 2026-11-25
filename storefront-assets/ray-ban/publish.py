@@ -442,6 +442,17 @@ publish_mixer(
     pattern="أبيض مرخمة بالرمادي",
 )
 
+publish_mixer(
+    "granite-silver-gray", "مغسلة غرانيت رمادية", "60 × 50 / 80 × 50 cm",
+    "مغسلة غرانيت رمادي فضّي بتموّجات فاتحة وعروق ناعمة. معها رف ديكور بالنقشة نفسها للمناشف والإكسسوارات، ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس.",
+    {"60x50": 135, "80x50": 145},
+    {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
+    "مغسلة غرانيت كلاسيك رمادية رمادي فضي رف مرآة تاتش 60x50 80x50 silver gray",
+    italian=False, category="granite-classic",
+    sizes={"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"},
+    pattern="رمادي فضّي",
+)
+
 # Move archived kitchen mixer galleries before the title and description.
 kitchen_detail = re.compile(r'<section\b[^>]*\bclass="vanity-detail"[^>]*>.*?</section>', re.S)
 photo_strip = re.compile(r'<div class="product-gallery"[^>]*>.*?</div>', re.S)
