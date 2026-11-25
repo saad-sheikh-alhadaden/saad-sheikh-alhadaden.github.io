@@ -239,17 +239,20 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         tree.write(image_index, encoding="utf-8", xml_declaration=True)
 
 
-def publish_illuminated_granite(slug, pattern, finish_description, keywords):
+def publish_illuminated_granite(slug, pattern, finish_description, keywords, *, prices=None, description=None):
     if (root / slug / "index.html").exists():
         return
+    prices = prices or {"60x50": 175, "80x50": 200}
+    dimensions = {size: size.replace("x", " × ") for size in prices}
+    sizes = {size: f"{label} سم" for size, label in dimensions.items()}
+    model = " / ".join(dimensions.values()) + " cm"
     publish_mixer(
-        slug, f"مغسلة غرانيت مضاءة {pattern}", "60 × 50 / 80 × 50 cm",
-        f"مغسلة غرانيت {finish_description}، مع إضاءة مدمجة بواجهة المغسلة. معها رف ديكور بالنقشة نفسها للمناشف والإكسسوارات، ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس.",
-        {"60x50": 175, "80x50": 200},
-        {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
+        slug, f"مغسلة غرانيت مضاءة {pattern}", model,
+        description or f"مغسلة غرانيت {finish_description}، مع إضاءة مدمجة بواجهة المغسلة. معها رف ديكور بالنقشة نفسها للمناشف والإكسسوارات، ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس.",
+        prices, sizes, 1,
         f"مغسلة غرانيت مضاءة مع إنارة مدمجة رف مرآة تاتش 60x50 80x50 {keywords}",
         italian=False, category="granite",
-        sizes={"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"},
+        sizes=sizes,
         pattern=pattern,
     )
 
@@ -285,6 +288,15 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
     publish_illuminated_granite(
         "granite-black-kadhabi-illuminated", "أسود كذابي",
         "أسود كذابي", "أسود كذابي illuminated black granite",
+    )
+    publish_illuminated_granite(
+        "granite-black-kadhabi-rounded-illuminated", "لف – أسود كذابي",
+        "أسود كذابي بزوايا مدوّرة", "أسود كذابي لف rounded black motion sensor anti-fog",
+        prices={"50x45": 175, "60x50": 200, "80x50": 225},
+        description=(
+            "مغسلة غرانيت أسود كذابي بتصميم لفّ وزوايا مدوّرة، مع إنارة مدمجة تعمل بحساس حركة. "
+            "بيجي معها رف سفلي للمناشف والإكسسوارات، ومراية مضاءة بثلاث درجات لونية مع خاصية منع الغباش."
+        ),
     )
     sys.exit(0)
 
