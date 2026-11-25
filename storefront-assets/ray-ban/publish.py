@@ -18,7 +18,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen"):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", size=None):
     name = f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
@@ -83,6 +83,12 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = section.replace('<p class="category">خلاطات مجلى</p>', f'<p class="category"><a href="/#{category}">{label}</a></p>')
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
+    if category == "granite-classic":
+        section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category"><a href="/#granite-classic">مغاسل غرانيت كلاسيك</a></p>')
+        section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
+        heading = f'<h1>{title}</h1>'
+        options_markup = (f'<div class="options" aria-label="النقشة">{options.replace(default_finish + "</bdi>", labels[default_finish] + "</bdi>")}</div>'
+                          f'<p class="product-size">المقاس <bdi dir="ltr">{size}</bdi></p>')
     section = replace_once(section, r'<h1>.*?</h1>', heading)
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
     section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
@@ -112,7 +118,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     registry = (root / old_registry).read_text()
     product = {
         "name": name,
-        "search": f"{name} خلاطات مجلى {keywords} {price}",
+        "search": f"{name} {keywords} {price}",
         "price": price, "category": category, "defaultColor": default_finish,
         "colorLabels": labels, "images": {finish: photos[0] for finish, photos in images.items()},
         "favoriteKey": f"saad-saved-{slug}",
@@ -121,6 +127,11 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         product["prices"] = prices
     registry = replace_once(registry, r'const products = \{',
                             lambda match: match[0] + f'\n  "{slug}": {json.dumps(product, ensure_ascii=False)},')
+    if category == "granite-classic" and '"granite-classic"]);' not in registry:
+        registry = replace_once(registry, r'(const vanityScreens = new Set\(\[[^\n]*"granite")\]\);',
+                                lambda match: match[1] + ', "granite-classic"]);')
+        registry = replace_once(registry, r'const parent = Object\.hasOwn\(products, active\)',
+                                'const parent = active === "granite-classic" ? "granite" : Object.hasOwn(products, active)')
     new_registry = f"assets/storefront-{hashlib.sha256(registry.encode()).hexdigest()[:12]}.js"
 
     for asset in gallery:
@@ -147,7 +158,20 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             continue
         html = replace_once(html, section_pattern, lambda match: match[0] + "\n" + section)
         anchor = rf'<a class="hero mixer-product" href="/{after_card or "gessi-venti-semi-pro"}/">.*?</a>'
-        if category in ("stand-toilets", "wall-toilets"):
+        if category == "granite-classic":
+            if 'id="granite-classic"' in html:
+                html = replace_once(html, r'(<div class="cabinet-gallery" data-granite-classic>)',
+                                    lambda match: match[0] + card)
+            else:
+                design = ('<section class="panel" id="granite-classic" data-nosnippet hidden>'
+                          '<h1>مغاسل غرانيت كلاسيك</h1><div class="cabinet-gallery" data-granite-classic>'
+                          + card + '</div></section>')
+                design_card = ('<div class="cabinet-gallery"><a class="hero mixer-product" href="/#granite-classic">'
+                               f'<img src="{cover}" alt="مغاسل غرانيت كلاسيك" width="790" height="988">'
+                               '<div class="mixer-product-copy"><strong>كلاسيك</strong></div></a></div>')
+                html = replace_once(html, r'(<section class="panel" id="granite"[^>]*>\s*<h1>).*?(</h1>)(.*?</section>)',
+                                    lambda match: match[1] + 'مغاسل غرانيت <bdi>Granite Basins</bdi>' + match[2] + design_card + match[3] + design)
+        elif category in ("stand-toilets", "wall-toilets"):
             html = replace_once(html, rf'(<section class="panel" id="{category}"[^>]*>\s*<h1>.*?</h1>)(?:<div class="cabinet-gallery" data-toilet-cards>(.*?)</div>(?=\s*<a class="action"))?',
                                 lambda match: match[1] + f'<div class="cabinet-gallery" data-toilet-cards>{match[2] or ""}{card}</div>')
         else:
@@ -380,6 +404,14 @@ publish_mixer(
     250, {"WHITE": "أبيض"}, 4,
     "تواليت أرضي كنباية ريملس ميلامين أبيض sofa rimless white",
     italian=False, category="stand-toilets",
+)
+
+publish_mixer(
+    "granite-black-gray-60x50", "مغسلة غرانيت أسود مرخم رمادي", "60 × 50 cm",
+    "مغسلة غرانيت أسود بعروق رمادية، يرافقها رف ديكور بالنقشة نفسها ومراية بإضاءة محيطية بثلاث درجات لونية، بتتحكّم فيها باللمس. الرف بيوفّر مساحة للمناشف والإكسسوارات، وبيكمّل شكل المغسلة بخطوط متناسقة.",
+    135, {"Black with Gray Veining": "أسود مرخّم رمادي"}, 1,
+    "مغسلة غرانيت كلاسيك رف مرآة تاتش 60x50 أسود رمادي",
+    italian=False, category="granite-classic", size="60 × 50 cm",
 )
 
 # Move archived kitchen mixer galleries before the title and description.
