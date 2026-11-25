@@ -169,8 +169,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         anchor = rf'<a class="hero mixer-product" href="/{after_card or "gessi-venti-semi-pro"}/">.*?</a>'
         if category == "granite":
             if 'data-granite-cards' in html:
-                html = replace_once(html, r'<div class="cabinet-gallery" data-granite-cards>',
-                                    lambda match: match[0] + card)
+                html = replace_once(html, r'(<div class="cabinet-gallery" data-granite-cards>(?:<a class="hero mixer-product"[^>]*>.*?</a>)*)(</div>)',
+                                    lambda match: match[1] + card + match[2])
             else:
                 html = replace_once(html, r'(<section class="panel" id="granite"[^>]*>\s*<h1>).*?</h1>',
                                     lambda match: match[1] + 'مغاسل غرانيت <bdi>Granite Basins</bdi></h1>'
