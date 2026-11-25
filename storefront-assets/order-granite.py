@@ -352,6 +352,98 @@ def format_basin_finish(match):
     return re.sub(r'<p>اللون\s+أبيض</p>', '<p>اللون <bdi lang="en" dir="ltr">WHITE</bdi></p>', section)
 
 
+PEDESTAL_STYLE = """<style id="pedestal-display-style">
+[data-pedestal-cards].cabinet-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(7px, 2vw, 16px);
+  align-items: stretch;
+}
+[data-pedestal-cards] > .hero.mixer-product {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  background: #15120f;
+}
+[data-pedestal-cards] > .hero.mixer-product > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 790 / 988;
+  object-fit: cover;
+}
+[data-pedestal-cards] > .hero.mixer-product::after,
+[data-pedestal-detail] > .product-image::after {
+  content: none;
+}
+[data-pedestal-cards] .mixer-product-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .3rem;
+  padding: clamp(5px, 1.55vw, 14px);
+  text-align: right;
+}
+[data-pedestal-cards] .mixer-product-copy strong,
+[data-pedestal-cards] .mixer-product-copy small {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+[data-pedestal-cards] .mixer-product-copy strong {
+  font-size: clamp(11px, 3vw, 18px);
+  min-height: 2.7em;
+  color: #f5eee2;
+}
+[data-pedestal-cards] .mixer-product-copy small {
+  font-size: clamp(10px, 2.6vw, 14px);
+  color: #bcb2a4;
+}
+[data-pedestal-cards] .mixer-product-copy > span {
+  margin-top: auto;
+  padding-top: .35rem;
+  border-top: 1px solid #9d7d4c40;
+  font-size: clamp(11px, 2.8vw, 16px);
+  color: #e1bd80;
+  text-align: right;
+}
+[data-pedestal-detail] .pedestal-origin {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  margin-block: .45rem .85rem;
+}
+[data-pedestal-detail] .pedestal-origin > .milano-brand {
+  width: clamp(4rem, 17%, 6rem);
+  height: auto;
+}
+[data-pedestal-detail] .pedestal-origin > .origin {
+  margin: 0;
+}
+</style>"""
+
+
+def format_pedestal_section(match):
+    section = match[0]
+    if 'href="/freestanding-pedestal-basins/"' not in section or 'data-pedestal-detail' in section:
+        return section
+    section = section.replace('class="vanity-detail"', 'class="vanity-detail" data-pedestal-detail', 1)
+    origin = milano_brand.ITALIAN_ORIGIN.search(section)
+    logo = re.search(r'<img class="milano-brand"[^>]*>', section)
+    subtitle = re.search(r'<p class="product-model-name"[^>]*>.*?</p>', section, re.S)
+    if not (origin and logo and subtitle):
+        return section
+
+    brand = f'<div class="pedestal-origin">{logo[0]}{origin[0]}</div>'
+    updated, count = re.subn(re.escape(origin[0]) + r'\s*' + re.escape(logo[0]), '', section, count=1)
+    if not count:
+        return section
+    return updated[:subtitle.end()] + brand + updated[subtitle.end():]
+
+
 if __name__ == "__main__":
     publisher = Path(__file__).with_name("ray-ban") / "publish.py"
     subprocess.run([sys.executable, str(publisher), "--illuminated-granite"], check=True)
@@ -378,6 +470,9 @@ if __name__ == "__main__":
     for page in root.rglob("index.html"):
         original = page.read_text(encoding="utf-8")
         updated = milano_brand.add_to_products(original, logo_url)
+        updated = milano_brand.SECTION.sub(format_pedestal_section, updated)
+        if ('data-pedestal-cards' in updated or 'data-pedestal-detail' in updated) and 'id="pedestal-display-style"' not in updated:
+            updated = updated.replace('<div class="app">', PEDESTAL_STYLE + '\n<div class="app">', 1)
         updated = BASIN_DETAIL.sub(format_basin_finish, updated)
         if not GRID.search(updated) and not DETAIL.search(updated):
             if updated != original:
