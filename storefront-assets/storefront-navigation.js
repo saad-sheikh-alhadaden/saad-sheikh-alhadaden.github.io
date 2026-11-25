@@ -56,7 +56,7 @@
       return;
     }
     returnLink.textContent = "رجوع";
-    if (model === "freestanding-pedestal-basins") {
+    if (model === "freestanding-pedestal-basins" || model === "decorative-vessel-basins") {
       returnLink.href = productPath("washbasins") || "/washbasins/";
       returnLink.setAttribute("aria-label", "الرجوع إلى المغاسل والكبائن");
       return;
