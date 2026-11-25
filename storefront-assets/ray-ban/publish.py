@@ -84,9 +84,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = section.replace('<p class="category">خلاطات مجلى</p>', f'<p class="category"><a href="/#{category}">{label}</a></p>')
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
-    if category == "granite-classic":
+    if category == "granite":
         section = section.replace(' data-nosnippet hidden>', ' data-granite-basin data-nosnippet hidden>', 1)
-        section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category"><a href="/#granite-classic">مغاسل غرانيت كلاسيك</a></p>')
+        section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category"><a href="/#granite">مغاسل غرانيت</a></p>')
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1>'
         if sizes:
@@ -138,11 +138,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         product["prices"] = prices
     registry = replace_once(registry, r'const products = \{',
                             lambda match: match[0] + f'\n  "{slug}": {json.dumps(product, ensure_ascii=False)},')
-    if category == "granite-classic" and '"granite-classic"]);' not in registry:
-        registry = replace_once(registry, r'(const vanityScreens = new Set\(\[[^\n]*"granite")\]\);',
-                                lambda match: match[1] + ', "granite-classic"]);')
-        registry = replace_once(registry, r'const parent = Object\.hasOwn\(products, active\)',
-                                'const parent = active === "granite-classic" ? "granite" : Object.hasOwn(products, active)')
+    if category == "granite" and '.replace(/^granite-classic$/' not in registry:
+        registry = replace_once(registry, r'(function showScreen\(\) \{\s*const hash = location.hash.slice\(1\))',
+                                lambda match: match[1] + '.replace(/^granite-classic$/, "granite")')
     new_registry = f"assets/storefront-{hashlib.sha256(registry.encode()).hexdigest()[:12]}.js"
 
     for asset in gallery:
@@ -169,19 +167,14 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             continue
         html = replace_once(html, section_pattern, lambda match: match[0] + "\n" + section)
         anchor = rf'<a class="hero mixer-product" href="/{after_card or "gessi-venti-semi-pro"}/">.*?</a>'
-        if category == "granite-classic":
-            if 'id="granite-classic"' in html:
-                html = replace_once(html, r'(<div class="cabinet-gallery" data-granite-classic>)',
+        if category == "granite":
+            if 'data-granite-cards' in html:
+                html = replace_once(html, r'<div class="cabinet-gallery" data-granite-cards>',
                                     lambda match: match[0] + card)
             else:
-                design = ('<section class="panel" id="granite-classic" data-nosnippet hidden>'
-                          '<h1>مغاسل غرانيت كلاسيك</h1><div class="cabinet-gallery" data-granite-classic>'
-                          + card + '</div></section>')
-                design_card = ('<div class="cabinet-gallery"><a class="hero mixer-product" href="/#granite-classic">'
-                               f'<img src="{cover}" alt="مغاسل غرانيت كلاسيك" width="790" height="988">'
-                               '<div class="mixer-product-copy"><strong>كلاسيك</strong></div></a></div>')
-                html = replace_once(html, r'(<section class="panel" id="granite"[^>]*>\s*<h1>).*?(</h1>)(.*?</section>)',
-                                    lambda match: match[1] + 'مغاسل غرانيت <bdi>Granite Basins</bdi>' + match[2] + design_card + match[3] + design)
+                html = replace_once(html, r'(<section class="panel" id="granite"[^>]*>\s*<h1>).*?</h1>',
+                                    lambda match: match[1] + 'مغاسل غرانيت <bdi>Granite Basins</bdi></h1>'
+                                    + f'<div class="cabinet-gallery" data-granite-cards>{card}</div>')
         elif category in ("stand-toilets", "wall-toilets"):
             html = replace_once(html, rf'(<section class="panel" id="{category}"[^>]*>\s*<h1>.*?</h1>)(?:<div class="cabinet-gallery" data-toilet-cards>(.*?)</div>(?=\s*<a class="action"))?',
                                 lambda match: match[1] + f'<div class="cabinet-gallery" data-toilet-cards>{match[2] or ""}{card}</div>')
@@ -426,7 +419,7 @@ publish_mixer(
     {"Black with Gray Veining": 135, "80x50": 145},
     {"Black with Gray Veining": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
     "مغسلة غرانيت كلاسيك رف مرآة تاتش 60x50 80x50 أسود رمادي",
-    italian=False, category="granite-classic",
+    italian=False, category="granite",
     sizes={"Black with Gray Veining": "60 × 50 سم", "80x50": "80 × 50 سم"},
     pattern="أسود مرخمة بالرمادي",
 )
@@ -437,7 +430,7 @@ publish_mixer(
     {"60x50": 135, "80x50": 145},
     {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
     "مغسلة غرانيت كلاسيك أبيض مرخم رمادي رف مرآة تاتش 60x50 80x50 white grey veining",
-    italian=False, category="granite-classic",
+    italian=False, category="granite",
     sizes={"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"},
     pattern="أبيض مرخمة بالرمادي",
 )
@@ -448,7 +441,7 @@ publish_mixer(
     {"60x50": 135, "80x50": 145},
     {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
     "مغسلة غرانيت كلاسيك رمادية رمادي فضي رف مرآة تاتش 60x50 80x50 silver gray",
-    italian=False, category="granite-classic",
+    italian=False, category="granite",
     sizes={"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"},
     pattern="رمادي فضّي",
 )
@@ -459,7 +452,7 @@ publish_mixer(
     {"60x50": 135, "80x50": 145},
     {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
     "مغسلة غرانيت كلاسيك أبيض مرخم دهبي ذهبي رمادي رف مرآة تاتش 60x50 80x50",
-    italian=False, category="granite-classic",
+    italian=False, category="granite",
     sizes={"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"},
     pattern="أبيض مرخمة دهبي ورمادي",
 )
@@ -470,7 +463,7 @@ publish_mixer(
     {"60x50": 135, "80x50": 145},
     {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
     "مغسلة غرانيت كلاسيك ترافنتينو ترافرتينو رف مرآة تاتش 60x50 80x50 travertino",
-    italian=False, category="granite-classic",
+    italian=False, category="granite",
     sizes={"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"},
     pattern="ترافنتينو",
 )
