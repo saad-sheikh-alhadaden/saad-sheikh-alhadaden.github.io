@@ -323,8 +323,16 @@ if __name__ == "__main__":
     for slug in sorted(DOUBLE_MODELS):
         name = Path(double_photo(slug)).name
         shutil.copyfile(publisher.with_name(name), root / "assets" / name)
-    wudu_photo = "wudu-basin-white.webp"
-    shutil.copyfile(publisher.parent.parent / wudu_photo, root / "assets" / wudu_photo)
+    for name in (
+        "wudu-basin-white.webp",
+        "square-wall-hung-basin-white.webp",
+        "round-wall-hung-basin-white.webp",
+        "st-7902-porcelain-basin-white.webp",
+        "st-7900-porcelain-basin-white.webp",
+        "st-7903-porcelain-basin-white.webp",
+        "st-7901-porcelain-basin-white.webp",
+    ):
+        shutil.copyfile(publisher.parent.parent / name, root / "assets" / name)
     registries = {}
     for page in root.rglob("index.html"):
         original = page.read_text(encoding="utf-8")
