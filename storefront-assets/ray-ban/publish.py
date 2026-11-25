@@ -239,12 +239,12 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         tree.write(image_index, encoding="utf-8", xml_declaration=True)
 
 
-def publish_illuminated_granite(slug, pattern, veining, keywords):
+def publish_illuminated_granite(slug, pattern, finish_description, keywords):
     if (root / slug / "index.html").exists():
         return
     publish_mixer(
         slug, f"مغسلة غرانيت مضاءة {pattern}", "60 × 50 / 80 × 50 cm",
-        f"مغسلة غرانيت أبيض مرخّمة بعروق {veining}، مع إضاءة مدمجة بواجهة المغسلة. معها رف ديكور بالنقشة نفسها للمناشف والإكسسوارات، ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس.",
+        f"مغسلة غرانيت {finish_description}، مع إضاءة مدمجة بواجهة المغسلة. معها رف ديكور بالنقشة نفسها للمناشف والإكسسوارات، ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس.",
         {"60x50": 175, "80x50": 200},
         {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
         f"مغسلة غرانيت مضاءة مع إنارة مدمجة رف مرآة تاتش 60x50 80x50 {keywords}",
@@ -265,12 +265,17 @@ def publish_illuminated_granite(slug, pattern, veining, keywords):
 
 if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
     publish_illuminated_granite(
-        "granite-white-gray-illuminated", "أبيض مرخمة بالرمادي", "رمادية",
+        "granite-white-gray-illuminated", "أبيض مرخمة بالرمادي", "أبيض مرخّمة بعروق رمادية",
         "أبيض مرخم رمادي illuminated white grey veining",
     )
     publish_illuminated_granite(
         "granite-white-gold-gray-illuminated", "أبيض مرخمة بالذهبي والرمادي",
-        "ذهبية ورمادية", "أبيض مرخم دهبي ذهبي رمادي illuminated white gold grey veining",
+        "أبيض مرخّمة بعروق ذهبية ورمادية", "أبيض مرخم دهبي ذهبي رمادي illuminated white gold grey veining",
+    )
+    publish_illuminated_granite(
+        "granite-silver-gray-illuminated", "رمادية",
+        "رمادي فضّي بتموّجات فاتحة وعروق ناعمة",
+        "رمادية رمادي فضي illuminated silver gray",
     )
     sys.exit(0)
 
