@@ -10,6 +10,7 @@ ORDER = (
     "granite-silver-gray",
     "granite-white-gold-gray",
     "granite-travertino",
+    "granite-black-kadhabi-illuminated",
 )
 POSITION = {slug: index for index, slug in enumerate(ORDER)}
 CARD = re.compile(r'<a class="hero mixer-product" href="/([^"/]+)/">.*?</a>', re.S)

@@ -282,6 +282,10 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
         "بنقشة ترافنتينو البيج الفاتح",
         "ترافنتينو ترافرتينو بيج illuminated travertino",
     )
+    publish_illuminated_granite(
+        "granite-black-kadhabi-illuminated", "أسود كذابي",
+        "أسود كذابي", "أسود كذابي illuminated black granite",
+    )
     sys.exit(0)
 
 
