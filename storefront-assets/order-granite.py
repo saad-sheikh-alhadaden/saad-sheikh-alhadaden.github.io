@@ -1,6 +1,9 @@
 """Apply the granite catalog layout to archived storefront pages."""
 from pathlib import Path
 import re
+import hashlib
+import json
+import shutil
 import subprocess
 import sys
 
@@ -156,6 +159,18 @@ STYLE = """<style id="granite-card-style">
 [data-granite-basin]:has(.granite-size-options[data-photo-options]) > .product-info .store-variant-photos {
   display: none;
 }
+
+.granite-size-options:has([data-color="120x50"]) {
+  gap: 4px;
+}
+.granite-size-options[data-photo-options]:has([data-color="120x50"]) > button {
+  min-width: 0;
+  padding-inline: 5px;
+}
+.granite-double-label {
+  color: inherit;
+  font-size: 10px;
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -218,10 +233,72 @@ def format_card_measurements(match):
     return f'<small class="granite-card-sizes">{chips}</small>'
 
 
+
+DOUBLE_MODELS = {
+    "granite-white-gray",
+    "granite-white-gold-gray",
+    "granite-travertino",
+    "granite-black-gray-60x50",
+    "granite-silver-gray",
+}
+DOUBLE_SIZE = "120 × 50 سم"
+DOUBLE_LABEL = f"{DOUBLE_SIZE} · Double"
+DOUBLE_PRICE = 200
+REGISTRY = re.compile(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"')
+
+
+def double_photo(slug):
+    return f"/assets/{slug}-120x50-01.webp"
+
+
+def update_double_registry(root, registry):
+    source = (root / registry).read_text(encoding="utf-8")
+    for slug in sorted(DOUBLE_MODELS):
+        pattern = re.compile(rf'^(\s*"{slug}": )(\{{[^\n]*\}})(,)$', re.M)
+        match = pattern.search(source)
+        if not match:
+            raise ValueError(f"Missing granite product in {registry}: {slug}")
+        product = json.loads(match[2])
+        product["images"]["120x50"] = double_photo(slug)
+        product["prices"]["120x50"] = DOUBLE_PRICE
+        product["colorLabels"]["120x50"] = DOUBLE_LABEL
+        source = source[:match.start(2)] + json.dumps(product, ensure_ascii=False) + source[match.end(2):]
+    revised = f"assets/storefront-{hashlib.sha256(source.encode()).hexdigest()[:12]}.js"
+    (root / revised).write_text(source, encoding="utf-8")
+    return revised
+
+
+def add_double_option(section):
+    slug = re.match(r'<section id="([^"]+)"', section)[1]
+    if slug not in DOUBLE_MODELS or 'data-color="120x50"' in section:
+        return section
+    button = (f'<button type="button" data-color="120x50" aria-pressed="false">'
+              f'<bdi dir="ltr">{DOUBLE_SIZE}</bdi><small class="granite-double-label">حوضين (Double)</small></button>')
+    section, count = re.subn(
+        r'(<div class="granite-size-options"[^>]*>.*?)(</div>)',
+        lambda match: match[1] + button + match[2], section, count=1, flags=re.S,
+    )
+    if not count:
+        raise ValueError(f"Missing granite size selector: {slug}")
+    return re.sub(
+        r'(<p class="product-description">.*?)(</p>)',
+        lambda match: match[1] + f" مقاس {DOUBLE_SIZE} بيجي بحوضين (Double)." + match[2],
+        section, count=1, flags=re.S,
+    )
+
+
+def update_double_card(card, slug):
+    if slug not in DOUBLE_MODELS or DOUBLE_SIZE in card:
+        return card
+    card = card.replace('</small>', f'<bdi>{DOUBLE_LABEL}</bdi></small>', 1)
+    return re.sub(r'(\$\d+–)\$\d+(</span></div></a>)',
+                  lambda match: f"{match[1]}${DOUBLE_PRICE}{match[2]}", card)
+
+
 def order_cards(match):
     cards = list(CARD.finditer(match[2]))
     cards.sort(key=lambda card: POSITION.get(card[1], len(ORDER)))
-    return match[1] + "".join(CARD_MEASUREMENTS.sub(format_card_measurements, card[0]) for card in cards) + match[3]
+    return match[1] + "".join(update_double_card(CARD_MEASUREMENTS.sub(format_card_measurements, card[0]), card[1]) for card in cards) + match[3]
 
 
 if __name__ == "__main__":
