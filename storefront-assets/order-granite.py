@@ -64,21 +64,84 @@ STYLE = """<style id="granite-card-style">
   text-align: right;
   white-space: normal;
 }
+
+[data-granite-cards] .granite-card-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+[data-granite-cards] .granite-card-sizes bdi {
+  padding: 2px 5px;
+  border: 1px solid #9d7d4c65;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+[data-granite-basin] > .granite-size-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 10px 14px;
+  background: #15120f;
+  color: #f5eee2;
+  border-bottom: 1px solid #9d7d4c65;
+}
+[data-granite-basin] .granite-size-picker .options {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  gap: 6px;
+}
+[data-granite-basin] .granite-size-picker .option {
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid #9d7d4c;
+  border-radius: 8px;
+  background: transparent;
+  color: #f5eee2;
+  white-space: nowrap;
+}
+[data-granite-basin] .granite-size-picker .option[aria-pressed="true"] {
+  background: #e1bd80;
+  border-color: #e1bd80;
+  color: #15120f;
+}
 </style>"""
+
+
+DETAIL = re.compile(r'<section\b[^>]*\bdata-granite-basin\b[^>]*>.*?</section>', re.S)
+SIZE_OPTIONS = re.compile(r'<p>اختر المقاس</p>\s*(<div class="options" aria-label="المقاس">.*?</div>)', re.S)
+CARD_MEASUREMENTS = re.compile(r'<small><bdi lang="en" dir="ltr">([\d ×/]+) cm</bdi></small>')
+
+
+def move_size_picker(match):
+    section = match[0]
+    options = SIZE_OPTIONS.search(section)
+    if not options:
+        return section
+    picker = f'<div class="granite-size-picker"><strong>اختر المقاس</strong>{options[1]}</div>'
+    section = section[:options.start()] + section[options.end():]
+    return section.replace('<div class="product-image">', picker + '<div class="product-image">', 1)
+
+
+def format_card_measurements(match):
+    chips = "".join(f'<bdi>{size.strip()} سم</bdi>' for size in match[1].split("/"))
+    return f'<small class="granite-card-sizes">{chips}</small>'
 
 
 def order_cards(match):
     cards = list(CARD.finditer(match[2]))
     cards.sort(key=lambda card: POSITION.get(card[1], len(ORDER)))
-    return match[1] + "".join(card[0] for card in cards) + match[3]
+    return match[1] + "".join(CARD_MEASUREMENTS.sub(format_card_measurements, card[0]) for card in cards) + match[3]
 
 
 if __name__ == "__main__":
     for page in Path("storefront").rglob("index.html"):
         original = page.read_text(encoding="utf-8")
-        if not GRID.search(original):
+        if not GRID.search(original) and not DETAIL.search(original):
             continue
-        updated = GRID.sub(order_cards, original)
+        updated = DETAIL.sub(move_size_picker, GRID.sub(order_cards, original))
         if 'id="granite-card-style"' not in updated:
             updated = updated.replace('<div class="app">', STYLE + '\n<div class="app">', 1)
         if updated != original:
