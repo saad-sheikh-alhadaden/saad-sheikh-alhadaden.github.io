@@ -295,10 +295,25 @@ def update_double_card(card, slug):
                   lambda match: f"{match[1]}${DOUBLE_PRICE}{match[2]}", card)
 
 
+COVER_80_MODELS = {
+    "granite-black-kadhabi-rounded-illuminated",
+    "granite-pearl-white-rounded-illuminated",
+}
+
+
+def format_granite_card(match):
+    slug = match[1]
+    card = CARD_MEASUREMENTS.sub(format_card_measurements, match[0])
+    if slug in COVER_80_MODELS:
+        card = card.replace(f'/assets/{slug}-50x45-01.webp"', f'/assets/{slug}-80x50-01.webp"', 1)
+        card = card.replace('، 50 × 45 سم"', '، 80 × 50 سم"', 1)
+    return update_double_card(card, slug)
+
+
 def order_cards(match):
     cards = list(CARD.finditer(match[2]))
     cards.sort(key=lambda card: POSITION.get(card[1], len(ORDER)))
-    return match[1] + "".join(update_double_card(CARD_MEASUREMENTS.sub(format_card_measurements, card[0]), card[1]) for card in cards) + match[3]
+    return match[1] + "".join(format_granite_card(card) for card in cards) + match[3]
 
 
 if __name__ == "__main__":
