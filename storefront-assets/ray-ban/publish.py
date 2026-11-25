@@ -66,13 +66,14 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         )
         options_markup = f'<p>اختر الموديل</p><div class="options" data-package-options aria-label="اختر الموديل">{options}</div>'
     cover_label = labels[default_finish] if not model_finish else "الكروم"
+    photo_alt = f"{title}، {sizes[default_finish]}" if sizes else f"{name} باللون {cover_label}"
     template_path = root / "rs-kitchen-mixer/index.html"
     template = template_path.read_text()
     section_pattern = r'<section id="rs-kitchen-mixer" class="vanity-detail"[^>]*>.*?</section>'
     section = re.search(section_pattern, template, re.S)[0]
     section = replace_once(section, r'<section[^>]*>', f'<section id="{slug}" class="vanity-detail" data-nosnippet hidden>')
     section = replace_once(section, r'(<div class="product-image">)<img [^>]*>',
-                           lambda match: match[1] + f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">')
+                           lambda match: match[1] + f'<img src="{cover}" alt="{photo_alt}" width="790" height="988">')
     heading = f'<h1>{name}</h1>'
     if category == "mixers":
         section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category">خلاطات المغاسل</p>')
@@ -117,7 +118,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = replace_once(section, r'<p class="origin"[^>]*>.*?</p>', lambda match: match[0] + signature)
         shutil.copyfile(Path(__file__).with_name(brand_logo), root / "assets" / brand_logo)
     card = (f'<a class="hero mixer-product" href="/{slug}/">'
-            f'<img src="{cover}" alt="{name} باللون {cover_label}" width="790" height="988">'
+            f'<img src="{cover}" alt="{photo_alt}" width="790" height="988">'
             f'<div class="mixer-product-copy"><strong>{title}</strong>'
             f'<small><bdi lang="en" dir="ltr">{model}</bdi></small>'
             f'<span dir="ltr">{card_price}</span></div></a>')

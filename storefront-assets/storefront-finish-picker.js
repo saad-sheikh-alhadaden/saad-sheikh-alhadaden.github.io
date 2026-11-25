@@ -16,7 +16,7 @@ for (const options of document.querySelectorAll(".options:not([data-package-opti
   picker.className = "finish-picker";
   const summary = document.createElement("div");
   summary.className = "finish-picker-summary";
-  summary.innerHTML = '<span class="finish-picker-copy"><strong>الألوان المتاحة <span class="finish-picker-count"></span></strong><span class="finish-picker-selected"><bdi></bdi></span></span><span class="finish-picker-palette" aria-hidden="true"></span>';
+  summary.innerHTML = `<span class="finish-picker-copy"><strong>${options.getAttribute('aria-label') === 'المقاس' ? 'المقاسات المتاحة' : 'الألوان المتاحة'} <span class="finish-picker-count"></span></strong><span class="finish-picker-selected"><bdi></bdi></span></span><span class="finish-picker-palette" aria-hidden="true"></span>`;
   summary.querySelector(".finish-picker-count").textContent = `(${finishes.size})`;
   const selected = summary.querySelector("bdi");
   const palette = summary.querySelector(".finish-picker-palette");
