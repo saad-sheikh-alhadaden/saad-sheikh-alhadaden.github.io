@@ -77,6 +77,9 @@ STYLE = """<style id="granite-card-style">
   white-space: nowrap;
 }
 [data-granite-basin] > .granite-size-picker {
+  position: sticky;
+  top: var(--granite-header-offset, 57px);
+  z-index: 4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,6 +156,15 @@ STYLE = """<style id="granite-card-style">
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  const header = document.querySelector(".app > header.top");
+  if (header) {
+    const syncHeaderOffset = () => {
+      header.parentElement.style.setProperty("--granite-header-offset", header.offsetHeight + "px");
+    };
+    syncHeaderOffset();
+    new ResizeObserver(syncHeaderOffset).observe(header);
+  }
+
   if (typeof products === "undefined") return;
   for (const group of document.querySelectorAll(".granite-size-options")) {
     const product = products[group.closest("[data-granite-basin]").id];
