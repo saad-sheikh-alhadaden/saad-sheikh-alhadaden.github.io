@@ -18,7 +18,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None):
     name = f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
@@ -211,7 +211,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     data["offers"].update(price=price, url=url)
     if sizes:
         data["size"] = list(sizes.values())
-        data["color"] = "أسود مرخّم رمادي"
+        data["color"] = pattern
     if prices:
         data["offers"] = {"@type": "AggregateOffer", "priceCurrency": "USD",
                           "lowPrice": min(prices.values()), "highPrice": max(prices.values()),
@@ -421,13 +421,25 @@ publish_mixer(
 )
 
 publish_mixer(
-    "granite-black-gray-60x50", "مغسلة غرانيت أسود مرخم رمادي", "60 × 50 / 80 × 50 cm",
+    "granite-black-gray-60x50", "مغسلة غرانيت أسود مرخمة بالرمادي", "60 × 50 / 80 × 50 cm",
     "مغسلة غرانيت أسود بعروق رمادية، معها رف ديكور بالنقشة نفسها ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس. الرف بيكمّل شكل المغسلة وبيوفّر مساحة للمناشف والإكسسوارات.",
     {"Black with Gray Veining": 135, "80x50": 145},
     {"Black with Gray Veining": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
     "مغسلة غرانيت كلاسيك رف مرآة تاتش 60x50 80x50 أسود رمادي",
     italian=False, category="granite-classic",
     sizes={"Black with Gray Veining": "60 × 50 سم", "80x50": "80 × 50 سم"},
+    pattern="أسود مرخمة بالرمادي",
+)
+
+publish_mixer(
+    "granite-white-gray", "مغسلة غرانيت أبيض مرخمة بالرمادي", "60 × 50 / 80 × 50 cm",
+    "مغسلة غرانيت أبيض مرخّمة بعروق رمادية، معها رف ديكور بالنقشة نفسها للمناشف والإكسسوارات، ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس.",
+    {"60x50": 135, "80x50": 145},
+    {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
+    "مغسلة غرانيت كلاسيك أبيض مرخم رمادي رف مرآة تاتش 60x50 80x50 white grey veining",
+    italian=False, category="granite-classic",
+    sizes={"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"},
+    pattern="أبيض مرخمة بالرمادي",
 )
 
 # Move archived kitchen mixer galleries before the title and description.
