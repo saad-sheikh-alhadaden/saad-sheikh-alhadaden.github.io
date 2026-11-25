@@ -32,7 +32,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         if set(prices) != set(labels):
             raise ValueError(f"Missing or unexpected finish price for {slug}")
         price = prices[default_finish]
-    card_price = f"${min(prices.values())}–${max(prices.values())}" if prices else f"${price}"
+    card_price = f"${min(prices.values())}–${max(prices.values())}" if prices and min(prices.values()) != max(prices.values()) else f"${price}"
     cover = images[default_finish][0]
     gallery = [asset for photos in images.values() for asset in photos]
 
@@ -256,6 +256,10 @@ def publish_illuminated_granite(slug, pattern, finish_description, keywords, *, 
         pattern=pattern,
     )
 
+    add_to_sitemap(slug)
+
+
+def add_to_sitemap(slug):
     sitemap = root / "sitemap.xml"
     if sitemap.is_file():
         namespace = "http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -307,6 +311,17 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             "بيجي معها رف سفلي للمناشف والإكسسوارات، ومراية مضاءة بثلاث درجات لونية مع خاصية منع الغباش."
         ),
     )
+    wudu_slug = "granite-white-gray-wudu"
+    if not (root / wudu_slug / "index.html").exists():
+        publish_mixer(
+            wudu_slug, "مغسلة غرانيت وضوء – أبيض مرخم رمادي", "55 × 50 cm",
+            "مغسلة وضوء من الغرانيت الأبيض بعروق رمادية، تجمع بين حوض علوي وحيّز سفلي مخصّص لغسل القدمين. تأتي كاملة مع الخلاط وجميع الملحقات.",
+            {"55x50": 360}, {"55x50": "55 × 50 سم"}, 1,
+            "مغسلة غرانيت وضوء أبيض مرخم رمادي غسل القدمين wudu basin",
+            italian=False, category="granite",
+            sizes={"55x50": "55 × 50 سم"}, pattern="أبيض مرخم رمادي",
+        )
+        add_to_sitemap(wudu_slug)
     sys.exit(0)
 
 
