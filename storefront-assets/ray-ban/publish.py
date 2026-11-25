@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+import sys
 import xml.etree.ElementTree as ET
 
 root = Path("storefront")
@@ -86,8 +87,10 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
     if category == "granite":
         section = section.replace(' data-nosnippet hidden>', ' data-granite-basin data-nosnippet hidden>', 1)
-        section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category"><a href="/#granite">مغاسل غرانيت</a></p>')
+        section = replace_once(section, r'<p class="category">.*?</p>',
+                               '<p class="category"><a href="/#granite">مغاسل غرانيت</a></p>')
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
+        section = re.sub(r'<p class="product-model-name"[^>]*>.*?</p>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1>'
         if sizes:
             if set(sizes) != set(labels):
@@ -100,7 +103,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             gallery_markup = ""
             options_markup = f'<p>اختر المقاس</p><div class="options" aria-label="المقاس">{size_options}</div>'
 
-    section = replace_once(section, r'<h1>.*?</h1>', heading)
+    section = replace_once(section, r'<h1\b[^>]*>.*?</h1>', heading)
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
     section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
     section = replace_once(section, r'<div class="options"[^>]*>.*?</div>',
@@ -213,6 +216,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                         lambda match: match[1] + json.dumps(data, ensure_ascii=False) + match[2])
     body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail">',
                         '<section id="rs-kitchen-mixer" class="vanity-detail" data-nosnippet hidden>', 1)
+    if category == "granite":
+        body = re.sub(r'(<section id="rs-kitchen-mixer" class="vanity-detail"[^>]*)(?<! hidden)>',
+                      r'\g<1> data-nosnippet hidden>', body, count=1)
     body = replace_once(body, rf'(<section id="{slug}" class="vanity-detail"[^>]*?) data-nosnippet hidden>', r'\1>')
     destination = root / slug / "index.html"
     destination.parent.mkdir()
@@ -231,6 +237,37 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             photo = ET.SubElement(entry, f"{{{image_namespace}}}image")
             ET.SubElement(photo, f"{{{image_namespace}}}loc").text = origin + asset
         tree.write(image_index, encoding="utf-8", xml_declaration=True)
+
+
+def publish_illuminated_granite():
+    slug = "granite-white-gray-illuminated"
+    if (root / slug / "index.html").exists():
+        return
+    publish_mixer(
+        slug, "مغسلة غرانيت مضاءة أبيض مرخمة بالرمادي", "60 × 50 / 80 × 50 cm",
+        "مغسلة غرانيت أبيض مرخّمة بعروق رمادية، مع إضاءة مدمجة بواجهة المغسلة. معها رف ديكور بالنقشة نفسها للمناشف والإكسسوارات، ومراية بإضاءة محيطية بثلاث درجات لونية بتتبدّل باللمس.",
+        {"60x50": 175, "80x50": 200},
+        {"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"}, 1,
+        "مغسلة غرانيت مضاءة مع إنارة مدمجة أبيض مرخم رمادي رف مرآة تاتش 60x50 80x50 illuminated white grey veining",
+        italian=False, category="granite",
+        sizes={"60x50": "60 × 50 سم", "80x50": "80 × 50 سم"},
+        pattern="أبيض مرخمة بالرمادي",
+    )
+
+    sitemap = root / "sitemap.xml"
+    if sitemap.is_file():
+        namespace = "http://www.sitemaps.org/schemas/sitemap/0.9"
+        ET.register_namespace("", namespace)
+        tree = ET.parse(sitemap)
+        entry = ET.SubElement(tree.getroot(), f"{{{namespace}}}url")
+        ET.SubElement(entry, f"{{{namespace}}}loc").text = f"{origin}/{slug}/"
+        tree.write(sitemap, encoding="utf-8", xml_declaration=True)
+
+
+if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
+    publish_illuminated_granite()
+    sys.exit(0)
+
 
 
 publish_mixer(

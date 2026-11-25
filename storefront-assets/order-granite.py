@@ -1,6 +1,8 @@
 """Apply the granite catalog layout to archived storefront pages."""
 from pathlib import Path
 import re
+import subprocess
+import sys
 
 ORDER = (
     "granite-black-gray-60x50",
@@ -222,6 +224,8 @@ def order_cards(match):
 
 
 if __name__ == "__main__":
+    publisher = Path(__file__).with_name("ray-ban") / "publish.py"
+    subprocess.run([sys.executable, str(publisher), "--illuminated-granite"], check=True)
     for page in Path("storefront").rglob("index.html"):
         original = page.read_text(encoding="utf-8")
         if not GRID.search(original) and not DETAIL.search(original):
