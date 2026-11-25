@@ -119,7 +119,66 @@ STYLE = """<style id="granite-card-style">
   outline: 2px solid #f5eee2;
   outline-offset: 1px;
 }
-</style>"""
+[data-granite-basin] > .granite-size-picker:has(.granite-size-options[data-photo-options]) {
+  align-items: start;
+}
+.granite-size-options[data-photo-options] > button {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 100px;
+  padding: 5px 8px;
+  border: 1px solid #9d7d4c65;
+  border-radius: 9px;
+  color: #f5eee2;
+}
+.granite-size-options[data-photo-options] > button[aria-pressed="true"] {
+  border-color: #e1bd80;
+}
+.granite-size-options[data-photo-options] img {
+  display: block;
+  width: 58px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+.granite-size-options .granite-size-price {
+  color: #e1bd80;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+[data-granite-basin]:has(.granite-size-options[data-photo-options]) > .product-info .store-variant-photos {
+  display: none;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof products === "undefined") return;
+  for (const group of document.querySelectorAll(".granite-size-options")) {
+    const product = products[group.closest("[data-granite-basin]").id];
+    const buttons = [...group.querySelectorAll("button[data-color]")];
+    if (!buttons.length || !buttons.every(({dataset: {color}}) =>
+      product?.images?.[color] && typeof product?.prices?.[color] === "number")) continue;
+
+    for (const button of buttons) {
+      const size = button.dataset.color;
+      const preview = document.createElement("img");
+      preview.src = product.images[size];
+      preview.alt = "";
+      preview.width = 58;
+      preview.height = 72;
+      preview.loading = "lazy";
+      const price = document.createElement("span");
+      price.className = "granite-size-price";
+      price.dir = "ltr";
+      price.textContent = "$" + product.prices[size];
+      button.prepend(preview);
+      button.append(price);
+    }
+    group.dataset.photoOptions = "";
+  }
+});
+</script>"""
 
 
 DETAIL = re.compile(r'<section\b[^>]*\bdata-granite-basin\b[^>]*>.*?</section>', re.S)
