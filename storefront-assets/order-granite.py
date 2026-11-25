@@ -30,6 +30,7 @@ STYLE = """<style id="granite-card-style">
   gap: 6px;
   padding: 12px clamp(9px, 2.6vw, 16px) 13px;
   border-top: 1px solid #9d7d4c40;
+  border-bottom: 0;
   direction: rtl;
   text-align: right;
 }
@@ -45,6 +46,7 @@ STYLE = """<style id="granite-card-style">
   display: block;
   margin-top: auto;
   color: #bcb2a4;
+  white-space: normal;
   font-size: clamp(11px, 2.85vw, 13px);
   font-weight: 400;
   line-height: 1.45;
