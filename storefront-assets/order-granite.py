@@ -7,6 +7,8 @@ import shutil
 import subprocess
 import sys
 
+import milano_brand
+
 ORDER = (
     "granite-black-gray-60x50",
     "granite-white-gray",
@@ -316,6 +318,40 @@ def order_cards(match):
     return match[1] + "".join(format_granite_card(card) for card in cards) + match[3]
 
 
+BASIN_DETAIL = re.compile(
+    r'<section id="((?:cabinet-|granite-)[^"]+|[^"]+-porcelain-basin|'
+    r'wudu-basin|(?:square|round)-wall-hung-basin)" class="vanity-detail"[^>]*>.*?</section>',
+    re.S,
+)
+GRANITE_FINISHES = {
+    "granite-black-gray-60x50": "BLACK WITH GRAY VEINING",
+    "granite-white-gray": "WHITE WITH GRAY VEINING",
+    "granite-silver-gray": "SILVER GRAY",
+    "granite-white-gold-gray": "WHITE WITH GOLD & GRAY VEINING",
+    "granite-travertino": "TRAVERTINO",
+    "granite-black-kadhabi": "KADHABI BLACK",
+    "granite-pearl-white": "PEARL WHITE",
+    "granite-tundra-gray": "TUNDRA GRAY",
+}
+
+
+def format_basin_finish(match):
+    slug, section = match[1], match[0]
+    if slug.startswith("granite-"):
+        finish = next((value for prefix, value in GRANITE_FINISHES.items()
+                       if slug == prefix or slug.startswith(prefix + "-")), None)
+        if finish and 'data-basin-finish' not in section:
+            label = f'<p data-basin-finish>اللون <bdi lang="en" dir="ltr">{finish.replace("&", "&amp;")}</bdi></p>'
+            return re.sub(r'(<p class="product-description">.*?</p>)',
+                          lambda desc: desc[0] + label, section, count=1, flags=re.S)
+        return section
+    if slug.startswith("cabinet-"):
+        section = re.sub(r'(<button\b[^>]*\bdata-color="[^"]+"[^>]*>)[^<]*(<bdi[^>]*>[^<]+</bdi></button>)',
+                         r'\1\2', section)
+        return re.sub(r'(<p>اللون\s*<bdi[^>]*>[^<]+</bdi>)[^<]*(</p>)', r'\1\2', section)
+    return re.sub(r'<p>اللون\s+أبيض</p>', '<p>اللون <bdi lang="en" dir="ltr">WHITE</bdi></p>', section)
+
+
 if __name__ == "__main__":
     publisher = Path(__file__).with_name("ray-ban") / "publish.py"
     subprocess.run([sys.executable, str(publisher), "--illuminated-granite"], check=True)
@@ -333,12 +369,21 @@ if __name__ == "__main__":
         "st-7901-porcelain-basin-white.webp",
     ):
         shutil.copyfile(publisher.parent.parent / name, root / "assets" / name)
+    logo = Path(__file__).with_name("milano-italy-bronze.webp")
+    logo_digest = hashlib.sha256(logo.read_bytes()).hexdigest()[:12]
+    logo_name = f"{logo.stem}-{logo_digest}{logo.suffix}"
+    shutil.copyfile(logo, root / "assets" / logo_name)
+    logo_url = f"/assets/{logo_name}"
     registries = {}
     for page in root.rglob("index.html"):
         original = page.read_text(encoding="utf-8")
-        if not GRID.search(original) and not DETAIL.search(original):
+        updated = milano_brand.add_to_products(original, logo_url)
+        updated = BASIN_DETAIL.sub(format_basin_finish, updated)
+        if not GRID.search(updated) and not DETAIL.search(updated):
+            if updated != original:
+                page.write_text(updated, encoding="utf-8")
             continue
-        updated = DETAIL.sub(lambda match: add_double_option(move_size_picker(match)), GRID.sub(order_cards, original))
+        updated = DETAIL.sub(lambda match: add_double_option(move_size_picker(match)), GRID.sub(order_cards, updated))
         registry = REGISTRY.search(updated)
         if registry:
             original_registry = registry[1]

@@ -19,8 +19,9 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None):
-    name = f"{title} — {model}"
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None):
+    is_pedestal = category == "freestanding-pedestal-basins"
+    name = f"{model} — {title}" if is_pedestal else f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
         finish: [f"/assets/{slug}-{finish.lower().replace(' ', '-')}-{index:02}.webp" for index in range(1, counts[finish] + 1)]
@@ -97,8 +98,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                                '<p class="category"><a href="/freestanding-pedestal-basins/">مغاسل برميل ديكور</a></p>')
         section = re.sub(r'<p class="product-model-name"[^>]*>.*?</p>', '', section, flags=re.S)
         section = re.sub(r'<img class="milano-brand"[^>]*>', '', section)
-        heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
-        options_markup = f'<p>المقاس <bdi dir="ltr">{pedestal_size}</bdi></p><p>اللون {labels[default_finish]}</p>'
+        heading = f'<h1><bdi lang="en" dir="ltr">{model}</bdi></h1><p class="product-model-name" lang="ar" dir="rtl">{title}</p>'
+        options_markup = f'<p>المقاس <bdi dir="ltr">{pedestal_size}</bdi></p><p>اللون <bdi lang="en" dir="ltr">{labels[default_finish]}</bdi></p>'
     if category == "granite":
         section = section.replace(' data-nosnippet hidden>', ' data-granite-basin data-nosnippet hidden>', 1)
         section = replace_once(section, r'<p class="category">.*?</p>',
@@ -134,10 +135,12 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                      'style="filter:none;height:auto">')
         section = replace_once(section, r'<p class="origin"[^>]*>.*?</p>', lambda match: match[0] + signature)
         shutil.copyfile(Path(__file__).with_name(brand_logo), root / "assets" / brand_logo)
+    card_title = f'<bdi lang="en" dir="ltr">{model}</bdi>' if is_pedestal else title
+    card_subtitle = f'<bdi lang="ar" dir="rtl">{title}</bdi>' if is_pedestal else f'<bdi lang="en" dir="ltr">{model}</bdi>'
     card = (f'<a class="hero mixer-product" href="/{slug}/">'
             f'<img src="{cover}" alt="{photo_alt}" width="790" height="988">'
-            f'<div class="mixer-product-copy"><strong>{title}</strong>'
-            f'<small><bdi lang="en" dir="ltr">{model}</bdi></small>'
+            f'<div class="mixer-product-copy"><strong>{card_title}</strong>'
+            f'<small>{card_subtitle}</small>'
             f'<span dir="ltr">{card_price}</span></div></a>')
 
     registry_pattern = r'<script src="/(assets/storefront-[a-f0-9]+\.js)"'
@@ -229,6 +232,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     data["offers"].update(price=price, url=url)
     if category == "porcelain":
         data["material"] = "Porcelain"
+    if material:
+        data["material"] = material
     if category == "freestanding-pedestal-basins":
         data["size"] = pedestal_size
     if sizes:
@@ -375,7 +380,7 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
         publish_mixer(
             piega_slug, "مغسلة برميل بييغا", "Freestanding Basin PIEGA",
             "من طيّات ورقة مجعّدة استُلهمت بييغا. مغسلة إيطالية قائمة بذاتها، تتشكّل كتلتها البيضاء من انحناءات غير متماثلة وتفاصيل نحتية دقيقة. يمرّ الضوء على الطيّات فيبرز عمقها، فيما يوازن هدوء الأبيض جرأة الشكل.",
-            760, {"White": "أبيض"}, 6, "PIEGA بييغا مغسلة برميل ديكور إيطالية",
+            760, {"White": "WHITE"}, 6, "PIEGA بييغا مغسلة برميل ديكور إيطالية",
             category="freestanding-pedestal-basins", pedestal_size="45 cm",
         )
         add_to_sitemap(piega_slug)
@@ -384,10 +389,19 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
         publish_mixer(
             die_slug, "مغسلة برميل النَرْد 🎲", "Freestanding Basin DIE 🎲",
             "حجرَا نرد، أحدهما فوق الآخر، في مغسلة إيطالية قائمة بذاتها. تلين الحواف المستديرة هندسة المكعّبين، وتلتقط التجويفات الدائرية الضوء والظل. فكرة مرحة بصياغة نحتية هادئة، تمنح الحمّام نقطة ارتكاز يُبنى حولها التصميم.",
-            970, {"Craig": "Craig"}, 5, "DIE نرد مغسلة برميل ديكور إيطالية dice",
+            970, {"Craig": "CRAIG"}, 5, "DIE نرد مغسلة برميل ديكور إيطالية dice",
             category="freestanding-pedestal-basins", pedestal_size="43 cm",
         )
         add_to_sitemap(die_slug)
+    prisma_slug = "prisma-freestanding-basin"
+    if not (root / prisma_slug / "index.html").exists():
+        publish_mixer(
+            prisma_slug, "مغسلة برميل بريزما", "Freestanding Basin PRISMA",
+            "تستحضر بريزما جرأة الخطوط الحادّة في سيارات لامبورغيني، وتترجمها إلى مغسلة إيطالية قائمة بذاتها. صُنعت من الفولاذ المقاوم للصدأ 304، بتشطيب روز غولد مفرّش يلتقط الضوء بشكل مختلف على كل وجه. ومع تغيّر زاوية النظر، تتبدّل الانعكاسات وتبرز دقّة الحواف.",
+            840, {"BRUSHED ROSE GOLD": "BRUSHED ROSE GOLD"}, 6, "PRISMA بريزما مغسلة برميل ديكور إيطالية فولاذ",
+            category="freestanding-pedestal-basins", pedestal_size="36 cm", material="Stainless Steel 304",
+        )
+        add_to_sitemap(prisma_slug)
     sys.exit(0)
 
 
