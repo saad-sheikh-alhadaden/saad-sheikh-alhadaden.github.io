@@ -413,6 +413,16 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             brand="Milano Italy", category="freestanding-pedestal-basins", pedestal_size="40 cm",
         )
         add_to_sitemap(roccia_slug)
+    nerodoro_slug = "nerodoro-kitchen-mixer"
+    if not (root / nerodoro_slug / "index.html").exists():
+        publish_mixer(
+            nerodoro_slug, "خلاط مجلى نيرودورو", "Kitchen Mixer Nerodoro",
+            "يجمع نيرودورو بين قوس أسود مرتفع وجسم بتشطيب ذهبي مفرّش. يوازن الذراع المستقيم انحناءة القوس، فيما يضيف المقبض الجانبي المحزّز تفصيلاً دقيقاً يبرز ملمس التشطيب. خلاط مجلى إيطالي يمنح منطقة الحوض حضوراً واضحاً بخطوط بسيطة.",
+            275, {"Brushed Gold": "BRUSHED GOLD"}, 9,
+            "Nerodoro نيرودورو خلاط مجلى مطبخ إيطالي ذهبي مفرّش Milano Italy",
+            after_card="st-01-kitchen-mixer", brand="Milano Italy",
+        )
+        add_to_sitemap(nerodoro_slug)
     sys.exit(0)
 
 
