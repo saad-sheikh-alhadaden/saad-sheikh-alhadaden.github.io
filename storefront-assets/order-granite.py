@@ -323,6 +323,8 @@ if __name__ == "__main__":
     for slug in sorted(DOUBLE_MODELS):
         name = Path(double_photo(slug)).name
         shutil.copyfile(publisher.with_name(name), root / "assets" / name)
+    wudu_photo = "wudu-basin-white.webp"
+    shutil.copyfile(publisher.parent.parent / wudu_photo, root / "assets" / wudu_photo)
     registries = {}
     for page in root.rglob("index.html"):
         original = page.read_text(encoding="utf-8")
