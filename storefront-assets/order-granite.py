@@ -355,7 +355,7 @@ def format_basin_finish(match):
 PEDESTAL_STYLE = """<style id="pedestal-display-style">
 [data-pedestal-cards].cabinet-gallery {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(7px, 2vw, 16px);
   align-items: stretch;
 }
@@ -365,6 +365,7 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   min-width: 0;
   margin: 0;
   background: #15120f;
+  grid-column: auto;
 }
 [data-pedestal-cards] > .hero.mixer-product > img {
   display: block;
@@ -382,8 +383,10 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   flex: 1;
   flex-direction: column;
   align-items: stretch;
+  justify-content: flex-start;
   gap: .3rem;
-  padding: clamp(5px, 1.55vw, 14px);
+  padding: clamp(8px, 2vw, 14px);
+  border-bottom: 0;
   text-align: right;
 }
 [data-pedestal-cards] .mixer-product-copy strong,
@@ -394,12 +397,12 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   line-height: 1.35;
 }
 [data-pedestal-cards] .mixer-product-copy strong {
-  font-size: clamp(11px, 3vw, 18px);
+  font-size: clamp(13px, 3.45vw, 18px);
   min-height: 2.7em;
   color: #f5eee2;
 }
 [data-pedestal-cards] .mixer-product-copy small {
-  font-size: clamp(10px, 2.6vw, 14px);
+  font-size: clamp(11px, 2.85vw, 14px);
   color: #bcb2a4;
 }
 [data-pedestal-cards] .mixer-product-copy > span {
