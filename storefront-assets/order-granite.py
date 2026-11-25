@@ -232,6 +232,13 @@ if __name__ == "__main__":
         if not GRID.search(original) and not DETAIL.search(original):
             continue
         updated = DETAIL.sub(move_size_picker, GRID.sub(order_cards, original))
+        for original_label, display_label in (
+            ("أسود مرخمة بالرمادي", "أسود مرخم رمادي"),
+            ("أبيض مرخمة بالرمادي", "أبيض مرخم رمادي"),
+            ("أبيض مرخمة دهبي ورمادي", "أبيض مرخم دهبي ورمادي"),
+            ("أبيض مرخمة بالذهبي والرمادي", "أبيض مرخم دهبي ورمادي"),
+        ):
+            updated = updated.replace(original_label, display_label)
         if 'id="granite-card-style"' not in updated:
             updated = updated.replace('<div class="app">', STYLE + '\n<div class="app">', 1)
         if updated != original:
