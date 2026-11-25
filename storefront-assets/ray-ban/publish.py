@@ -99,7 +99,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = re.sub(r'<p class="product-model-name"[^>]*>.*?</p>', '', section, flags=re.S)
         section = re.sub(r'<img class="milano-brand"[^>]*>', '', section)
         heading = f'<h1><bdi lang="en" dir="ltr">{model}</bdi></h1><p class="product-model-name" lang="ar" dir="rtl">{title}</p>'
-        options_markup = f'<p>المقاس <bdi dir="ltr">{pedestal_size}</bdi></p><p>اللون <bdi lang="en" dir="ltr">{labels[default_finish]}</bdi></p>'
+        options_markup = f'<p>المقاس <bdi dir="ltr">{pedestal_size}</bdi></p><p>اللون <bdi lang="en" dir="ltr">{escape(labels[default_finish])}</bdi></p>'
     if category == "granite":
         section = section.replace(' data-nosnippet hidden>', ' data-granite-basin data-nosnippet hidden>', 1)
         section = replace_once(section, r'<p class="category">.*?</p>',
@@ -402,6 +402,15 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             category="freestanding-pedestal-basins", pedestal_size="36 cm", material="Stainless Steel 304",
         )
         add_to_sitemap(prisma_slug)
+    roccia_slug = "roccia-freestanding-basin"
+    if not (root / roccia_slug / "index.html").exists():
+        publish_mixer(
+            roccia_slug, "مغسلة برميل روتشيا", "Freestanding Basin ROCCIA",
+            "تقدّم ميلانو إيطاليا روتشيا، مغسلة قائمة بذاتها بتكوين أسطواني. يلتقي سطح الترافرتين الفاتح، بخطوطه الحجرية وحافته غير المتماثلة، بقاعدة داكنة تبرز فيها عروق الخشب. يرسم التقاء السطحين خطاً متموّجاً يبرز التباين بين هدوء الحجر ودفء الخشب.",
+            720, {"Travertine Wood": "Travertine & Wood"}, 3, "ROCCIA روتشيا مغسلة برميل ديكور ترافرتين خشب Milano Italy",
+            brand="Milano Italy", category="freestanding-pedestal-basins", pedestal_size="40 cm",
+        )
+        add_to_sitemap(roccia_slug)
     sys.exit(0)
 
 
