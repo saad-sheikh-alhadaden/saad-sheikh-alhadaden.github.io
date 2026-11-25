@@ -85,6 +85,13 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = section.replace('<p class="category">خلاطات مجلى</p>', f'<p class="category"><a href="/#{category}">{label}</a></p>')
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
+    if category == "porcelain":
+        section = replace_once(section, r'<p class="category">.*?</p>',
+                               '<p class="category"><a href="/porcelain/">مغاسل بورسلان</a></p>')
+        section = re.sub(r'<p class="product-model-name"[^>]*>.*?</p>', '', section, flags=re.S)
+        section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
+        heading = f'<h1>{title}</h1>'
+        options_markup = f'<p>المقاس <bdi dir="ltr">{model}</bdi></p><p>اللون {labels[default_finish]}</p>'
     if category == "granite":
         section = section.replace(' data-nosnippet hidden>', ' data-granite-basin data-nosnippet hidden>', 1)
         section = replace_once(section, r'<p class="category">.*?</p>',
@@ -205,6 +212,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     data.update(name=name, description=description, sku=slug, url=url, color=[model_finish] if model_finish else list(labels),
                 image=[origin + image for image in gallery])
     data["offers"].update(price=price, url=url)
+    if category == "porcelain":
+        data["material"] = "Porcelain"
     if sizes:
         data["size"] = list(sizes.values())
         data["color"] = pattern
@@ -216,7 +225,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                         lambda match: match[1] + json.dumps(data, ensure_ascii=False) + match[2])
     body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail">',
                         '<section id="rs-kitchen-mixer" class="vanity-detail" data-nosnippet hidden>', 1)
-    if category == "granite":
+    if category in ("granite", "porcelain"):
         body = re.sub(r'(<section id="rs-kitchen-mixer" class="vanity-detail"[^>]*)(?<! hidden)>',
                       r'\g<1> data-nosnippet hidden>', body, count=1)
     body = replace_once(body, rf'(<section id="{slug}" class="vanity-detail"[^>]*?) data-nosnippet hidden>', r'\1>')
@@ -333,6 +342,17 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             sizes={"55x50": "55 × 50 سم"}, pattern="توندرا رمادي",
         )
         add_to_sitemap(wudu_slug)
+    revirs_slug = "revirs-porcelain-basin"
+    if not (root / revirs_slug / "index.html").exists():
+        publish_mixer(
+            revirs_slug, "مغسلة REVIRS", "50 × 31 cm",
+            "مغسلة بورسلان بيضاء معلّقة، صُنعت بأيادٍ أوروبية بتصميم بسيط وزوايا ناعمة. فتحة مدمجة في الواجهة تُبقي منشفة اليد في متناولك، وعمق 31 سم يناسب الحمّامات ذات المساحة المحدودة.",
+            160, {"White": "أبيض"}, 1,
+            "REVIRS ريفيرس مغسلة بورسلان بيضاء معلقة حامل منشفة towel slot",
+            after_card="st-7901-porcelain-basin", italian=False, category="porcelain",
+            sizes={"White": "50 × 31 سم"}, pattern="أبيض",
+        )
+        add_to_sitemap(revirs_slug)
     sys.exit(0)
 
 
