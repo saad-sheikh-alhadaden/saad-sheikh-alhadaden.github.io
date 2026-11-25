@@ -304,11 +304,22 @@ def order_cards(match):
 if __name__ == "__main__":
     publisher = Path(__file__).with_name("ray-ban") / "publish.py"
     subprocess.run([sys.executable, str(publisher), "--illuminated-granite"], check=True)
-    for page in Path("storefront").rglob("index.html"):
+    root = Path("storefront")
+    for slug in sorted(DOUBLE_MODELS):
+        name = Path(double_photo(slug)).name
+        shutil.copyfile(publisher.with_name(name), root / "assets" / name)
+    registries = {}
+    for page in root.rglob("index.html"):
         original = page.read_text(encoding="utf-8")
         if not GRID.search(original) and not DETAIL.search(original):
             continue
-        updated = DETAIL.sub(move_size_picker, GRID.sub(order_cards, original))
+        updated = DETAIL.sub(lambda match: add_double_option(move_size_picker(match)), GRID.sub(order_cards, original))
+        registry = REGISTRY.search(updated)
+        if registry:
+            original_registry = registry[1]
+            if original_registry not in registries:
+                registries[original_registry] = update_double_registry(root, original_registry)
+            updated = updated.replace(original_registry, registries[original_registry])
         for original_label, display_label in (
             ("أسود مرخمة بالرمادي", "أسود مرخم رمادي"),
             ("أبيض مرخمة بالرمادي", "أبيض مرخم رمادي"),
