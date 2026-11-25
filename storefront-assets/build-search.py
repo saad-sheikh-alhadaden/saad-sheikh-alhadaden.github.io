@@ -229,8 +229,9 @@ def add_decor_basin_sections(html):
     pedestal_arabic, pedestal_english = DECOR_BASIN_COLLECTIONS[pedestal]
     vessel_card = (f'<a href="/{vessel}/"><strong>{vessel_arabic}</strong>'
                    f'<small><bdi lang="en" dir="ltr">{vessel_english}</bdi></small></a>')
-    pedestal_card = (f'<a class="velato-feature" href="/{pedestal}/"><span>'
-                     f'<strong>{pedestal_arabic}</strong><br><bdi lang="en" dir="ltr">{pedestal_english}</bdi>'
+    pedestal_card = (f'<a class="velato-feature" href="/{pedestal}/"><span class="pedestal-feature-copy">'
+                     f'<strong><bdi lang="en" dir="ltr">{pedestal_english}</bdi></strong>'
+                     f'<bdi class="pedestal-feature-arabic" lang="ar" dir="rtl">{pedestal_arabic}</bdi>'
                      '<small>استعرض المغاسل</small></span></a>')
     panels = "".join(
         f'<section class="panel" id="{slug}" hidden><h1>{arabic}<br>'
@@ -437,6 +438,27 @@ a.top-ten-entry { position: relative; justify-content: center; text-align: cente
 .top-ten-entry .top-ten-title { text-align: center; }
 a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
 .velato-feature > span { text-align: center; }
+.velato-feature > .pedestal-feature-copy {
+    display: grid;
+    justify-items: center;
+    gap: .38rem;
+    padding: clamp(.95rem, 3vw, 1.45rem) .8rem;
+    line-height: 1.35;
+}
+.pedestal-feature-copy > strong {
+    font-size: clamp(1.05rem, 4.4vw, 1.65rem);
+    font-weight: 650;
+    text-wrap: balance;
+}
+.pedestal-feature-arabic {
+    color: #dfcfbd;
+    font-size: clamp(.92rem, 3.5vw, 1.2rem);
+    font-weight: 500;
+}
+.pedestal-feature-copy > small {
+    margin-block-start: .24rem;
+    font-size: .82rem;
+}
 [data-java-finish] {
     --java-gold: #dfbd86;
     max-width: 45rem;
