@@ -88,20 +88,23 @@ STYLE = """<style id="granite-card-style">
   border-bottom: 1px solid #9d7d4c65;
   font-size: 13px;
 }
+.granite-size-picker > strong {
+  color: #bcb2a4;
+  font-size: 12px;
+  font-weight: 500;
+}
 .granite-size-picker .granite-size-options {
   display: flex;
-  gap: 4px;
-  padding: 3px;
-  border: 1px solid #9d7d4c65;
-  border-radius: 10px;
-  background: #211c16;
+  gap: 10px;
 }
 .granite-size-options > button {
+  min-width: 88px;
   min-height: 44px;
   padding: 4px 8px;
-  border: 1px solid transparent;
-  border-radius: 7px;
-  background: #211c16;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
   color: #f5eee2;
   font: inherit;
   font-weight: 600;
@@ -109,9 +112,8 @@ STYLE = """<style id="granite-card-style">
   white-space: nowrap;
 }
 .granite-size-options > button[aria-pressed="true"] {
-  background: #e1bd80;
-  border-color: #e1bd80;
-  color: #15120f;
+  border-bottom-color: #e1bd80;
+  color: #e1bd80;
 }
 .granite-size-options > button:focus-visible {
   outline: 2px solid #f5eee2;
