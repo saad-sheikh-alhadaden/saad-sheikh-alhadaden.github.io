@@ -169,3 +169,9 @@ body:has(#kitchen:not([hidden], .kitchen-grid)) { overflow: hidden; overscroll-b
 }
 #toilets [data-toilet-rail].kitchen-marquee > a { direction: rtl; }
 [data-toilet-rail] img, [data-toilet-cards] img { aspect-ratio: 4 / 5; object-fit: contain; }
+
+/* The granite photos already include the SAAD artwork. */
+[data-granite-basin] > .product-image::after,
+:is(#granite, #granite-classic) .hero.mixer-product::after {
+  content: none;
+}

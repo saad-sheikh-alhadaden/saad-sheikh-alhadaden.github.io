@@ -84,6 +84,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
     if category == "granite-classic":
+        section = section.replace(' data-nosnippet hidden>', ' data-granite-basin data-nosnippet hidden>', 1)
         section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category"><a href="/#granite-classic">مغاسل غرانيت كلاسيك</a></p>')
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1>'
