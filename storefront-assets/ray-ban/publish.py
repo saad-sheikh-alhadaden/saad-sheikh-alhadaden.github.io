@@ -19,7 +19,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None, cover_index=1):
     is_pedestal = category == "freestanding-pedestal-basins"
     name = f"{model} — {title}" if is_pedestal else f"{title} — {model}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
@@ -27,6 +27,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         finish: [f"/assets/{slug}-{finish.lower().replace(' ', '-')}-{index:02}.webp" for index in range(1, counts[finish] + 1)]
         for finish in labels
     }
+    for photos in images.values():
+        photos.insert(0, photos.pop(cover_index - 1))
     default_finish = next(iter(labels))
     prices = price if isinstance(price, dict) else None
     if prices:
@@ -381,7 +383,7 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             piega_slug, "مغسلة برميل بييغا", "Freestanding Basin PIEGA",
             "من طيّات ورقة مجعّدة استُلهمت بييغا. مغسلة إيطالية قائمة بذاتها، تتشكّل كتلتها البيضاء من انحناءات غير متماثلة وتفاصيل نحتية دقيقة. يمرّ الضوء على الطيّات فيبرز عمقها، فيما يوازن هدوء الأبيض جرأة الشكل.",
             760, {"White": "WHITE"}, 6, "PIEGA بييغا مغسلة برميل ديكور إيطالية",
-            category="freestanding-pedestal-basins", pedestal_size="45 cm",
+            category="freestanding-pedestal-basins", pedestal_size="45 cm", cover_index=3,
         )
         add_to_sitemap(piega_slug)
     die_slug = "die-freestanding-basin"
@@ -390,7 +392,7 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             die_slug, "مغسلة برميل النَرْد 🎲", "Freestanding Basin DIE 🎲",
             "حجرَا نرد، أحدهما فوق الآخر، في مغسلة إيطالية قائمة بذاتها. تلين الحواف المستديرة هندسة المكعّبين، وتلتقط التجويفات الدائرية الضوء والظل. فكرة مرحة بصياغة نحتية هادئة، تمنح الحمّام نقطة ارتكاز يُبنى حولها التصميم.",
             970, {"Craig": "CRAIG"}, 5, "DIE نرد مغسلة برميل ديكور إيطالية dice",
-            category="freestanding-pedestal-basins", pedestal_size="43 cm",
+            category="freestanding-pedestal-basins", pedestal_size="43 cm", cover_index=3,
         )
         add_to_sitemap(die_slug)
     prisma_slug = "prisma-freestanding-basin"

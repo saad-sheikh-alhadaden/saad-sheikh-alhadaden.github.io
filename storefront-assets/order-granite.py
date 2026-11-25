@@ -353,6 +353,32 @@ def format_basin_finish(match):
 
 
 PEDESTAL_STYLE = """<style id="pedestal-display-style">
+#freestanding-pedestal-basins .pedestal-heading {
+  display: grid;
+  gap: .4rem;
+  margin-block-end: 1rem;
+  line-height: 1.2;
+}
+.pedestal-heading > bdi {
+  font-size: clamp(1.2rem, 5.1vw, 2rem);
+}
+.pedestal-heading > span {
+  font-size: clamp(.95rem, 3.8vw, 1.3rem);
+  font-weight: 500;
+  color: #d8b58d;
+}
+.pedestal-cover-preview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+.pedestal-cover-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 790 / 988;
+  object-fit: cover;
+}
 [data-pedestal-cards].cabinet-gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -416,6 +442,37 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
 </style>"""
 
 
+PEDESTAL_COLLECTION = re.compile(
+    r'(<section class="panel" id="freestanding-pedestal-basins"[^>]*>)'
+    r'<h1>مغاسل برميل ديكور<br>(<bdi[^>]*>.*?</bdi>)</h1>'
+    r'(\s*<div class="cabinet-gallery" data-pedestal-cards>(.*?))(?=</div>\s*<a class="contact-card")',
+    re.S,
+)
+
+
+def format_pedestal_collection(markup):
+    collection = PEDESTAL_COLLECTION.search(markup)
+    if not collection:
+        return markup
+    covers = [
+        re.search(r'<img\b[^>]*>', card[0])[0]
+        for card in CARD.finditer(collection[4])
+    ][:4]
+    preview = '<div class="pedestal-cover-preview" aria-hidden="true">' + ''.join(
+        re.sub(r' alt="[^"]*"', ' alt="" loading="lazy"', cover, count=1) for cover in covers
+    ) + '</div>'
+    markup = PEDESTAL_COLLECTION.sub(
+        lambda match: match[1] + '<h1 class="pedestal-heading">' + match[2]
+        + '<span>مغاسل برميل ديكور</span></h1>' + match[3],
+        markup, count=1,
+    )
+    return re.sub(
+        r'(<a class="velato-feature" href="/freestanding-pedestal-basins/">.*?</span>)(</a>)',
+        lambda match: match[1] + preview + match[2],
+        markup, count=1, flags=re.S,
+    )
+
+
 def format_pedestal_section(match):
     section = match[0]
     if 'href="/freestanding-pedestal-basins/"' not in section or 'data-pedestal-detail' in section:
@@ -450,6 +507,7 @@ if __name__ == "__main__":
         original = page.read_text(encoding="utf-8")
         updated = milano_brand.add_to_products(original, logo_url)
         updated = milano_brand.SECTION.sub(format_pedestal_section, updated)
+        updated = format_pedestal_collection(updated)
         if ('data-pedestal-cards' in updated or 'data-pedestal-detail' in updated) and 'id="pedestal-display-style"' not in updated:
             updated = updated.replace('<div class="app">', PEDESTAL_STYLE + '\n<div class="app">', 1)
         updated = BASIN_DETAIL.sub(format_basin_finish, updated)
