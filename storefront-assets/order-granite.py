@@ -466,6 +466,10 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
 .vanity-detail[id$="-decorative-vessel-basin"] .product-info > .fixed-finish {
   text-align: left;
 }
+.vanity-detail[id$="-decorative-vessel-basin"] .fixed-finish-chip[data-color="blue"] { --store-finish: #149cbe; }
+.vanity-detail[id$="-decorative-vessel-basin"] .fixed-finish-chip[data-color="yellow"] { --store-finish: #f2c327; }
+.vanity-detail[id$="-decorative-vessel-basin"] .fixed-finish-chip[data-color="navy blue"] { --store-finish: #435c6d; }
+.vanity-detail[id$="-decorative-vessel-basin"] .fixed-finish-chip[data-color="craig"] { --store-finish: #c5af94; }
 </style>"""
 
 

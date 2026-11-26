@@ -372,19 +372,32 @@ def publish_decorative_vessels():
         ("B15", "Gold & Black", "حوض أسود مستطيل بحافة ذهبية ونقشة هندسية على الواجهة."),
         ("B16", "Black", "حوض مستطيل بتشطيب أسود مطفي وحواف ناعمة."),
     )
-    products = (
-        *((code, finish, "40 cm", "دائري", detail) for code, finish, detail in models),
-        *((code, finish, "60 × 42 cm", "مستطيل", detail) for code, finish, detail in rectangular),
+    italian_models = (
+        ("01", "Black", "60 × 36 cm", "بيضاوي", "تشطيب أسود مطفي وحافة رفيعة ترتفع تدريجياً عند الطرفين."),
+        ("02", "Black", "60 × 37 cm", "بيضاوي", "تشطيب أسود مطفي مع جوانب مستقيمة وحافة رفيعة."),
+        ("03", "Black", "44 cm", "دائري", "تشطيب أسود مطفي مع قاعدة مرتفعة للخلاط ضمن الحوض."),
+        ("04", "Red", "60 × 36 cm", "بيضاوي", "أحمر بتشطيب مطفي وحافة منحنية ترتفع عند الطرفين."),
+        ("05", "Blue", "36 cm", "دائري", "أزرق بتشطيب مطفي وحافة رفيعة وجوانب مستديرة."),
+        ("06", "Yellow", "36 cm", "دائري", "أصفر بتشطيب مطفي وحافة رفيعة وجوانب مستديرة."),
+        ("07", "Navy Blue", "40 cm", "دائري", "أزرق كحلي مع نقشة متعرّجة على الواجهة الخارجية."),
+        ("08", "White", "60 × 40 cm", "بيضاوي", "أبيض لامع بخطوط منحنية وحافة غير متماثلة."),
+        ("09", "Craig", "40 cm", "مربّع", "بتشطيب CRAIG وزوايا مستديرة."),
     )
-    for code, finish, size, shape, detail in products:
+    products = (
+        *((code, finish, "40 cm", "دائري", detail, 100, False) for code, finish, detail in models),
+        *((code, finish, "60 × 42 cm", "مستطيل", detail, 100, False) for code, finish, detail in rectangular),
+        *((*model, 180, True) for model in italian_models),
+    )
+    for code, finish, size, shape, detail, price, italian in products:
         slug = f"{code.lower()}-decorative-vessel-basin"
         if not (root / slug / "index.html").exists():
             publish_mixer(
                 slug, "جرن مغسلة ديكور", size,
                 f"جرن مغسلة ديكور {shape} للتركيب فوق السطح. {detail}",
-                100, {finish: finish.upper()}, 1,
+                price, {finish: finish.upper()}, 1,
                 f"أجران مغسلة ديكور جرن {shape} فوق السطح decorative vessel basin {finish}",
-                italian=False, category="decorative-vessel-basins", basin_code=code,
+                italian=italian, brand="Milano Italy" if italian else None,
+                category="decorative-vessel-basins", basin_code=code,
             )
             add_to_sitemap(slug)
 
