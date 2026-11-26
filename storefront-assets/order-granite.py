@@ -74,7 +74,7 @@ STYLE = """<style id="granite-card-style">
   white-space: normal;
 }
 
-[data-granite-cards] .granite-card-sizes {
+[data-granite-cards] .mixer-product-copy .granite-card-sizes {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -248,6 +248,56 @@ DOUBLE_SIZE = "120 × 50 سم"
 DOUBLE_LABEL = f"{DOUBLE_SIZE} · Double"
 DOUBLE_PRICE = 200
 REGISTRY = re.compile(r'<script src="/(assets/storefront-[a-f0-9]+\.js)"')
+CENTIMETRE_UNIT = re.compile(r'(\d)[^\S\r\n]*سم(?!\w)')
+SIZE_LABEL = re.compile(r'>(?:المقاس|مقاس)(?:\s+(الكابينت|رأس الدش))?\s*[:：]?\s*(?=<|\d)')
+MEASUREMENT_BDI = re.compile(r'<bdi>((?:Size:\s*)?\d[^<>]*?\bcm(?:\s*·\s*Double)?)</bdi>')
+
+
+def format_measurements(html):
+    # A few controls put the unit outside the isolated dimension.
+    html = re.sub(r'(\d)</bdi>\s*سم(?!\w)', r'\1 cm</bdi>', html)
+    html = CENTIMETRE_UNIT.sub(r'\1 cm', html)
+    html = SIZE_LABEL.sub(
+        lambda match: ">" + (f"{match[1]} · " if match[1] else "") + "Size: ", html,
+    )
+    html = re.sub(r'>اختر المقاس\s*(?=<)', '>Size:', html)
+    html = html.replace('aria-label="المقاس"', 'aria-label="Size:"')
+    html = re.sub(r'>Size\s+(?=\d)', '>Size: ', html)
+    html = re.sub(
+        r'Size: (<bdi\b[^>]*>)(?=\d)',
+        r'\1Size: ',
+        html,
+    )
+    html = re.sub(
+        r'(<(?:p|strong|legend)\b[^>]*>(?:(?:الكابينت|رأس الدش) · )?)'
+        r'(Size:(?:\s+\d[\d\s×/–.,-]*\s+cm)?)\s*(?=</)',
+        r'\1<bdi lang="en" dir="ltr">\2</bdi>',
+        html,
+    )
+    return MEASUREMENT_BDI.sub(r'<bdi dir="ltr">\1</bdi>', html)
+
+
+def publish_measurements(root):
+    registries = {}
+    for page in root.rglob("*.html"):
+        original = page.read_text(encoding="utf-8")
+        updated = format_measurements(original)
+        registry = REGISTRY.search(updated)
+        if registry:
+            path = registry[1]
+            if path not in registries:
+                source = (root / path).read_text(encoding="utf-8")
+                revised = CENTIMETRE_UNIT.sub(r'\1 cm', source)
+                if revised == source:
+                    registries[path] = path
+                else:
+                    digest = hashlib.sha256(revised.encode()).hexdigest()[:12]
+                    target = f"assets/storefront-{digest}.js"
+                    (root / target).write_text(revised, encoding="utf-8")
+                    registries[path] = target
+            updated = updated.replace(path, registries[path])
+        if updated != original:
+            page.write_text(updated, encoding="utf-8")
 
 
 def double_photo(slug):
@@ -597,3 +647,4 @@ if __name__ == "__main__":
         updated = product_detail.publish(updated)
         if updated != original:
             page.write_text(updated, encoding="utf-8")
+    publish_measurements(root)
