@@ -447,13 +447,13 @@ PORCELAIN_STYLE = """<style id="porcelain-display-style">
 .vanity-detail:is([id$="-porcelain-basin"], #wudu-basin, #square-wall-hung-basin, #round-wall-hung-basin) > .product-image::after {
   content: none;
 }
-#porcelain .porcelain-model-code {
+:is(#porcelain, #decorative-vessel-basins) .basin-model-code {
   grid-column: 1 / -1;
   color: var(--muted);
   font-size: clamp(11px, 3vw, 14px);
   text-align: right;
 }
-#porcelain .porcelain-model-code + small {
+:is(#porcelain, #decorative-vessel-basins) .basin-model-code + small {
   color: var(--muted);
   white-space: normal;
 }
