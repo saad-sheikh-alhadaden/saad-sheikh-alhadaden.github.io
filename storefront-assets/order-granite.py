@@ -476,6 +476,7 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
 .vanity-detail[id$="-decorative-vessel-basin"] .fixed-finish-chip[data-color="matt grey"] { --store-finish: #656567; }
 .vanity-detail[id$="-decorative-vessel-basin"] .fixed-finish-chip[data-color="grey"] { --store-finish: #726c66; }
 .vanity-detail[id$="-decorative-vessel-basin"] .fixed-finish-chip[data-color="glossy black"] { --store-finish: linear-gradient(135deg, #141416 35%, #77777b 48%, #141416 62%); }
+.vanity-detail[id$="-decorative-vessel-basin"] .fixed-finish-chip[data-color="pink"] { --store-finish: #d89fa9; }
 </style>"""
 
 

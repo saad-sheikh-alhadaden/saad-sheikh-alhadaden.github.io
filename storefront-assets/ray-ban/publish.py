@@ -182,20 +182,24 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     registry = replace_once(registry, r'const products = \{',
                             lambda match: match[0] + f'\n  "{slug}": {json.dumps(product, ensure_ascii=False)},')
     if slug == "12-decorative-vessel-basin":
-        # Keep already-saved cart lines attached to the basin that moved to 16.
+        # Keep cart lines attached to the same basins after their model numbers change.
         registry = replace_once(
             registry, re.escape('const itemProduct = item => item.product || "cobra";'),
             'const vesselCartProducts = {\n'
             '  "12-decorative-vessel-basin": "16-decorative-vessel-basin",\n'
             '  "12-decorative-vessel-basin-rectangular": "12-decorative-vessel-basin",\n'
+            '  "20-decorative-vessel-basin": "22-decorative-vessel-basin",\n'
+            '  "24-decorative-vessel-basin": "20-decorative-vessel-basin",\n'
             '};\n'
+            'const vesselCartIds = Object.fromEntries(\n'
+            '  Object.entries(vesselCartProducts).map(([id, slug]) => [slug, id])\n'
+            ');\n'
             'const itemProduct = item => Object.hasOwn(vesselCartProducts, item.product)\n'
             '  ? vesselCartProducts[item.product] : item.product || "cobra";',
         )
         registry = replace_once(
             registry, re.escape('else cart.push({product: id, color, qty: quantity});'),
-            'else cart.push({product: id === "12-decorative-vessel-basin"\n'
-            '    ? "12-decorative-vessel-basin-rectangular" : id, color, qty: quantity});',
+            'else cart.push({product: vesselCartIds[id] ?? id, color, qty: quantity});',
         )
     if category == "granite" and '.replace(/^granite-classic$/' not in registry:
         registry = replace_once(registry, r'(function showScreen\(\) \{\s*const hash = location.hash.slice\(1\))',
@@ -390,7 +394,7 @@ def publish_decorative_vessels():
     )
     italian_models = (
         ("01", "Black", "60 × 36 cm", "بيضاوي", "تشطيب أسود مطفي وحافة رفيعة ترتفع تدريجياً عند الطرفين."),
-        ("02", "Black", "60 × 37 cm", "بيضاوي", "تشطيب أسود مطفي مع جوانب مستقيمة وحافة رفيعة."),
+        ("02", "Black", "60 × 37 cm", "بيضاوي", "تشطيب أسود مطفي مع جوانب مستقيمة وحافة رفيعة وصباب مخفي."),
         ("03", "Black", "44 cm", "دائري", "تشطيب أسود مطفي مع قاعدة مرتفعة للخلاط ضمن الحوض."),
         ("04", "Red", "60 × 36 cm", "بيضاوي", "أحمر بتشطيب مطفي وحافة منحنية ترتفع عند الطرفين."),
         ("05", "Blue", "36 cm", "دائري", "أزرق بتشطيب مطفي وحافة رفيعة وجوانب مستديرة."),
@@ -408,19 +412,29 @@ def publish_decorative_vessels():
         ("17", "Matt Brown", "40 cm", "دائري", "تشطيب بني مطفي مع حافة رفيعة وجوانب تنحني نحو القاعدة."),
         ("18", "Black", "60 × 38 cm", "بيضاوي", "تشطيب أسود مطفي مع جوانب مستقيمة وحافة رفيعة."),
         ("19", "Matt Grey", "50 × 34 cm", "بيضاوي", "تشطيب رمادي مطفي مع أطراف مستديرة وحافة رفيعة."),
-        ("20", "White", "80 × 42 cm", "مستطيل", "تشطيب أبيض لامع، مع زوايا مستديرة ومساحة مسطّحة بجانب الحوض."),
+        ("20", "Glossy Black", "60 × 38 cm", "بيضاوي", "تشطيب أسود لامع مع جوانب منحنية وحافة ناعمة."),
         ("21", "Grey", "42 cm", "دائري", "تشطيب رمادي مع جوانب مستقيمة وحافة متساوية الارتفاع."),
-        ("24", "Glossy Black", "60 × 38 cm", "بيضاوي", "تشطيب أسود لامع مع جوانب منحنية وحافة ناعمة."),
+        ("22", "White", "80 × 42 cm", "مستطيل", "تشطيب أبيض لامع، مع زوايا مستديرة ومساحة مسطّحة بجانب الحوض."),
+        ("23", "White", "45 × 39 cm", "بيضاوي", "تشطيب أبيض لامع بحافة ناعمة وصباب مخفي."),
+        ("B005", "Black", "60 × 40 cm", "مستطيل", "تشطيب أسود مطفي مع زوايا مستديرة ونقشة هندسية بارزة على الجوانب."),
+        ("P005", "Pink", "60 × 40 cm", "مستطيل", "تشطيب وردي مع زوايا مستديرة ونقشة هندسية بارزة على الجوانب."),
+        ("Y005", "Gray", "60 × 40 cm", "مستطيل", "تشطيب رمادي مع زوايا مستديرة ونقشة هندسية بارزة على الجوانب."),
     )
     products = (
         *((code, finish, "40 cm", "دائري", detail, 100, False) for code, finish, detail in models),
         *((code, finish, "60 × 42 cm", "مستطيل", detail, 100, False) for code, finish, detail in rectangular),
         *((*model, 180, True) for model in italian_models),
+        ("LC 01", "White", "42 cm", "دائري", "تشطيب أبيض لامع مع جوانب منحنية وقاعدة دائرية.", 50, False),
     )
     for code, finish, size, shape, detail, price, italian in products:
-        slug = f"{code.lower()}-decorative-vessel-basin"
-        # The curved basin keeps its original photo and existing favorites.
-        identity = {"12": f"{slug}-rectangular", "16": "12-decorative-vessel-basin"}.get(code)
+        slug = f"{code.lower().replace(' ', '-')}-decorative-vessel-basin"
+        # Renumbered basins keep their original photos and existing favorites.
+        identity = {
+            "12": f"{slug}-rectangular",
+            "16": "12-decorative-vessel-basin",
+            "20": "24-decorative-vessel-basin",
+            "22": "20-decorative-vessel-basin",
+        }.get(code)
         if not (root / slug / "index.html").exists():
             publish_mixer(
                 slug, "جرن مغسلة ديكور", size,
@@ -432,6 +446,18 @@ def publish_decorative_vessels():
                 photo_slug=identity, favorite_slug=identity,
             )
             add_to_sitemap(slug)
+
+    old_page = root / "24-decorative-vessel-basin" / "index.html"
+    if not old_page.exists():
+        target = "/20-decorative-vessel-basin/"
+        old_page.parent.mkdir(exist_ok=True)
+        old_page.write_text(
+            '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8">'
+            '<title>جرن مغسلة ديكور 20</title>'
+            f'<link rel="canonical" href="{origin}{target}">'
+            f'<meta http-equiv="refresh" content="0;url={target}">'
+            f'<a href="{target}">جرن مغسلة ديكور 20</a></html>'
+        )
 
 
 if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
