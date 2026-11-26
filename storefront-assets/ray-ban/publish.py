@@ -436,6 +436,7 @@ def publish_decorative_vessels():
         ("R400", "Rose Gold", "45 × 32 cm", "مستطيل", "تشطيب روز غولد لامع مع زوايا مستديرة وزخارف تمتدّ حول الحافة الداخلية.", 100, False),
         ("R500", "Rose Gold", "36 cm", "دائري", "تشطيب روز غولد لامع مع نقشة من خطوط هندسية متداخلة على الجوانب.", 100, False),
     )
+    model_codes = {"09": "241Ka", "16": "3029", "17": "248 B1", "19": "3027"}
     sizes_by_slug = {}
     for code, finish, size, shape, detail, price, italian in products:
         slug = f"{code.lower().replace(' ', '-')}-decorative-vessel-basin"
@@ -456,7 +457,7 @@ def publish_decorative_vessels():
                 price, {finish: finish.upper()}, 1,
                 f"أجران مغسلة ديكور جرن {shape} فوق السطح decorative vessel basin {finish}",
                 italian=italian, brand="Milano Italy" if italian else None,
-                category="decorative-vessel-basins", basin_code=code,
+                category="decorative-vessel-basins", basin_code=model_codes.get(code, code),
                 photo_slug=identity, favorite_slug=identity,
                 basin_card_label="جرن بلور" if crystal else "جرن",
             )
