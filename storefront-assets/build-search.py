@@ -232,7 +232,7 @@ def add_decor_basin_sections(html):
     pedestal_card = (f'<a class="velato-feature" href="/{pedestal}/"><span class="pedestal-feature-copy">'
                      f'<strong><bdi lang="en" dir="ltr">{pedestal_english}</bdi></strong>'
                      f'<bdi class="pedestal-feature-arabic" lang="ar" dir="rtl">{pedestal_arabic}</bdi>'
-                     '<small>استعرض المغاسل</small></span></a>')
+                     '</span></a>')
     panels = "".join(
         f'<section class="panel" id="{slug}" hidden><h1>{arabic}<br>'
         f'<bdi lang="en" dir="ltr">{english}</bdi></h1>'
@@ -454,10 +454,6 @@ a.top-ten-entry .top-ten-arrow { position: absolute; inset-inline-end: .75rem; }
     color: #dfcfbd;
     font-size: clamp(.92rem, 3.5vw, 1.2rem);
     font-weight: 500;
-}
-.pedestal-feature-copy > small {
-    margin-block-start: .24rem;
-    font-size: .82rem;
 }
 [data-java-finish] {
     --java-gold: #dfbd86;

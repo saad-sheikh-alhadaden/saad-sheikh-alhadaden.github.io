@@ -418,10 +418,16 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   font-weight: 500;
   color: #d8b58d;
 }
+.velato-feature > .pedestal-feature-copy {
+  gap: .22rem;
+  padding: clamp(.65rem, 2.3vw, 1rem) .75rem;
+}
 .pedestal-cover-preview {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  border-block-start: 1px solid #9c7656;
+  background: #403127;
 }
 .pedestal-cover-preview img {
   display: block;
@@ -429,6 +435,9 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   height: auto;
   aspect-ratio: 790 / 988;
   object-fit: cover;
+}
+@media (min-width: 700px) {
+  .pedestal-cover-preview { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 :is([data-pedestal-cards], [data-vessel-cards]).cabinet-gallery {
   display: grid;
@@ -577,8 +586,9 @@ def format_pedestal_collection(markup):
         markup, count=1,
     )
     return re.sub(
-        r'(<a class="velato-feature" href="/freestanding-pedestal-basins/">.*?</span>)(</a>)',
-        lambda match: match[1] + preview + match[2],
+        r'(<a class="velato-feature" href="/freestanding-pedestal-basins/">.*?)'
+        r'(?:<small>استعرض المغاسل</small>)?(</span>)(</a>)',
+        lambda match: match[1] + match[2] + preview + match[3],
         markup, count=1, flags=re.S,
     )
 
