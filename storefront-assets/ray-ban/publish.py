@@ -430,26 +430,28 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             "بيجي معها رف سفلي للمناشف والإكسسوارات، ومراية مضاءة بثلاث درجات لونية مع خاصية منع الغباش."
         ),
     )
+    # Keep the stored variant keys and image URLs for existing carts and links.
+    wudu_size = {"55x50": "60 × 50 سم"}
     wudu_slug = "granite-white-gray-wudu"
     if not (root / wudu_slug / "index.html").exists():
         publish_mixer(
-            wudu_slug, "مغسلة غرانيت وضوء – أبيض مرخم رمادي", "55 × 50 cm",
+            wudu_slug, "مغسلة غرانيت وضوء – أبيض مرخم رمادي", "60 × 50 cm",
             "مغسلة وضوء من الغرانيت الأبيض بعروق رمادية، تجمع بين حوض علوي وحيّز سفلي مخصّص لغسل القدمين. تأتي كاملة مع الخلاط وجميع الملحقات.",
-            {"55x50": 360}, {"55x50": "55 × 50 سم"}, 1,
+            {"55x50": 360}, wudu_size, 1,
             "مغسلة غرانيت وضوء أبيض مرخم رمادي غسل القدمين wudu basin",
             italian=False, category="granite",
-            sizes={"55x50": "55 × 50 سم"}, pattern="أبيض مرخم رمادي",
+            sizes=wudu_size, pattern="أبيض مرخم رمادي",
         )
         add_to_sitemap(wudu_slug)
     wudu_slug = "granite-tundra-gray-wudu"
     if not (root / wudu_slug / "index.html").exists():
         publish_mixer(
-            wudu_slug, "مغسلة غرانيت وضوء – توندرا رمادي", "55 × 50 cm",
+            wudu_slug, "مغسلة غرانيت وضوء – توندرا رمادي", "60 × 50 cm",
             "مغسلة وضوء من الغرانيت بتشطيب توندرا رمادي، تجمع بين حوض علوي وحيّز سفلي مخصّص لغسل القدمين. تأتي كاملة مع الخلاط وجميع الملحقات.",
-            {"55x50": 360}, {"55x50": "55 × 50 سم"}, 1,
+            {"55x50": 360}, wudu_size, 1,
             "مغسلة غرانيت وضوء توندرا رمادي غسل القدمين Tundra Gray wudu basin",
             italian=False, category="granite",
-            sizes={"55x50": "55 × 50 سم"}, pattern="توندرا رمادي",
+            sizes=wudu_size, pattern="توندرا رمادي",
         )
         add_to_sitemap(wudu_slug)
     revirs_slug = "revirs-porcelain-basin"

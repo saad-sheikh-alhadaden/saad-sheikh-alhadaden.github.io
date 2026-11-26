@@ -21,6 +21,11 @@ PRICE = re.compile(
     r'|<p class="price-tag"[^>]*>.*?</p>',
     re.S,
 )
+PRICE_RANGE = re.compile(
+    r'<(?P<tag>span|bdi|p|strong|small)(?P<attrs>\s[^>]*)?>\s*'
+    r'(?P<low>\$\d[\d,]*(?:\.\d+)?)\s*[-–—]\s*'
+    r'(?P<high>\$\d[\d,]*(?:\.\d+)?)\s*</(?P=tag)>'
+)
 STYLE = """<style id="product-detail-layout">
 .product-info .product-title-row {
   display: flex;
@@ -111,4 +116,13 @@ def publish(markup):
     updated = SECTION.sub(lambda match: format_section(match[0]), markup)
     if updated != markup and 'id="product-detail-layout"' not in updated:
         updated = updated.replace('<div class="app">', STYLE + '\n<div class="app">', 1)
-    return updated
+    return PRICE_RANGE.sub(format_price_range, updated)
+
+
+def format_price_range(match):
+    tag, attrs, low, high = match.group("tag", "attrs", "low", "high")
+    attrs = re.sub(r'\sdir="[^"]*"', '', attrs or "")
+    return (
+        f'<{tag}{attrs} dir="rtl">من&nbsp;<bdi dir="ltr">{low}</bdi> '
+        f'إلى&nbsp;<bdi dir="ltr">{high}</bdi></{tag}>'
+    )
