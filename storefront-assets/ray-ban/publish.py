@@ -152,9 +152,14 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     card_subtitle = f'<bdi lang="ar" dir="rtl">{title}</bdi>' if is_pedestal else f'<bdi lang="en" dir="ltr">{model}</bdi>'
     card_code = ""
     if basin_code:
-        card_code = f'<bdi class="basin-model-code" lang="en" dir="ltr">{basin_code}</bdi>'
+        code = f'<bdi lang="en" dir="ltr">{basin_code}</bdi>'
         finish_label = f'<bdi lang="en" dir="ltr">{escape(labels[default_finish])}</bdi>'
-        card_subtitle += finish_label if category == "decorative-vessel-basins" else f' · {finish_label}'
+        if category == "decorative-vessel-basins":
+            card_title = f'جرن {code}'
+            card_subtitle = finish_label
+        else:
+            card_code = f'<bdi class="basin-model-code" lang="en" dir="ltr">{basin_code}</bdi>'
+            card_subtitle += f' · {finish_label}'
     card = (f'<a class="hero mixer-product" href="/{slug}/">'
             f'<img src="{cover}" alt="{photo_alt}" width="790" height="988">'
             f'<div class="mixer-product-copy"><strong>{card_title}</strong>{card_code}'

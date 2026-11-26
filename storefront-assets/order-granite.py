@@ -446,14 +446,25 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-block-end: .5rem;
 }
+#decorative-vessel-basins > h1 > bdi {
+  display: inline-block;
+  margin-block-start: .2em;
+  color: #d1b68e;
+  font-size: clamp(.9rem, 3.6vw, 1.32rem);
+  font-weight: 500;
+  line-height: 1.35;
+}
 [data-vessel-cards] .mixer-product-copy {
   padding: clamp(6px, 1.8vw, 14px);
 }
-[data-vessel-cards] .mixer-product-copy small > bdi {
-  display: block;
+[data-vessel-cards] .mixer-product-copy strong {
+  min-height: 0;
 }
-[data-vessel-cards] .mixer-product-copy small > bdi:last-child {
-  min-block-size: 2.7em;
+[data-vessel-cards] .mixer-product-copy > span {
+  padding-block-start: .3rem;
+}
+.vanity-detail[id$="-decorative-vessel-basin"] .product-info > .fixed-finish {
+  text-align: left;
 }
 </style>"""
 
@@ -463,13 +474,13 @@ PORCELAIN_STYLE = """<style id="porcelain-display-style">
 .vanity-detail:is([id$="-porcelain-basin"], #wudu-basin, #square-wall-hung-basin, #round-wall-hung-basin) > .product-image::after {
   content: none;
 }
-:is(#porcelain, #decorative-vessel-basins) .basin-model-code {
+#porcelain .basin-model-code {
   grid-column: 1 / -1;
   color: var(--muted);
   font-size: clamp(11px, 3vw, 14px);
   text-align: right;
 }
-:is(#porcelain, #decorative-vessel-basins) .basin-model-code + small {
+#porcelain .basin-model-code + small {
   color: var(--muted);
   white-space: normal;
 }
