@@ -78,7 +78,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     template = template_path.read_text()
     section_pattern = r'<section id="rs-kitchen-mixer" class="vanity-detail"[^>]*>.*?</section>'
     section = re.search(section_pattern, template, re.S)[0]
-    section = replace_once(section, r'<section[^>]*>', f'<section id="{slug}" class="vanity-detail" data-nosnippet hidden>')
+    kitchen_layout = category == "kitchen" and "data-kitchen-mixer" in section.split(">", 1)[0]
+    detail_marker = " data-kitchen-mixer" if kitchen_layout else ""
+    section = replace_once(section, r'<section[^>]*>', f'<section id="{slug}" class="vanity-detail"{detail_marker} data-nosnippet hidden>')
     section = replace_once(section, r'(<div class="product-image">)<img [^>]*>',
                            lambda match: match[1] + f'<img src="{cover}" alt="{photo_alt}" width="790" height="988">')
     heading = f'<h1>{name}</h1>'
@@ -131,7 +133,12 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             gallery_markup = ""
             options_markup = f'<p>اختر المقاس</p><div class="options" aria-label="المقاس">{size_options}</div>'
 
-    section = replace_once(section, r'<h1\b[^>]*>.*?</h1>', heading)
+    heading_pattern = r'<h1\b[^>]*>.*?</h1>'
+    if kitchen_layout:
+        heading_pattern += r'(?:\s*<p class="product-model-name"[^>]*>.*?</p>)?'
+        heading = (f'<h1 lang="ar" dir="rtl">{title}</h1>'
+                   f'<p class="product-model-name" lang="en" dir="ltr">{model}</p>')
+    section = replace_once(section, heading_pattern, heading)
     section = replace_once(section, r'<p class="product-description">.*?</p>', f'<p class="product-description">{description}</p>')
     section = replace_once(section, r'<div class="product-gallery">.*?</div>', gallery_markup)
     section = replace_once(section, r'<div class="options"[^>]*>.*?</div>',
@@ -302,6 +309,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                         lambda match: match[1] + json.dumps(data, ensure_ascii=False) + match[2])
     body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail">',
                         '<section id="rs-kitchen-mixer" class="vanity-detail" data-nosnippet hidden>', 1)
+    if kitchen_layout:
+        body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail" data-kitchen-mixer>',
+                            '<section id="rs-kitchen-mixer" class="vanity-detail" data-kitchen-mixer data-nosnippet hidden>', 1)
     if category in ("granite", "porcelain", "freestanding-pedestal-basins", "decorative-vessel-basins"):
         body = re.sub(r'(<section id="rs-kitchen-mixer" class="vanity-detail"[^>]*)(?<! hidden)>',
                       r'\g<1> data-nosnippet hidden>', body, count=1)
@@ -354,6 +364,56 @@ def add_to_sitemap(slug):
         entry = ET.SubElement(tree.getroot(), f"{{{namespace}}}url")
         ET.SubElement(entry, f"{{{namespace}}}loc").text = f"{origin}/{slug}/"
         tree.write(sitemap, encoding="utf-8", xml_declaration=True)
+
+
+def publish_kitchen_batch():
+    mixers = (
+        ("fiamma-pro-kitchen-mixer", "خلاط مجلى فلاما برو", "Kitchen Mixer Fiamma Pro",
+         "خلاط مجلى بتشطيب رمادي معدني وقوس أحمر مرتفع. يثبّت الذراع الأفقي رأس الرش في موضعه، ويتيح المقبض الجانبي ضبط تدفّق الماء وحرارته.",
+         425, {"Gray & Red": "GRAY & RED"}, 5),
+        ("shurity-3in1-kitchen-mixer", "خلاط مجلى ثلاثي شوريتي", "Kitchen Mixer Shurity 3in1",
+         "خلاط مجلى بتشطيب كروم لامع، يجمع ثلاثة خطوط للمياه الباردة والساخنة ومياه الشرب. ثلاث مقابض جانبية تتيح التحكّم بكل خط على حدة، مع قوس مرتفع يترك مساحة مريحة فوق الحوض.",
+         125, {"Chrome": "CHROME"}, 2),
+        ("nobili-3in1-kitchen-mixer", "خلاط مجلى ثلاثي نوبيلي", "Kitchen Mixer Nobili 3in1",
+         "خلاط مجلى بتشطيب كروم لامع وقوس مرتفع يوفّر مساحة مريحة فوق الحوض. يجمع ثلاثة خطوط في تصميم واحد للمياه الباردة والساخنة ومياه الشرب، مع خط مخصّص لمياه الشرب.",
+         150, {"Chrome": "CHROME"}, 1),
+        ("mamoli-kitchen-mixer", "خلاط مجلى سحب مامولي", "Kitchen Mixer Mamoli",
+         "خلاط مجلى ذهبي لامع بقوس عريض ومقبض جانبي مسطّح. يتيح رأس الرش القابل للسحب توجيه الماء داخل الحوض أثناء غسل الأواني وتنظيف المجلى.",
+         60, {"Gold": "GOLD"}, 3),
+    )
+    previous = "joyou-kitchen-mixer"
+    for slug, title, name, description, price, finishes, photos in mixers:
+        if not (root / slug / "index.html").exists():
+            publish_mixer(
+                slug, title, name, description, price, finishes, photos,
+                f"{title} {name} {' '.join(finishes)} إيطالي Milano Italy",
+                after_card=previous, brand="Milano Italy",
+            )
+            add_to_sitemap(slug)
+        previous = slug
+
+
+def update_kitchen_collection_schema():
+    path = root / "kitchen-mixers/index.html"
+    markup = path.read_text()
+    panel = re.search(r'<section\b[^>]* id="kitchen"[^>]*>.*?</section>', markup, re.S)[0]
+    model_paths = re.findall(r'<a class="hero mixer-product" href="(/[^"]+/)"', panel)
+
+    def update_schema(match):
+        data = json.loads(match[1])
+        if data.get("@type") != "CollectionPage":
+            return match[0]
+        data["mainEntity"] = {
+            "@type": "ItemList",
+            "numberOfItems": len(model_paths),
+            "itemListElement": [
+                {"@type": "ListItem", "position": i, "url": origin + model_path}
+                for i, model_path in enumerate(model_paths, 1)
+            ],
+        }
+        return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + '</script>'
+
+    path.write_text(re.sub(r'<script type="application/ld\+json">(.*?)</script>', update_schema, markup, flags=re.S))
 
 
 def publish_coded_porcelain():
@@ -636,6 +696,8 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             after_card="st-01-kitchen-mixer", brand="Milano Italy",
         )
         add_to_sitemap(nerodoro_slug)
+    publish_kitchen_batch()
+    update_kitchen_collection_schema()
     publish_coded_porcelain()
     publish_decorative_vessels()
     sys.exit(0)
@@ -958,30 +1020,7 @@ for page in root.rglob("index.html"):
         page.write_text(updated)
 
 
-# Derive the collection's search data from the published cards, including later additions.
-collection_file = root / "kitchen-mixers/index.html"
-collection_html = collection_file.read_text()
-collection_panel = kitchen_listing.search(collection_html)[0]
-model_paths = re.findall(r'<a class="hero mixer-product" href="(/[^"]+/)"', collection_panel)
-schema_pattern = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
-
-
-def kitchen_collection_schema(match):
-    data = json.loads(match[1])
-    if data.get("@type") != "CollectionPage":
-        return match[0]
-    data["mainEntity"] = {
-        "@type": "ItemList",
-        "numberOfItems": len(model_paths),
-        "itemListElement": [
-            {"@type": "ListItem", "position": i, "url": origin + path}
-            for i, path in enumerate(model_paths, 1)
-        ],
-    }
-    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + '</script>'
-
-
-collection_file.write_text(schema_pattern.sub(kitchen_collection_schema, collection_html))
+update_kitchen_collection_schema()
 
 # Attach the catalog-wide photo strip to pages using the shared storefront registry.
 gallery_assets = Path(__file__).resolve().parent.parent
