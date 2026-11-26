@@ -429,6 +429,8 @@ def publish_decorative_vessels():
         ("W17", "Chinoiserie", "42 cm", "دائري", "زخارف زرقاء بنقشة Chinoiserie على أرضية بيضاء داخل الحوض وعلى جوانبه.", 240, True),
         ("X5", "Translucent Black", "42 cm", "دائري", "بلور أسود شبه شفاف بنقشة هندسية متعدّدة الأوجه.", 240, True),
         ("X6", "Champagne Pink", "42 cm", "دائري", "بلور وردي شامبانيا شبه شفاف بنقشة هندسية متعدّدة الأوجه.", 240, True),
+        ("XW", "White", "60 × 40 cm", "بيضاوي", "تشطيب أبيض لامع، مع حوض أملس وواجهة هندسية متعدّدة الأوجه.", 180, True),
+        ("XB", "Glossy Black", "60 × 40 cm", "بيضاوي", "تشطيب أسود لامع، مع حوض أملس وواجهة هندسية متعدّدة الأوجه.", 180, True),
     )
     sizes_by_slug = {}
     for code, finish, size, shape, detail, price, italian in products:
