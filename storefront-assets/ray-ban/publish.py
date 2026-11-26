@@ -85,7 +85,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                            lambda match: match[1] + f'<img src="{cover}" alt="{photo_alt}" width="790" height="988">')
     heading = f'<h1>{name}</h1>'
     if category == "mixers":
-        section = section.replace('<p class="category">خلاطات مجلى</p>', '<p class="category">خلاطات المغاسل</p>')
+        section = replace_once(section, r'<p class="category">.*?</p>',
+                               '<p class="category"><a href="/mixers/">الخلاطات الفاخرة</a></p>')
         heading = f'<h1>{title}</h1><p class="product-model-name" lang="en" dir="ltr">{model}</p>'
     if category in ("stand-toilets", "wall-toilets"):
         label = {"stand-toilets": "تواليتات أرضية", "wall-toilets": "تواليتات معلقة"}[category]
@@ -134,8 +135,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             options_markup = f'<p>اختر المقاس</p><div class="options" aria-label="المقاس">{size_options}</div>'
 
     heading_pattern = r'<h1\b[^>]*>.*?</h1>'
-    if kitchen_layout:
+    if kitchen_layout or category == "mixers":
         heading_pattern += r'(?:\s*<p class="product-model-name"[^>]*>.*?</p>)?'
+    if kitchen_layout:
         heading = (f'<h1 lang="ar" dir="rtl">{title}</h1>'
                    f'<p class="product-model-name" lang="en" dir="ltr">{model}</p>')
     section = replace_once(section, heading_pattern, heading)
@@ -309,7 +311,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
                         lambda match: match[1] + json.dumps(data, ensure_ascii=False) + match[2])
     body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail">',
                         '<section id="rs-kitchen-mixer" class="vanity-detail" data-nosnippet hidden>', 1)
-    if kitchen_layout:
+    if kitchen_layout or category == "mixers":
         body = body.replace('<section id="rs-kitchen-mixer" class="vanity-detail" data-kitchen-mixer>',
                             '<section id="rs-kitchen-mixer" class="vanity-detail" data-kitchen-mixer data-nosnippet hidden>', 1)
     if category in ("granite", "porcelain", "freestanding-pedestal-basins", "decorative-vessel-basins"):
@@ -393,10 +395,10 @@ def publish_kitchen_batch():
         previous = slug
 
 
-def update_kitchen_collection_schema():
-    path = root / "kitchen-mixers/index.html"
+def update_mixer_collection_schema(collection, panel_id):
+    path = root / collection / "index.html"
     markup = path.read_text()
-    panel = re.search(r'<section\b[^>]* id="kitchen"[^>]*>.*?</section>', markup, re.S)[0]
+    panel = re.search(rf'<section\b[^>]* id="{panel_id}"[^>]*>.*?</section>', markup, re.S)[0]
     model_paths = re.findall(r'<a class="hero mixer-product" href="(/[^"]+/)"', panel)
 
     def update_schema(match):
@@ -697,7 +699,18 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
         )
         add_to_sitemap(nerodoro_slug)
     publish_kitchen_batch()
-    update_kitchen_collection_schema()
+    update_mixer_collection_schema("kitchen-mixers", "kitchen")
+    velo_slug = "tall-mixer-velo"
+    if not (root / velo_slug / "index.html").exists():
+        publish_mixer(
+            velo_slug, "خلاط مغسلة توب فيلو", "Tall Mixer VELO",
+            "خلاط مغسلة طويل بتشطيب أزرق داكن ولمعة هادئة. يمتدّ المصب فوق الحوض، ويكمّل المقبض الرفيع خطوط الجسم الانسيابية. يناسب المغاسل الموضوعة فوق سطح الرخامة.",
+            275, {"Dark Blue": "DARK BLUE"}, 1,
+            "VELO فيلو خلاط مغسلة طويل أزرق داكن إيطالي Milano Italy",
+            after_card="tall-mixer-luxe", brand="Milano Italy", category="mixers",
+        )
+        add_to_sitemap(velo_slug)
+    update_mixer_collection_schema("mixers", "mixers")
     publish_coded_porcelain()
     publish_decorative_vessels()
     sys.exit(0)
@@ -1020,7 +1033,7 @@ for page in root.rglob("index.html"):
         page.write_text(updated)
 
 
-update_kitchen_collection_schema()
+update_mixer_collection_schema("kitchen-mixers", "kitchen")
 
 # Attach the catalog-wide photo strip to pages using the shared storefront registry.
 gallery_assets = Path(__file__).resolve().parent.parent

@@ -62,6 +62,7 @@ STYLE = """<style id="product-detail-layout">
 .product-info .product-summary > :last-child { margin-block-end: 0; }
 [data-java-gallery] .java-gallery-model .product-title-row > .product-model-name { color: #e1c296; }
 [data-color="gray & red" i] { --store-finish: linear-gradient(90deg, #626064 50%, #a21729 50%); }
+[data-color="dark blue" i] { --store-finish: #22374d; }
 </style>"""
 
 
