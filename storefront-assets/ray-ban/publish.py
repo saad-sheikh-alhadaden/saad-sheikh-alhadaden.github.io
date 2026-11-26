@@ -19,9 +19,11 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None, cover_index=1):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None, cover_index=1, porcelain_code=None):
     is_pedestal = category == "freestanding-pedestal-basins"
     name = f"{model} — {title}" if is_pedestal else f"{title} — {model}"
+    if porcelain_code:
+        name = f"{title} — {porcelain_code}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     images = {
         finish: [f"/assets/{slug}-{finish.lower().replace(' ', '-')}-{index:02}.webp" for index in range(1, counts[finish] + 1)]
@@ -95,6 +97,13 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         section = re.sub(r'<div class="warranty">.*?</div>', '', section, flags=re.S)
         heading = f'<h1>{title}</h1>'
         options_markup = f'<p>المقاس <bdi dir="ltr">{model}</bdi></p><p>اللون {labels[default_finish]}</p>'
+        if porcelain_code:
+            heading += f'<p class="product-model-name"><bdi lang="en" dir="ltr">{porcelain_code}</bdi></p>'
+            options_markup = (
+                f'<p>المقاس <bdi dir="ltr">{model}</bdi></p>'
+                f'<p>اللون <bdi lang="en" dir="ltr">{labels[default_finish]}</bdi></p>'
+            )
+            gallery_markup = ""
     if category == "freestanding-pedestal-basins":
         section = replace_once(section, r'<p class="category">.*?</p>',
                                '<p class="category"><a href="/freestanding-pedestal-basins/">مغاسل برميل ديكور</a></p>')
@@ -139,9 +148,13 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         shutil.copyfile(Path(__file__).with_name(brand_logo), root / "assets" / brand_logo)
     card_title = f'<bdi lang="en" dir="ltr">{model}</bdi>' if is_pedestal else title
     card_subtitle = f'<bdi lang="ar" dir="rtl">{title}</bdi>' if is_pedestal else f'<bdi lang="en" dir="ltr">{model}</bdi>'
+    card_code = ""
+    if porcelain_code:
+        card_code = f'<bdi class="porcelain-model-code" lang="en" dir="ltr">{porcelain_code}</bdi>'
+        card_subtitle += f' · <bdi lang="en" dir="ltr">{labels[default_finish]}</bdi>'
     card = (f'<a class="hero mixer-product" href="/{slug}/">'
             f'<img src="{cover}" alt="{photo_alt}" width="790" height="988">'
-            f'<div class="mixer-product-copy"><strong>{card_title}</strong>'
+            f'<div class="mixer-product-copy"><strong>{card_title}</strong>{card_code}'
             f'<small>{card_subtitle}</small>'
             f'<span dir="ltr">{card_price}</span></div></a>')
 
@@ -208,6 +221,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         elif category in ("stand-toilets", "wall-toilets"):
             html = replace_once(html, rf'(<section class="panel" id="{category}"[^>]*>\s*<h1>.*?</h1>)(?:<div class="cabinet-gallery" data-toilet-cards>(.*?)</div>(?=\s*<a class="action"))?',
                                 lambda match: match[1] + f'<div class="cabinet-gallery" data-toilet-cards>{match[2] or ""}{card}</div>')
+        elif porcelain_code:
+            html = replace_once(html, r'(<section class="panel" id="porcelain"[^>]*>\s*<h1>.*?</h1>\s*<div class="cabinet-gallery">)',
+                                lambda match: match[1] + card)
         elif category != "freestanding-pedestal-basins":
             html = replace_once(html, anchor, lambda match: match[0] + card if after_card else card + match[0])
         for attribute in ("data-saved", "data-search-product"):
@@ -234,6 +250,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     data["offers"].update(price=price, url=url)
     if category == "porcelain":
         data["material"] = "Porcelain"
+    if porcelain_code:
+        data.update(sku=porcelain_code, model=porcelain_code, size=model)
     if material:
         data["material"] = material
     if category == "freestanding-pedestal-basins":
@@ -301,6 +319,28 @@ def add_to_sitemap(slug):
         entry = ET.SubElement(tree.getroot(), f"{{{namespace}}}url")
         ET.SubElement(entry, f"{{{namespace}}}loc").text = f"{origin}/{slug}/"
         tree.write(sitemap, encoding="utf-8", xml_declaration=True)
+
+
+def publish_coded_porcelain():
+    models = (
+        ("st-b809-b-porcelain-basin", "مغسلة معلّقة دائرية أسود", "S.T B809 B", "56 × 47 cm", "Black", 125,
+         "مغسلة بورسلان دائرية معلّقة بتشطيب أسود مطفي وحوض بانحناءة ناعمة."),
+        ("st-d809-g-porcelain-basin", "مغسلة معلّقة ذهبي", "S.T D809 G", "56 × 47 cm", "Gold", 150,
+         "مغسلة بورسلان معلّقة بحوض أبيض وإطار ذهبي، مع خطوط ذهبية أفقية تلتف حول الواجهة."),
+        ("st-a811-g-porcelain-basin", "مغسلة معلّقة ذهبي", "S.T A811 G", "53 × 45 cm", "Gold", 150,
+         "مغسلة بورسلان معلّقة بحوض أبيض وواجهة ذهبية تتقاطع عليها خطوط هندسية دقيقة."),
+        ("st-b809-g-porcelain-basin", "مغسلة معلّقة ذهبي", "S.T B809 G", "56 × 47 cm", "Gold", 150,
+         "مغسلة بورسلان معلّقة بحوض أبيض وتشطيب ذهبي، مع شريط هندسي بارز تحت حافة الحوض."),
+    )
+    # The collection prepends each card, so add the models from last to first.
+    for slug, title, code, size, finish, price, description in reversed(models):
+        if not (root / slug / "index.html").exists():
+            publish_mixer(
+                slug, title, size, description, price, {finish: finish.upper()}, 1,
+                "مغاسل بورسلان معلقة wall hung porcelain basin",
+                italian=False, category="porcelain", porcelain_code=code,
+            )
+            add_to_sitemap(slug)
 
 
 if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
@@ -423,6 +463,7 @@ if __name__ == "__main__" and sys.argv[1:] == ["--illuminated-granite"]:
             after_card="st-01-kitchen-mixer", brand="Milano Italy",
         )
         add_to_sitemap(nerodoro_slug)
+    publish_coded_porcelain()
     sys.exit(0)
 
 

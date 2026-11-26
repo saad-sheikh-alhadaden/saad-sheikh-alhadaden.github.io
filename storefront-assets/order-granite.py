@@ -442,6 +442,24 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
 </style>"""
 
 
+PORCELAIN_STYLE = """<style id="porcelain-display-style">
+#porcelain .hero.mixer-product::after,
+.vanity-detail:is([id$="-porcelain-basin"], #wudu-basin, #square-wall-hung-basin, #round-wall-hung-basin) > .product-image::after {
+  content: none;
+}
+#porcelain .porcelain-model-code {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: clamp(11px, 3vw, 14px);
+  text-align: right;
+}
+#porcelain .porcelain-model-code + small {
+  color: var(--muted);
+  white-space: normal;
+}
+</style>"""
+
+
 PEDESTAL_COLLECTION = re.compile(
     r'(<section class="panel" id="freestanding-pedestal-basins"[^>]*>)'
     r'<h1>مغاسل برميل ديكور<br>(<bdi[^>]*>.*?</bdi>)</h1>'
@@ -510,6 +528,8 @@ if __name__ == "__main__":
         updated = format_pedestal_collection(updated)
         if ('data-pedestal-cards' in updated or 'data-pedestal-detail' in updated) and 'id="pedestal-display-style"' not in updated:
             updated = updated.replace('<div class="app">', PEDESTAL_STYLE + '\n<div class="app">', 1)
+        if '<section class="panel" id="porcelain"' in updated and 'id="porcelain-display-style"' not in updated:
+            updated = updated.replace('<div class="app">', PORCELAIN_STYLE + '\n<div class="app">', 1)
         updated = BASIN_DETAIL.sub(format_basin_finish, updated)
         if not GRID.search(updated) and not DETAIL.search(updated):
             if updated != original:
