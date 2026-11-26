@@ -41,11 +41,16 @@ STYLE = """<style id="product-detail-layout">
   font-weight: 700;
   color: #73531f;
 }
+.product-info h1 > .vessel-product-label {
+  font-size: .72em;
+  font-weight: 600;
+}
 .product-info h1 > .vessel-model-code {
   display: inline-block;
   margin-inline-start: .28em;
   color: #886125;
-  font-size: .82em;
+  font-size: 1.14em;
+  font-weight: 800;
 }
 .product-info .product-summary { margin-block: .4rem .85rem; }
 .product-info .product-summary > :first-child { margin-block-start: 0; }
@@ -68,7 +73,8 @@ def format_section(section):
             identifier = model or alias
             if vessel:
                 code = re.sub(r'<[^>]+>', '', identifier)
-                return heading[:-5] + f' <bdi class="vessel-model-code" lang="en" dir="ltr">{code}</bdi></h1>'
+                label = heading[:-5].replace(">", '><span class="vessel-product-label">', 1)
+                return label + f'</span> <bdi class="vessel-model-code" lang="en" dir="ltr">{code}</bdi></h1>'
             summary = f'<p class="product-description">{notes}</p>' if notes else ""
             return (f'<div class="product-title-row">{heading}'
                     f'<p class="product-model-name" dir="auto">{identifier}</p></div>{summary}')
