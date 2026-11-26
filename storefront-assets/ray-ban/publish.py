@@ -19,7 +19,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None, cover_index=1, basin_code=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None, cover_index=1, basin_code=None, photo_slug=None, favorite_slug=None):
     is_pedestal = category == "freestanding-pedestal-basins"
     name = f"{model} — {title}" if is_pedestal else f"{title} — {model}"
     if basin_code:
@@ -27,7 +27,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
     photo_suffix = "-signed" if category == "decorative-vessel-basins" else ""
     images = {
-        finish: [f"/assets/{slug}-{finish.lower().replace(' ', '-')}{photo_suffix}-{index:02}.webp" for index in range(1, counts[finish] + 1)]
+        finish: [f"/assets/{photo_slug or slug}-{finish.lower().replace(' ', '-')}{photo_suffix}-{index:02}.webp" for index in range(1, counts[finish] + 1)]
         for finish in labels
     }
     for photos in images.values():
@@ -175,12 +175,28 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         "search": f"{name} {keywords} {price}",
         "price": price, "category": category, "defaultColor": default_finish,
         "colorLabels": labels, "images": {finish: photos[0] for finish, photos in images.items()},
-        "favoriteKey": f"saad-saved-{slug}",
+        "favoriteKey": f"saad-saved-{favorite_slug or slug}",
     }
     if prices:
         product["prices"] = prices
     registry = replace_once(registry, r'const products = \{',
                             lambda match: match[0] + f'\n  "{slug}": {json.dumps(product, ensure_ascii=False)},')
+    if slug == "12-decorative-vessel-basin":
+        # Keep already-saved cart lines attached to the basin that moved to 16.
+        registry = replace_once(
+            registry, re.escape('const itemProduct = item => item.product || "cobra";'),
+            'const vesselCartProducts = {\n'
+            '  "12-decorative-vessel-basin": "16-decorative-vessel-basin",\n'
+            '  "12-decorative-vessel-basin-rectangular": "12-decorative-vessel-basin",\n'
+            '};\n'
+            'const itemProduct = item => Object.hasOwn(vesselCartProducts, item.product)\n'
+            '  ? vesselCartProducts[item.product] : item.product || "cobra";',
+        )
+        registry = replace_once(
+            registry, re.escape('else cart.push({product: id, color, qty: quantity});'),
+            'else cart.push({product: id === "12-decorative-vessel-basin"\n'
+            '    ? "12-decorative-vessel-basin-rectangular" : id, color, qty: quantity});',
+        )
     if category == "granite" and '.replace(/^granite-classic$/' not in registry:
         registry = replace_once(registry, r'(function showScreen\(\) \{\s*const hash = location.hash.slice\(1\))',
                                 lambda match: match[1] + '.replace(/^granite-classic$/, "granite")')
@@ -384,10 +400,11 @@ def publish_decorative_vessels():
         ("09", "Craig", "40 cm", "مربّع", "بتشطيب CRAIG وزوايا مستديرة."),
         ("10", "Black", "50 × 38 cm", "مستطيل", "تشطيب أسود مطفي، مع حافة رفيعة وزوايا مستديرة."),
         ("11", "Black", "47 × 33 cm", "مستطيل", "تشطيب أسود مطفي بتصميم ناعم وزوايا بانحناء واسع."),
-        ("12", "Black", "56 × 40 cm", "بيضاوي", "تشطيب أسود مطفي وحافة مقوّسة ترتفع عند الطرفين."),
+        ("12", "Black", "50 × 33 cm", "مستطيل", "تشطيب أسود مطفي مع حافة منخفضة وزوايا مستديرة."),
         ("13", "Gray & White", "54 × 38 cm", "بيضاوي", "نقشة متموّجة تجمع الرمادي والأبيض بلمسة لامعة."),
         ("14", "Brushed Gold", "53 × 38 cm", "بيضاوي", "تشطيب ذهبي مفرّش مع خطوط متدرّجة على الواجهة الخارجية."),
         ("15", "Marble White", "60 × 50 cm", "بيضاوي", "تشطيب أبيض رخامي بعروق رمادية تمتدّ على الحوض والواجهة الخارجية."),
+        ("16", "Black", "56 × 40 cm", "بيضاوي", "تشطيب أسود مطفي وحافة مقوّسة ترتفع عند الطرفين."),
     )
     products = (
         *((code, finish, "40 cm", "دائري", detail, 100, False) for code, finish, detail in models),
@@ -396,6 +413,8 @@ def publish_decorative_vessels():
     )
     for code, finish, size, shape, detail, price, italian in products:
         slug = f"{code.lower()}-decorative-vessel-basin"
+        # The curved basin keeps its original photo and existing favorites.
+        identity = {"12": f"{slug}-rectangular", "16": "12-decorative-vessel-basin"}.get(code)
         if not (root / slug / "index.html").exists():
             publish_mixer(
                 slug, "جرن مغسلة ديكور", size,
@@ -404,6 +423,7 @@ def publish_decorative_vessels():
                 f"أجران مغسلة ديكور جرن {shape} فوق السطح decorative vessel basin {finish}",
                 italian=italian, brand="Milano Italy" if italian else None,
                 category="decorative-vessel-basins", basin_code=code,
+                photo_slug=identity, favorite_slug=identity,
             )
             add_to_sitemap(slug)
 
