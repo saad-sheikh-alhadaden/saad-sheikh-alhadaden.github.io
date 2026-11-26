@@ -152,7 +152,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     card_code = ""
     if basin_code:
         card_code = f'<bdi class="basin-model-code" lang="en" dir="ltr">{basin_code}</bdi>'
-        card_subtitle += f' · <bdi lang="en" dir="ltr">{escape(labels[default_finish])}</bdi>'
+        finish_label = f'<bdi lang="en" dir="ltr">{escape(labels[default_finish])}</bdi>'
+        card_subtitle += finish_label if category == "decorative-vessel-basins" else f' · {finish_label}'
     card = (f'<a class="hero mixer-product" href="/{slug}/">'
             f'<img src="{cover}" alt="{photo_alt}" width="790" height="988">'
             f'<div class="mixer-product-copy"><strong>{card_title}</strong>{card_code}'
@@ -226,8 +227,8 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
             html = replace_once(
                 html,
                 r'(<section class="panel" id="decorative-vessel-basins"[^>]*>\s*<h1>.*?</h1>)'
-                r'\s*(?:<p>ستُضاف الموديلات قريباً\.</p>|<div class="cabinet-gallery">(.*?)</div>(?=\s*<a class="contact-card"))',
-                lambda match: match[1] + f'<div class="cabinet-gallery">{match[2] or ""}{card}</div>',
+                r'\s*(?:<p>ستُضاف الموديلات قريباً\.</p>|<div class="cabinet-gallery" data-vessel-cards>(.*?)</div>(?=\s*<a class="contact-card"))',
+                lambda match: match[1] + f'<div class="cabinet-gallery" data-vessel-cards>{match[2] or ""}{card}</div>',
             )
         elif basin_code:
             html = replace_once(html, r'(<section class="panel" id="porcelain"[^>]*>\s*<h1>.*?</h1>\s*<div class="cabinet-gallery">)',

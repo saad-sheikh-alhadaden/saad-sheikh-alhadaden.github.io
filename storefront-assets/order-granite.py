@@ -379,13 +379,13 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   aspect-ratio: 790 / 988;
   object-fit: cover;
 }
-[data-pedestal-cards].cabinet-gallery {
+:is([data-pedestal-cards], [data-vessel-cards]).cabinet-gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(7px, 2vw, 16px);
   align-items: stretch;
 }
-[data-pedestal-cards] > .hero.mixer-product {
+:is([data-pedestal-cards], [data-vessel-cards]) > .hero.mixer-product {
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -393,18 +393,19 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   background: #15120f;
   grid-column: auto;
 }
-[data-pedestal-cards] > .hero.mixer-product > img {
+:is([data-pedestal-cards], [data-vessel-cards]) > .hero.mixer-product > img {
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 790 / 988;
   object-fit: cover;
 }
-[data-pedestal-cards] > .hero.mixer-product::after,
-[data-pedestal-detail] > .product-image::after {
+:is([data-pedestal-cards], [data-vessel-cards]) > .hero.mixer-product::after,
+[data-pedestal-detail] > .product-image::after,
+.vanity-detail[id$="-decorative-vessel-basin"] > .product-image::after {
   content: none;
 }
-[data-pedestal-cards] .mixer-product-copy {
+:is([data-pedestal-cards], [data-vessel-cards]) .mixer-product-copy {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -415,29 +416,43 @@ PEDESTAL_STYLE = """<style id="pedestal-display-style">
   border-bottom: 0;
   text-align: right;
 }
-[data-pedestal-cards] .mixer-product-copy strong,
-[data-pedestal-cards] .mixer-product-copy small {
+:is([data-pedestal-cards], [data-vessel-cards]) .mixer-product-copy strong,
+:is([data-pedestal-cards], [data-vessel-cards]) .mixer-product-copy small {
   display: block;
   white-space: normal;
   overflow-wrap: anywhere;
   line-height: 1.35;
 }
-[data-pedestal-cards] .mixer-product-copy strong {
+:is([data-pedestal-cards], [data-vessel-cards]) .mixer-product-copy strong {
   font-size: clamp(13px, 3.45vw, 18px);
   min-height: 2.7em;
   color: #f5eee2;
 }
-[data-pedestal-cards] .mixer-product-copy small {
+:is([data-pedestal-cards], [data-vessel-cards]) .mixer-product-copy small {
   font-size: clamp(11px, 2.85vw, 14px);
   color: #bcb2a4;
 }
-[data-pedestal-cards] .mixer-product-copy > span {
+:is([data-pedestal-cards], [data-vessel-cards]) .mixer-product-copy > span {
   margin-top: auto;
   padding-top: .35rem;
   border-top: 1px solid #9d7d4c40;
   font-size: clamp(11px, 2.8vw, 16px);
   color: #e1bd80;
   text-align: right;
+}
+
+[data-vessel-cards].cabinet-gallery {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-block-end: .5rem;
+}
+[data-vessel-cards] .mixer-product-copy {
+  padding: clamp(6px, 1.8vw, 14px);
+}
+[data-vessel-cards] .mixer-product-copy small > bdi {
+  display: block;
+}
+[data-vessel-cards] .mixer-product-copy small > bdi:last-child {
+  min-block-size: 2.7em;
 }
 </style>"""
 
@@ -526,7 +541,7 @@ if __name__ == "__main__":
         updated = milano_brand.add_to_products(original, logo_url)
         updated = milano_brand.SECTION.sub(format_pedestal_section, updated)
         updated = format_pedestal_collection(updated)
-        if ('data-pedestal-cards' in updated or 'data-pedestal-detail' in updated) and 'id="pedestal-display-style"' not in updated:
+        if any(marker in updated for marker in ('data-pedestal-cards', 'data-pedestal-detail', 'data-vessel-cards')) and 'id="pedestal-display-style"' not in updated:
             updated = updated.replace('<div class="app">', PEDESTAL_STYLE + '\n<div class="app">', 1)
         if '<section class="panel" id="porcelain"' in updated and 'id="porcelain-display-style"' not in updated:
             updated = updated.replace('<div class="app">', PORCELAIN_STYLE + '\n<div class="app">', 1)
