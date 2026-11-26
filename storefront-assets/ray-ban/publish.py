@@ -19,7 +19,7 @@ def replace_once(html, pattern, replacement):
     return html
 
 
-def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None, cover_index=1, basin_code=None, photo_slug=None, favorite_slug=None):
+def publish_mixer(slug, title, model, description, price, labels, photo_count, keywords, after_card=None, italian=True, model_finish=None, brand=None, brand_logo=None, finish_strip=False, category="kitchen", sizes=None, pattern=None, pedestal_size=None, material=None, cover_index=1, basin_code=None, photo_slug=None, favorite_slug=None, basin_card_label="جرن"):
     is_pedestal = category == "freestanding-pedestal-basins"
     name = f"{model} — {title}" if is_pedestal else f"{title} — {model}"
     if basin_code:
@@ -155,7 +155,7 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
         code = f'<bdi lang="en" dir="ltr">{basin_code}</bdi>'
         finish_label = f'<bdi lang="en" dir="ltr">{escape(labels[default_finish])}</bdi>'
         if category == "decorative-vessel-basins":
-            card_title = f'جرن {code}'
+            card_title = f'{basin_card_label} {code}'
             card_subtitle = finish_label
         else:
             card_code = f'<bdi class="basin-model-code" lang="en" dir="ltr">{basin_code}</bdi>'
@@ -425,9 +425,17 @@ def publish_decorative_vessels():
         ("B005", "Black", "60 × 40 cm", "مستطيل", "تشطيب أسود مطفي مع زوايا مستديرة ونقشة هندسية بارزة على الجوانب.", 180, True),
         ("P005", "Pink", "60 × 40 cm", "مستطيل", "تشطيب وردي مع زوايا مستديرة ونقشة هندسية بارزة على الجوانب.", 180, True),
         ("Y005", "Gray", "60 × 40 cm", "مستطيل", "تشطيب رمادي مع زوايا مستديرة ونقشة هندسية بارزة على الجوانب.", 180, True),
+        ("W16", "Light Emperador", "42 cm", "دائري", "تشطيب بيج لامع بنقشة رخامية وعروق فاتحة دقيقة.", 240, True),
+        ("W17", "Chinoiserie", "42 cm", "دائري", "زخارف زرقاء بنقشة Chinoiserie على أرضية بيضاء داخل الحوض وعلى جوانبه.", 240, True),
+        ("X5", "Translucent Black", "42 cm", "دائري", "بلور أسود شبه شفاف بنقشة هندسية متعدّدة الأوجه.", 240, True),
+        ("X6", "Champagne Pink", "42 cm", "دائري", "بلور وردي شامبانيا شبه شفاف بنقشة هندسية متعدّدة الأوجه.", 240, True),
     )
+    sizes_by_slug = {}
     for code, finish, size, shape, detail, price, italian in products:
         slug = f"{code.lower().replace(' ', '-')}-decorative-vessel-basin"
+        sizes_by_slug[slug] = size
+        crystal = code in {"X5", "X6"}
+        title = "جرن مغسلة بلور" if crystal else "جرن مغسلة ديكور"
         # Renumbered basins keep their original photos and existing favorites.
         identity = {
             "12": f"{slug}-rectangular",
@@ -437,15 +445,36 @@ def publish_decorative_vessels():
         }.get(code)
         if not (root / slug / "index.html").exists():
             publish_mixer(
-                slug, "جرن مغسلة ديكور", size,
-                f"جرن مغسلة ديكور {shape} للتركيب فوق السطح. {detail}",
+                slug, title, size,
+                f"{title} {shape} للتركيب فوق السطح. {detail}",
                 price, {finish: finish.upper()}, 1,
                 f"أجران مغسلة ديكور جرن {shape} فوق السطح decorative vessel basin {finish}",
                 italian=italian, brand="Milano Italy" if italian else None,
                 category="decorative-vessel-basins", basin_code=code,
                 photo_slug=identity, favorite_slug=identity,
+                basin_card_label="جرن بلور" if crystal else "جرن",
             )
             add_to_sitemap(slug)
+
+    # The assembled base already includes some vessel cards.
+    vessel_card = re.compile(
+        r'(<a class="hero mixer-product" href="/([^"/]+-decorative-vessel-basin)/">(?:(?!</a>).)*?<small>)'
+        r'[^<]*(?:<bdi[^>]*>[^<]*</bdi>)?(</small>)',
+        re.S,
+    )
+
+    def show_size(match):
+        size = sizes_by_slug.get(match[2])
+        if size is None:
+            return match[0]
+        return match[1] + f'<bdi lang="en" dir="ltr">Size {escape(size)}</bdi>' + match[3]
+
+    for page in root.rglob("index.html"):
+        html = page.read_text()
+        if "data-vessel-cards" in html:
+            updated = vessel_card.sub(show_size, html)
+            if updated != html:
+                page.write_text(updated)
 
     old_page = root / "24-decorative-vessel-basin" / "index.html"
     if not old_page.exists():
