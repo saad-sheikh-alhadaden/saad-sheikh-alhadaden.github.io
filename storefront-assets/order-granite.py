@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 
+import catalog_routes
 import milano_brand
 import product_detail
 
@@ -658,3 +659,4 @@ if __name__ == "__main__":
         if updated != original:
             page.write_text(updated, encoding="utf-8")
     publish_measurements(root)
+    catalog_routes.publish(root)
