@@ -25,8 +25,9 @@ def publish_mixer(slug, title, model, description, price, labels, photo_count, k
     if basin_code:
         name = f"{title} — {basin_code}"
     counts = dict.fromkeys(labels, photo_count) if isinstance(photo_count, int) else photo_count
+    photo_suffix = "-signed" if category == "decorative-vessel-basins" else ""
     images = {
-        finish: [f"/assets/{slug}-{finish.lower().replace(' ', '-')}-{index:02}.webp" for index in range(1, counts[finish] + 1)]
+        finish: [f"/assets/{slug}-{finish.lower().replace(' ', '-')}{photo_suffix}-{index:02}.webp" for index in range(1, counts[finish] + 1)]
         for finish in labels
     }
     for photos in images.values():
@@ -362,14 +363,22 @@ def publish_decorative_vessels():
         ("W13", "Chrome & White", "حوض أبيض تقابله واجهة كروم عاكسة بتصميم دائري."),
         ("B4", "Black & Gold", "حوض أسود لامع مع زخارف نباتية على واجهة ذهبية."),
     )
-    for code, finish, detail in models:
+    rectangular = (
+        ("B15", "Gold & Black", "حوض أسود مستطيل بحافة ذهبية ونقشة هندسية على الواجهة."),
+        ("B16", "Black", "حوض مستطيل بتشطيب أسود مطفي وحواف ناعمة."),
+    )
+    products = (
+        *((code, finish, "40 cm", "دائري", detail) for code, finish, detail in models),
+        *((code, finish, "60 × 42 cm", "مستطيل", detail) for code, finish, detail in rectangular),
+    )
+    for code, finish, size, shape, detail in products:
         slug = f"{code.lower()}-decorative-vessel-basin"
         if not (root / slug / "index.html").exists():
             publish_mixer(
-                slug, "جرن مغسلة ديكور", "40 cm",
-                f"جرن مغسلة ديكور دائري للتركيب فوق السطح. {detail}",
+                slug, "جرن مغسلة ديكور", size,
+                f"جرن مغسلة ديكور {shape} للتركيب فوق السطح. {detail}",
                 100, {finish: finish.upper()}, 1,
-                f"أجران مغسلة ديكور جرن دائري فوق السطح decorative vessel basin {finish}",
+                f"أجران مغسلة ديكور جرن {shape} فوق السطح decorative vessel basin {finish}",
                 italian=False, category="decorative-vessel-basins", basin_code=code,
             )
             add_to_sitemap(slug)

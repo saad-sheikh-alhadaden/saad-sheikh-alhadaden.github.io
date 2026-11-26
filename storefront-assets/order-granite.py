@@ -8,6 +8,7 @@ import subprocess
 import sys
 
 import milano_brand
+import product_detail
 
 ORDER = (
     "granite-black-gray-60x50",
@@ -547,6 +548,7 @@ if __name__ == "__main__":
             updated = updated.replace('<div class="app">', PORCELAIN_STYLE + '\n<div class="app">', 1)
         updated = BASIN_DETAIL.sub(format_basin_finish, updated)
         if not GRID.search(updated) and not DETAIL.search(updated):
+            updated = product_detail.publish(updated)
             if updated != original:
                 page.write_text(updated, encoding="utf-8")
             continue
@@ -566,5 +568,6 @@ if __name__ == "__main__":
             updated = updated.replace(original_label, display_label)
         if 'id="granite-card-style"' not in updated:
             updated = updated.replace('<div class="app">', STYLE + '\n<div class="app">', 1)
+        updated = product_detail.publish(updated)
         if updated != original:
             page.write_text(updated, encoding="utf-8")
