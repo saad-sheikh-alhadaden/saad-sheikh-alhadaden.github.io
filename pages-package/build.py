@@ -23,9 +23,12 @@ with ZipFile(BytesIO(archive_data)) as archive:
                 b'<meta name="google-site-verification" '
                 b'content="7H2pFR3kpQIW2QJj-Eic9pC4HMB8ZkY5-nV9VYSVG2w">\n'
             )
-            if not content.startswith(b'<!doctype html>') or content.count(charset) != 1:
-                raise ValueError("The homepage header changed.")
-            content = content.replace(charset, charset + verification, 1)
+            body_start = b'<div class="app">\n'
+            if content.count(charset) != 1 or content.count(body_start) != 1:
+                raise ValueError("The homepage layout changed.")
+            content = content.replace(charset, b"<head>\n" + charset + verification, 1)
+            content = content.replace(body_start, b"</head>\n<body>\n" + body_start, 1)
+            content += b"</body>\n</html>\n"
         path = output / target
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(content)
