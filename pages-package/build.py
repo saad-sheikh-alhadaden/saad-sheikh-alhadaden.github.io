@@ -1,10 +1,12 @@
-"""Build the exact public storefront for Cloudflare Pages."""
+"""Verify storefront source files and build the Cloudflare Pages output."""
 
 from hashlib import sha256
 from io import BytesIO
 import json
 from pathlib import Path
 from zipfile import ZipFile
+
+from optimize import optimize_pages
 
 package = Path(__file__).resolve().parent
 repo = package.parent
@@ -33,4 +35,7 @@ with ZipFile(BytesIO(archive_data)) as archive:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(content)
 
-print(f"Prepared {len(manifest)} verified storefront files.")
+optimize_pages(output)
+(output / "404.html").write_bytes((package / "404.html").read_bytes())
+
+print(f"Prepared {len(manifest)} verified storefront files and the custom 404 page.")
