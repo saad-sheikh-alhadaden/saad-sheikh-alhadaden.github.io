@@ -9,12 +9,15 @@ from shutil import copyfile
 
 SOFA = "floor-toilet-sofa"
 HOST = "https://saad1910.com"
-COLORS = {"PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
+COLORS = {"BLACK & GOLD": "أسود ودهبي", "GOLD & BLACK": "دهبي وأسود", "WHITE & GOLD": "أبيض ودهبي", "CHROME": "كروم", "PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
 
 
 def add_stand_toilets(output):
     source = Path(__file__).parent / "stand-toilets"
     products = json.loads((source / "products.json").read_text())
+    wall_source = source.parent / "wall-toilets"
+    wall_products = json.loads((wall_source / "products.json").read_text())
+    wall_cards = []
     template = (output / SOFA / "index.html").read_text()
     section_pattern = re.compile(r'<section id="floor-toilet-sofa".*?</section>', re.S)
     detail = section_pattern.search(template)[0]
@@ -24,12 +27,14 @@ def add_stand_toilets(output):
     original_schema = json.loads(schema_pattern.search(header)[2])
     cards, searches, favorites, shares, catalog, urls, images = [], [], [], [], [], [], []
 
-    for p in products:
+    entries = [(p, "stand-toilets", source, cards) for p in products]
+    entries.extend((p, "wall-toilets", wall_source, wall_cards) for p in wall_products)
+    for p, category, image_dir, category_cards in entries:
         slug, ar, en, color, price = (p[key] for key in ("slug", "ar", "en", "color", "price"))
         title = f"{en} — {ar}"
         path = f"/{slug}/"
         image = f"/assets/{slug}.webp"
-        copyfile(source / (slug + ".webp"), output / image.lstrip("/"))
+        copyfile(image_dir / (slug + ".webp"), output / image.lstrip("/"))
         schema = dict(original_schema, name=title, description=p["description"],
                       sku=slug, url=HOST + path, image=[HOST + image], color=[color],
                       offers=dict(original_schema["offers"], price=price, url=HOST + path))
@@ -45,17 +50,19 @@ def add_stand_toilets(output):
         panel = personalize(panel).replace("WHITE", color).replace("باللون أبيض", "باللون " + COLORS[color])
         panel = panel.replace('data-screen-heading>تواليت أرضي كنباية', 'data-screen-heading dir="ltr">' + escape(en))
         panel = panel.replace('dir="auto">Floor toilet sofa', 'dir="rtl">' + escape(ar)).replace("$250", f"${price}")
+        if category == "wall-toilets":
+            panel = panel.replace('/#stand-toilets">تواليتات أرضية', '/#wall-toilets">تواليتات معلقة')
         page = personalize(head) + '<div class="app">' + section_pattern.sub(lambda _: panel, body, count=1)
         dest = output / slug
         dest.mkdir(exist_ok=True)
         (dest / "index.html").write_text(page)
-        cards.append(f'<a class="hero mixer-product" href="{path}"><img src="{image}" alt="{escape(title)}" width="790" height="988" loading="lazy" decoding="async"><div class="mixer-product-copy"><strong dir="ltr">{escape(en)}</strong><small>{escape(ar)}</small><span dir="ltr">${price}</span></div></a>')
+        category_cards.append(f'<a class="hero mixer-product" href="{path}"><img src="{image}" alt="{escape(title)}" width="790" height="988" loading="lazy" decoding="async"><div class="mixer-product-copy"><strong dir="ltr">{escape(en)}</strong><small>{escape(ar)}</small><span dir="ltr">${price}</span></div></a>')
         searches.append(f'<a href="{path}" data-search-product="{slug}" hidden>{escape(title)}</a>')
         favorites.append(f'<a href="{path}" data-saved="{slug}" hidden>{escape(title)}</a>')
         share = {slug: {"path": path, "title": title + " | شركة سعد شيخ الحدادين", "label": "مشاركة المنتج"}}
         shares.append(escape(json.dumps(share, ensure_ascii=False, separators=(",", ":"))[1:-1]))
         product = dict(name=title, search=f"{title} {color} {COLORS[color]} {price}", price=price,
-                       category="stand-toilets", defaultColor=color, colorLabels={color: COLORS[color]},
+                       category=category, defaultColor=color, colorLabels={color: COLORS[color]},
                        images={color: image}, favoriteKey="saad-saved-" + slug)
         catalog.append(json.dumps(slug) + ": " + json.dumps(product, ensure_ascii=False))
         urls.append(f"<url><loc>{HOST}{path}</loc></url>")
@@ -102,6 +109,9 @@ def add_stand_toilets(output):
         html = landing_pattern.sub(lambda m: m[1] + landing + "</section>", html)
         for _, ar, en, _ in choices:
             html = html.replace(f"<h2 data-screen-heading>{ar} <bdi>{en}</bdi></h2>", heading(ar, en))
+        wall_heading = heading("تواليتات معلقة", "Wall toilets")
+        html = html.replace(wall_heading, wall_heading + '<div class="cabinet-gallery" data-toilet-cards>'
+                            + "".join(wall_cards) + "</div>")
         for attr, entries in (("data-saved", favorites), ("data-search-product", searches)):
             marker = f'<a href="/{SOFA}/" {attr}='
             html = html.replace(marker, "".join(entries) + marker)

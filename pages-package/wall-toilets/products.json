@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "wall-toilet-st-b06",
+    "en": "Wall toilet S.T B06",
+    "ar": "تواليت معلق أسود بزخرفة هندسية نجمية",
+    "color": "BLACK & GOLD",
+    "price": 400,
+    "description": "زخرفة نجمية متكررة بالأسود والدهبي مع غطاء دهبي."
+  },
+  {
+    "slug": "wall-toilet-st-b05",
+    "en": "Wall toilet S.T B05",
+    "ar": "تواليت معلق دهبي بخط أسود",
+    "color": "GOLD & BLACK",
+    "price": 350,
+    "description": "جسم دهبي لامع مع خط أسود يلتف حول الواجهة وغطاء أسود."
+  },
+  {
+    "slug": "wall-toilet-st-b03",
+    "en": "Wall toilet S.T B03",
+    "ar": "تواليت معلق كارويات أسود ودهبي",
+    "color": "BLACK & GOLD",
+    "price": 400,
+    "description": "خطوط كارويات رفيعة على خلفية سوداء، مع لوحة دهبية على الواجهة."
+  },
+  {
+    "slug": "wall-toilet-st-w12",
+    "en": "Wall toilet S.T W12",
+    "ar": "تواليت معلق كارويات أبيض ودهبي",
+    "color": "WHITE & GOLD",
+    "price": 375,
+    "description": "كارويات رمادية وسوداء على أرضية بيضاء، مع واجهة دهبية وغطاء أبيض."
+  },
+  {
+    "slug": "wall-toilet-st-b02",
+    "en": "Wall toilet S.T B02",
+    "ar": "تواليت معلق موزاييك كروم",
+    "color": "CHROME",
+    "price": 350,
+    "description": "زخرفة موزاييك على الواجهة مع غطاء أسود لامع."
+  },
+  {
+    "slug": "wall-toilet-st-w13",
+    "en": "Wall toilet S.T W13",
+    "ar": "تواليت معلق كروم",
+    "color": "CHROME",
+    "price": 275,
+    "description": "واجهة كروم عاكسة يحيط بها خط بارز، مع غطاء أبيض."
+  },
+  {
+    "slug": "wall-toilet-st-w10",
+    "en": "Wall toilet S.T W10",
+    "ar": "تواليت معلق أبيض بخط براش غولد",
+    "color": "WHITE",
+    "price": 250,
+    "description": "خط براش غولد يمتدّ من جانب الجسم الأبيض وينحني نحو أسفل الواجهة."
+  },
+  {
+    "slug": "wall-toilet-st-w08",
+    "en": "Wall toilet S.T W08",
+    "ar": "تواليت معلق أبيض بخط دهبي",
+    "color": "WHITE",
+    "price": 250,
+    "description": "جسم أبيض مع خط دهبي لامع يحدّد الواجهة وغطاء أبيض."
+  },
+  {
+    "slug": "wall-toilet-st-b09",
+    "en": "Wall toilet S.T B09",
+    "ar": "تواليت معلق أسود بخط براش غولد",
+    "color": "BLACK",
+    "price": 300,
+    "description": "جسم أسود مع خط براش غولد يمتدّ على الجانب وينزل على الواجهة."
+  },
+  {
+    "slug": "wall-toilet-st-b07",
+    "en": "Wall toilet S.T B07",
+    "ar": "تواليت معلق أسود بخط دهبي",
+    "color": "BLACK",
+    "price": 300,
+    "description": "سطح أسود لامع مع خط دهبي يلتفّ حول الواجهة."
+  }
+]
