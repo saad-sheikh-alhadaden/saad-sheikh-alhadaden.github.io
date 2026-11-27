@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "floor-toilet-versace-gold",
+    "en": "Floor toilet Versace Gold",
+    "ar": "تواليت أرضي فيرزاتشي دهبي",
+    "color": "GOLD",
+    "price": 350,
+    "description": "سطح دهبي لامع مع شريط هندسي متكرر يلتفّ حول أعلى الخزان ومقدمة التواليت."
+  },
+  {
+    "slug": "floor-toilet-jewel-gold",
+    "en": "Floor toilet jewel Gold",
+    "ar": "تواليت أرضي جوهرة دهبي",
+    "color": "GOLD",
+    "price": 350,
+    "description": "أوجه هندسية تعكس الضوء على الخزان والقاعدة، مع غطاء مستطيل بلون دهبي لامع."
+  },
+  {
+    "slug": "floor-toilet-gray",
+    "en": "Floor toilet Gray",
+    "ar": "تواليت أرضي رمادي",
+    "color": "GRAY",
+    "price": 350,
+    "description": "لون رمادي هادئ مع خزان مستقيم ومقدمة مستديرة وغطاء من نفس اللون."
+  },
+  {
+    "slug": "floor-toilet-black",
+    "en": "Floor toilet Black",
+    "ar": "تواليت أرضي أسود",
+    "color": "BLACK",
+    "price": 300,
+    "description": "تصميم أسود بخطوط بسيطة، يجمع بين الخزان المستقيم والمقعد ذي المقدمة المنحنية."
+  },
+  {
+    "slug": "floor-toilet-st-801-w",
+    "en": "Floor toilet S.T 801 W",
+    "ar": "تواليت أرضي جوهرة",
+    "color": "WHITE",
+    "price": 130,
+    "description": "تصميم جوهرة أبيض بواجهات متعددة الأوجه وغطاء مستطيل ينسجم مع زوايا القاعدة."
+  },
+  {
+    "slug": "floor-toilet-st-601-w",
+    "en": "Floor toilet S.T 601 W",
+    "ar": "تواليت أرضي اسطواني",
+    "color": "WHITE",
+    "price": 145,
+    "description": "مقدمة أسطوانية بيضاء تنساب من الخزان المستقيم، مع غطاء يتبع استدارة المقعد."
+  },
+  {
+    "slug": "floor-toilet-st-701-w",
+    "en": "Floor toilet S.T 701 W",
+    "ar": "تواليت أرضي كيوب",
+    "color": "WHITE",
+    "price": 130,
+    "description": "موديل كيوب بهيكل أبيض مربّع الحواف، مع زوايا مدوّرة بخفة وغطاء مستطيل."
+  },
+  {
+    "slug": "floor-toilet-st-605",
+    "en": "Floor toilet S.T 605",
+    "ar": "تواليت أرضي بريتون",
+    "color": "GOLD",
+    "price": 350,
+    "description": "خطوط بيضاء أفقية تلتف حول الخزان وأسفل القاعدة، مع غطاء دهبي لامع."
+  },
+  {
+    "slug": "floor-toilet-st-606",
+    "en": "Floor toilet S.T 606",
+    "ar": "تواليت أرضي آوجي",
+    "color": "GOLD",
+    "price": 350,
+    "description": "زخرفة شبكية دهبية تحيط بمساحات عاجية صغيرة على الخزان والقاعدة، مع غطاء دهبي لامع."
+  },
+  {
+    "slug": "floor-toilet-st-607",
+    "en": "Floor toilet S.T 607",
+    "ar": "تواليت أرضي اربيسك",
+    "color": "GOLD",
+    "price": 350,
+    "description": "زخارف نباتية داكنة على واجهة الخزان ودهبية على القاعدة الفاتحة، مع غطاء دهبي لامع."
+  }
+]

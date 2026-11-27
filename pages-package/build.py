@@ -8,6 +8,7 @@ from shutil import copyfile
 from zipfile import ZipFile
 
 from optimize import optimize_pages
+from stand_toilets import add_stand_toilets
 
 package = Path(__file__).resolve().parent
 repo = package.parent
@@ -37,6 +38,7 @@ with ZipFile(BytesIO(archive_data)) as archive:
         path.write_bytes(content)
 
 optimize_pages(output)
+add_stand_toilets(output)
 for name in ("404.html", "_headers"):
     copyfile(package / name, output / name)
 
