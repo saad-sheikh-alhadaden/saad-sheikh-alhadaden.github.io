@@ -4,6 +4,7 @@ from hashlib import sha256
 from io import BytesIO
 import json
 from pathlib import Path
+from shutil import copyfile
 from zipfile import ZipFile
 
 from optimize import optimize_pages
@@ -36,6 +37,7 @@ with ZipFile(BytesIO(archive_data)) as archive:
         path.write_bytes(content)
 
 optimize_pages(output)
-(output / "404.html").write_bytes((package / "404.html").read_bytes())
+for name in ("404.html", "_headers"):
+    copyfile(package / name, output / name)
 
 print(f"Prepared {len(manifest)} verified storefront files and the custom 404 page.")

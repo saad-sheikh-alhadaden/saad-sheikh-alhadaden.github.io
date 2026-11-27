@@ -1,0 +1,10 @@
+# Only the two existing inline storefront scripts are authorized here.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-T5otRlw9pn/XxJJ3cO1TAE7UssZSZgBnksPYpWZ5RkY=' 'sha256-pefZ2yVZyS0o0FpxxP+i+JrRtAGvAOthzisvFYT/o6Y='; style-src 'self' 'unsafe-inline'; img-src 'self' https://saad1910.com data:; object-src 'none'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+
+https://saad1910.com/*
+  Strict-Transport-Security: max-age=86400
