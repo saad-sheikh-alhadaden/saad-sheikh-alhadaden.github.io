@@ -9,7 +9,7 @@ from shutil import copyfile
 
 SOFA = "floor-toilet-sofa"
 HOST = "https://saad1910.com"
-COLORS = {"WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
+COLORS = {"PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
 
 
 def add_stand_toilets(output):
@@ -62,6 +62,28 @@ def add_stand_toilets(output):
         images.append(f"<url><loc>{HOST}{path}</loc><image:image><image:loc>{HOST}{image}</image:loc></image:image></url>")
 
     assets = output / "assets"
+    copyfile(source / "wall-category.webp", assets / "wall-category.webp")
+    css = (source / "categories.css").read_bytes()
+    css_name = "toilet-categories-" + sha256(css).hexdigest()[:12] + ".css"
+    (assets / css_name).write_bytes(css)
+    choices = [("stand-toilets", "تواليتات أرضية", "Stand toilets", "floor-toilet-sofa-white-01.webp"),
+               ("wall-toilets", "تواليتات معلقة", "Wall toilets", "wall-category.webp")]
+
+    def labels(ar, en):
+        return f'<span lang="ar">{ar}</span> <bdi lang="en" dir="ltr">{en}</bdi>'
+
+    def heading(ar, en):
+        return f'<h2 data-screen-heading class="toilet-heading">{labels(ar, en)}</h2>'
+
+    landing = heading("تواليت", "Toilet") + '<div class="toilet-choices">'
+    for section_id, ar, en, filename in choices:
+        image = "/assets/" + filename
+        landing += (f'<a class="toilet-choice" href="#{section_id}">'
+                    f'<div class="toilet-choice-photo" style="--scene:url({image})">'
+                    f'<img src="{image}" alt="" loading="lazy"></div>'
+                    f'<div class="toilet-choice-label">{labels(ar, en)}</div></a>')
+    landing += "</div>"
+    landing_pattern = re.compile(r'(<section\b[^>]*\bid="toilets"[^>]*>).*?</section>', re.S)
     old_js = re.search(r'src="/assets/(storefront-[0-9a-f]+\.js)"', template)[1]
     script = (assets / old_js).read_text()
     anchor = '  "floor-toilet-sofa": {'
@@ -75,6 +97,11 @@ def add_stand_toilets(output):
         if old_js not in html:
             continue
         html = html.replace(old_js, new_js).replace(card, card + "".join(cards))
+        html = re.sub(r'(<link rel="stylesheet" href="/assets/[^"]+"[^>]*>)',
+                      lambda m: m[1] + f'<link rel="stylesheet" href="/assets/{css_name}">', html, count=1)
+        html = landing_pattern.sub(lambda m: m[1] + landing + "</section>", html)
+        for _, ar, en, _ in choices:
+            html = html.replace(f"<h2 data-screen-heading>{ar} <bdi>{en}</bdi></h2>", heading(ar, en))
         for attr, entries in (("data-saved", favorites), ("data-search-product", searches)):
             marker = f'<a href="/{SOFA}/" {attr}='
             html = html.replace(marker, "".join(entries) + marker)
