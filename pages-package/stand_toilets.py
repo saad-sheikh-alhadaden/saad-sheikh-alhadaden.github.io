@@ -56,7 +56,11 @@ def add_stand_toilets(output):
         dest = output / slug
         dest.mkdir(exist_ok=True)
         (dest / "index.html").write_text(page)
-        category_cards.append(f'<a class="hero mixer-product" href="{path}"><img src="{image}" alt="{escape(title)}" width="790" height="988" loading="lazy" decoding="async"><div class="mixer-product-copy"><strong dir="ltr">{escape(en)}</strong><small>{escape(ar)}</small><span dir="ltr">${price}</span></div></a>')
+        if category == "wall-toilets":
+            card_name = f'<strong lang="ar" dir="rtl">{escape(ar)}</strong><small lang="en" dir="ltr">{escape(en)}</small>'
+        else:
+            card_name = f'<strong dir="ltr">{escape(en)}</strong><small>{escape(ar)}</small>'
+        category_cards.append(f'<a class="hero mixer-product" href="{path}"><img src="{image}" alt="{escape(title)}" width="790" height="988" loading="lazy" decoding="async"><div class="mixer-product-copy">{card_name}<span dir="ltr">${price}</span></div></a>')
         searches.append(f'<a href="{path}" data-search-product="{slug}" hidden>{escape(title)}</a>')
         favorites.append(f'<a href="{path}" data-saved="{slug}" hidden>{escape(title)}</a>')
         share = {slug: {"path": path, "title": title + " | شركة سعد شيخ الحدادين", "label": "مشاركة المنتج"}}
