@@ -25,6 +25,14 @@ def add_stand_toilets(output):
     variants_by_slug = {item["slug"]: family for family in (st_models, bubbles, italian_colors) for item in family}
     card_rows = {slug: "italian" for slug in color_trio}
     card_rows.update({item["slug"]: "bubbles" for item in bubbles if item["color"] in {"CHROME", "GOLD", "ROSE GOLD"}})
+    black_bubbles = "wall-toilet-bubbles-g01-02"
+    signature_revision = sha256((wall_source / f"{black_bubbles}.webp").read_bytes()).hexdigest()[:12]
+
+    def image_url(slug):
+        if slug == black_bubbles:
+            return f"/assets/{slug}-{signature_revision}.webp"
+        return f"/assets/{slug}.webp"
+
     wall_cards = []
     template = (output / SOFA / "index.html").read_text()
     section_pattern = re.compile(r'<section id="floor-toilet-sofa".*?</section>', re.S)
@@ -45,7 +53,7 @@ def add_stand_toilets(output):
         slug, ar, en, color, price = (p[key] for key in ("slug", "ar", "en", "color", "price"))
         title = f"{en} — {ar}"
         path = f"/{slug}/"
-        image = f"/assets/{slug}.webp"
+        image = image_url(slug)
         copyfile(image_dir / (slug + ".webp"), output / image.lstrip("/"))
         schema = dict(original_schema, name=title, description=p["description"],
                       sku=slug, url=HOST + path, image=[HOST + image], color=[color],
@@ -74,7 +82,7 @@ def add_stand_toilets(output):
                     label = f'<bdi>{escape(code)}</bdi> {escape(finish)}'
                 thumbnails.append(
                     f'<a href="/{variant["slug"]}/" aria-label="{escape(variant["en"])}"{current}>'
-                    f'<img src="/assets/{variant["slug"]}.webp" alt="{escape(variant["ar"])}" width="52" height="65"></a>'
+                    f'<img src="{image_url(variant["slug"])}" alt="{escape(variant["ar"])}" width="52" height="65"></a>'
                 )
                 swatches.append(
                     f'<a href="/{variant["slug"]}/" data-finish="{variant["color"]}"{current}>'
