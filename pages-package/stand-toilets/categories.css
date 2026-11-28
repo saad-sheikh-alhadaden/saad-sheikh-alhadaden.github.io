@@ -81,6 +81,8 @@
 .wall-variant-colors [data-finish="BLACK"] { --swatch: #161617; }
 .wall-variant-colors [data-finish="BLACK"]::before { box-shadow: inset 0 0 0 1px #777; }
 .wall-variant-colors [data-finish="GLOSSY BLACK"] { --swatch: linear-gradient(130deg, #131313 25%, #575757 48%, #171717 66%); }
+.wall-variant-colors [data-finish="MATT BLACK"] { --swatch: #262524; }
+.wall-variant-colors [data-finish="GRAY"] { --swatch: #85827f; }
 .wall-variant-colors [data-finish="CHROME"] { --swatch: linear-gradient(130deg, #81858b, #fafafa 45%, #8d969e 75%); }
 .wall-variant-colors [data-finish="GOLD"] { --swatch: linear-gradient(130deg, #a46b23, #ffe39c 45%, #bd802d 75%); }
 .wall-variant-colors [data-finish="ROSE GOLD"] { --swatch: linear-gradient(130deg, #ac6c56, #f6c4b0 45%, #bd826c 75%); }

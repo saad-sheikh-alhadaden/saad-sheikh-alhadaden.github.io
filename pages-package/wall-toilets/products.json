@@ -71,6 +71,42 @@
     ]
   },
   {
+    "slug": "wall-toilet-cube-glossy-black",
+    "en": "Wall toilet Cube",
+    "ar": "تواليت معلق مربع أسود لامع",
+    "color": "GLOSSY BLACK",
+    "price": 350,
+    "size": "52×36",
+    "description": "تواليت معلّق بتصميم مربع وحواف مستديرة، بتشطيب أسود لامع.",
+    "gallery": [
+      "wall-toilet-cube-glossy-black-02.webp"
+    ]
+  },
+  {
+    "slug": "wall-toilet-cube-matt-black",
+    "en": "Wall toilet Cube",
+    "ar": "تواليت معلق مربع أسود مط",
+    "color": "MATT BLACK",
+    "price": 300,
+    "size": "52×36",
+    "description": "تواليت معلّق بتصميم مربع وحواف مستديرة، بتشطيب أسود مط.",
+    "gallery": [
+      "wall-toilet-cube-matt-black-02.webp"
+    ]
+  },
+  {
+    "slug": "wall-toilet-cube-gray",
+    "en": "Wall toilet Cube",
+    "ar": "تواليت معلق مربع رمادي",
+    "color": "GRAY",
+    "price": 350,
+    "size": "52×36",
+    "description": "تواليت معلّق بتصميم مربع وحواف مستديرة، بتشطيب رمادي.",
+    "gallery": [
+      "wall-toilet-cube-gray-02.webp"
+    ]
+  },
+  {
     "slug": "wall-toilet-nero-7",
     "en": "Wall toilet Nero 7",
     "ar": "تواليت معلق نيرو 7",
