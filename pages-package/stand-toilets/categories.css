@@ -3,12 +3,23 @@
 .toilet-choices{display:grid;gap:14px}
 .toilet-choice{display:block;overflow:hidden;border:1px solid #675537;border-radius:16px;background:#201d18;color:#f5eee2;text-decoration:none}
 .toilet-choice:focus-visible{outline:3px solid #ead19e;outline-offset:2px}
-.toilet-choice-photo{display:grid;place-items:center;height:clamp(150px,26svh,340px);isolation:isolate;position:relative;overflow:hidden;background:#191713}
-.toilet-choice-photo:before{content:"";position:absolute;inset:-20px;z-index:-1;background:var(--scene) center/cover;filter:blur(22px) brightness(.45)}
-.toilet-choice-photo img{position:absolute;inset:0;height:100%;width:100%;object-fit:contain;display:block}
+.toilet-choice-photo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  direction: rtl;
+  gap: 1px;
+  background: #675537;
+}
+.toilet-choice-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 790 / 988;
+  object-fit: cover;
+}
 .toilet-choice-label{padding:12px 16px;border-top:1px solid #5a492e;font-size:clamp(1rem,2vw,1.35rem)}
 .toilet-choice-label [lang=en]{font-size:.88em}
-@media(min-width:760px){.toilet-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.toilet-choice-photo{height:clamp(320px,52vh,600px)}}
+@media(min-width:760px){.toilet-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 #wall-toilets .mixer-product-copy {
   display: grid;

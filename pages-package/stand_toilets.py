@@ -177,8 +177,12 @@ def add_stand_toilets(output):
     css = (source / "categories.css").read_bytes()
     css_name = "toilet-categories-" + sha256(css).hexdigest()[:12] + ".css"
     (assets / css_name).write_bytes(css)
-    choices = [("stand-toilets", "تواليتات أرضية", "Stand toilets", "floor-toilet-sofa-white-01.webp"),
-               ("wall-toilets", "تواليتات معلقة", "Wall toilets", "wall-category.webp")]
+    choices = [
+        ("stand-toilets", "تواليتات أرضية", "Stand toilets",
+         ("/assets/floor-toilet-sofa-white-01.webp", image_url("floor-toilet-st-501"))),
+        ("wall-toilets", "تواليتات معلقة", "Wall toilets",
+         (image_url("wall-toilet-nero-7"), image_url("wall-toilet-nero-9"))),
+    ]
 
     def labels(ar, en):
         return f'<span lang="ar">{ar}</span> <bdi lang="en" dir="ltr">{en}</bdi>'
@@ -187,11 +191,13 @@ def add_stand_toilets(output):
         return f'<h2 data-screen-heading class="toilet-heading">{labels(ar, en)}</h2>'
 
     landing = heading("تواليت", "Toilet") + '<div class="toilet-choices">'
-    for section_id, ar, en, filename in choices:
-        image = "/assets/" + filename
+    for section_id, ar, en, cover_photos in choices:
+        photos = "".join(
+            f'<img src="{photo}" alt="" width="790" height="988" loading="lazy" decoding="async">'
+            for photo in cover_photos
+        )
         landing += (f'<a class="toilet-choice" href="#{section_id}">'
-                    f'<div class="toilet-choice-photo" style="--scene:url({image})">'
-                    f'<img src="{image}" alt="" loading="lazy"></div>'
+                    f'<div class="toilet-choice-photo">{photos}</div>'
                     f'<div class="toilet-choice-label">{labels(ar, en)}</div></a>')
     landing += "</div>"
     landing_pattern = re.compile(r'(<section\b[^>]*\bid="toilets"[^>]*>).*?</section>', re.S)
