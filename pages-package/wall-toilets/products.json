@@ -1,5 +1,39 @@
 [
   {
+    "slug": "wall-toilet-milano-1w",
+    "en": "Wall toilet Milano 1W",
+    "ar": "تواليت معلق ميلانو أبيض",
+    "color": "WHITE",
+    "price": 800,
+    "origin": "Italy",
+    "size": "52×37",
+    "description": "تواليت معلّق بتصميم إيطالي متعدد الأوجه، يمتدّ التشكيل الهندسي من الجسم إلى الغطاء، بتشطيب أبيض.",
+    "gallery": [
+      "wall-toilet-milano-1w-02.webp",
+      "wall-toilet-milano-1w-03.webp",
+      "wall-toilet-milano-1w-04.webp",
+      "wall-toilet-milano-1w-05.webp",
+      "wall-toilet-milano-1w-06.webp"
+    ]
+  },
+  {
+    "slug": "wall-toilet-milano-1b",
+    "en": "Wall toilet Milano 1B",
+    "ar": "تواليت معلق ميلانو أسود",
+    "color": "GLOSSY BLACK",
+    "price": 800,
+    "origin": "Italy",
+    "size": "52×37",
+    "description": "تواليت معلّق بتصميم إيطالي متعدد الأوجه، يمتدّ التشكيل الهندسي من الجسم إلى الغطاء، بتشطيب أسود لامع.",
+    "gallery": [
+      "wall-toilet-milano-1b-02.webp",
+      "wall-toilet-milano-1b-03.webp",
+      "wall-toilet-milano-1b-04.webp",
+      "wall-toilet-milano-1b-05.webp",
+      "wall-toilet-milano-1b-06.webp"
+    ]
+  },
+  {
     "slug": "wall-toilet-st-b06",
     "en": "Wall toilet S.T B06",
     "ar": "تواليت معلق أسود بزخرفة هندسية نجمية",

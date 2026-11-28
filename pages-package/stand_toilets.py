@@ -10,7 +10,7 @@ from shutil import copyfile
 
 SOFA = "floor-toilet-sofa"
 HOST = "https://saad1910.com"
-COLORS = {"BLUE": "أزرق", "RED": "أحمر", "YELLOW": "أصفر", "ROSE GOLD": "روز غولد", "BLACK & GOLD": "أسود ودهبي", "GOLD & BLACK": "دهبي وأسود", "WHITE & GOLD": "أبيض ودهبي", "CHROME": "كروم", "PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
+COLORS = {"GLOSSY BLACK": "أسود لامع", "BLUE": "أزرق", "RED": "أحمر", "YELLOW": "أصفر", "ROSE GOLD": "روز غولد", "BLACK & GOLD": "أسود ودهبي", "GOLD & BLACK": "دهبي وأسود", "WHITE & GOLD": "أبيض ودهبي", "CHROME": "كروم", "PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
 
 
 def add_stand_toilets(output):
@@ -65,8 +65,13 @@ def add_stand_toilets(output):
         path = f"/{slug}/"
         image = image_url(slug)
         copyfile(image_dir / (slug + ".webp"), output / image.lstrip("/"))
+        photos = [image]
+        for filename in p.get("gallery", []):
+            photo = f"/assets/{filename}"
+            copyfile(image_dir / filename, output / photo.lstrip("/"))
+            photos.append(photo)
         schema = dict(original_schema, name=title, description=p["description"],
-                      sku=slug, url=HOST + path, image=[HOST + image], color=[color],
+                      sku=slug, url=HOST + path, image=[HOST + photo for photo in photos], color=[color],
                       offers=dict(original_schema["offers"], price=price, url=HOST + path))
         head = schema_pattern.sub(lambda m: m[1] + json.dumps(schema, ensure_ascii=False) + m[3], header, count=1)
 
@@ -80,6 +85,18 @@ def add_stand_toilets(output):
         panel = personalize(panel).replace("WHITE", color).replace("باللون أبيض", "باللون " + COLORS[color])
         panel = panel.replace('data-screen-heading>تواليت أرضي كنباية', 'data-screen-heading dir="ltr">' + escape(en))
         panel = panel.replace('dir="auto">Floor toilet sofa', 'dir="rtl">' + escape(ar)).replace("$250", f"${price}")
+        if len(photos) > 1:
+            buttons = []
+            for index, photo in enumerate(photos, 1):
+                label = escape(f"{title} · {index}", quote=True)
+                selected = "true" if index == 1 else "false"
+                buttons.append(
+                    f'<button type="button" data-gallery-src="{photo}" data-width="790" data-height="988" '
+                    f'aria-label="{label}" aria-pressed="{selected}">'
+                    f'<img src="{photo}" alt="" width="52" height="65" loading="lazy" decoding="async"></button>'
+                )
+            gallery = '<div class="product-gallery">' + "".join(buttons) + "</div>"
+            panel = re.sub(r'<div class="product-gallery">.*?</div>', lambda _: gallery, panel, count=1)
         if slug in variants_by_slug:
             swatches = []
             thumbnails = []
