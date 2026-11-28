@@ -18,6 +18,9 @@ def add_stand_toilets(output):
     products = json.loads((source / "products.json").read_text())
     wall_source = source.parent / "wall-toilets"
     wall_products = json.loads((wall_source / "products.json").read_text())
+    porcelain_source = source.parent / "porcelain"
+    porcelain_products = json.loads((porcelain_source / "products.json").read_text())
+    matching_products = {p["slug"]: p for p in [*wall_products, *porcelain_products]}
     color_trio = {"wall-toilet-blue", "wall-toilet-red", "wall-toilet-yellow"}
     bubbles = [item for item in wall_products if item["slug"].startswith("wall-toilet-bubbles-")]
     italian_colors = [item for item in wall_products if item["slug"] in color_trio]
@@ -53,6 +56,7 @@ def add_stand_toilets(output):
         return f"/assets/{slug}.webp"
 
     wall_cards = []
+    porcelain_cards = []
     template = (output / SOFA / "index.html").read_text()
     section_pattern = re.compile(r'<section id="floor-toilet-sofa".*?</section>', re.S)
     detail = section_pattern.search(template)[0]
@@ -79,6 +83,7 @@ def add_stand_toilets(output):
 
     entries = [(p, "stand-toilets", source, cards) for p in products]
     entries.extend((p, "wall-toilets", wall_source, wall_cards) for p in wall_products)
+    entries.extend((p, "porcelain", porcelain_source, porcelain_cards) for p in porcelain_products)
     for p, category, image_dir, category_cards in entries:
         slug, ar, en, color, price = (p[key] for key in ("slug", "ar", "en", "color", "price"))
         title = f"{en} — {ar}"
@@ -167,13 +172,33 @@ def add_stand_toilets(output):
             panel = panel.replace('<p class="price-tag"', origin_badge + '<p class="price-tag"', 1)
         if category == "wall-toilets":
             panel = panel.replace('/#stand-toilets">تواليتات أرضية', '/#wall-toilets">تواليتات معلقة')
-        panel = panel.replace('<div class="qty">', features + size_and_options(p["size"], p.get("internal_bidet")) + '<div class="qty">' , 1)
+        if category == "porcelain":
+            panel = panel.replace('/#stand-toilets">تواليتات أرضية', '/porcelain/">مغاسل بورسلان')
+            panel = panel.replace(' data-toilet-chair', '')
+        specs = size_and_options(p["size"], p.get("internal_bidet"))
+        if category != "porcelain":
+            specs = features + specs
+        else:
+            specs += f'<p>اللون <bdi lang="en" dir="ltr">{escape(color)}</bdi></p>'
+        if "matching_product" in p:
+            match = matching_products[p["matching_product"]]
+            specs += (
+                f'<p class="toilet-matching-product"><a href="/{escape(match["slug"])}/">'
+                f'{escape(match["ar"])} <bdi>{escape(match["en"].split()[-1])}</bdi> من نفس الطقم</a></p>'
+            )
+        panel = panel.replace('<div class="qty">', specs + '<div class="qty">', 1)
         page = personalize(head) + '<div class="app">' + section_pattern.sub(lambda _: panel, body, count=1)
         dest = output / slug
         dest.mkdir(exist_ok=True)
         (dest / "index.html").write_text(page)
         if category == "wall-toilets":
             card_name = f'<strong lang="ar" dir="rtl">{escape(ar)}</strong><small lang="en" dir="ltr">{escape(en)}</small>'
+        elif category == "porcelain":
+            card_name = (
+                f'<strong>{escape(ar)}</strong><bdi class="basin-model-code" lang="en" dir="ltr">{escape(en)}</bdi>'
+                f'<small><bdi lang="en" dir="ltr">{escape(p["size"])} cm</bdi>'
+                f' · <bdi lang="en" dir="ltr">{escape(color)}</bdi></small>'
+            )
         else:
             card_name = f'<strong dir="ltr">{escape(en)}</strong><small>{escape(ar)}</small>'
         category_cards.append(f'<a class="hero mixer-product" href="{path}"><img src="{image}" alt="{escape(title)}" width="790" height="988" loading="lazy" decoding="async"><div class="mixer-product-copy">{card_name}<span dir="ltr">${price}</span></div></a>')
@@ -282,6 +307,10 @@ def add_stand_toilets(output):
         wall_heading = heading("تواليتات معلقة", "Wall toilets")
         html = html.replace(wall_heading, wall_heading + '<div class="cabinet-gallery" data-toilet-cards>'
                             + "".join(wall_grid) + "</div>")
+        html = html.replace(
+            '<a class="hero mixer-product" href="/st-d809-g-porcelain-basin/">',
+            "".join(porcelain_cards) + '<a class="hero mixer-product" href="/st-d809-g-porcelain-basin/">',
+        )
         for attr, entries in (("data-saved", favorites), ("data-search-product", searches)):
             marker = f'<a href="/{SOFA}/" {attr}='
             html = html.replace(marker, "".join(entries) + marker)
