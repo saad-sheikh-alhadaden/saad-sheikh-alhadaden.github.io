@@ -58,3 +58,15 @@
 .wall-variant-colors [data-finish="CHROME"] { --swatch: linear-gradient(130deg, #81858b, #fafafa 45%, #8d969e 75%); }
 .wall-variant-colors [data-finish="GOLD"] { --swatch: linear-gradient(130deg, #a46b23, #ffe39c 45%, #bd802d 75%); }
 .wall-variant-colors [data-finish="ROSE GOLD"] { --swatch: linear-gradient(130deg, #ac6c56, #f6c4b0 45%, #bd826c 75%); }
+
+.toilet-thumbnails { display:flex; flex-flow:row nowrap; gap:6px; direction:rtl; max-width:100%; overflow-x:auto; padding:4px; }
+.toilet-thumbnails a { flex:0 0 auto; border:2px solid transparent; border-radius:7px; padding:1px; }
+.toilet-thumbnails img { display:block; width:clamp(44px,12vw,60px); height:auto; border-radius:4px; }
+.toilet-thumbnails a[aria-current="page"] { border-color:#78552e; }
+.wall-variant-colors a { color:#30271c; background:#faf6ef; }
+.wall-variant-colors a[aria-current="page"] { color:#fff7ea; }
+.wall-variant-colors [data-finish="BLACK & GOLD"] { --swatch:linear-gradient(135deg,#171614 50%,#cf9b46 50%); }
+.wall-variant-colors [data-finish="GOLD & BLACK"] { --swatch:linear-gradient(135deg,#cf9b46 60%,#171614 60%); }
+.wall-variant-colors [data-finish="WHITE & GOLD"] { --swatch:linear-gradient(135deg,#eee 50%,#cf9b46 50%); }
+.toilet-features { line-height:1.75; color:#40372c; }
+.toilet-warranty { display:flex; justify-content:space-between; gap:12px; align-items:center; margin:14px 0; padding:12px; color:#4a351b; background:#f1e4cd; border-inline-start:3px solid #956f3d; }

@@ -21,7 +21,8 @@ def add_stand_toilets(output):
     color_trio = {"wall-toilet-blue", "wall-toilet-red", "wall-toilet-yellow"}
     bubbles = [item for item in wall_products if item["slug"].startswith("wall-toilet-bubbles-")]
     italian_colors = [item for item in wall_products if item["slug"] in color_trio]
-    variants_by_slug = {item["slug"]: family for family in (bubbles, italian_colors) for item in family}
+    st_models = [item for item in wall_products if item["slug"].startswith("wall-toilet-st-")]
+    variants_by_slug = {item["slug"]: family for family in (st_models, bubbles, italian_colors) for item in family}
     card_rows = {slug: "italian" for slug in color_trio}
     card_rows.update({item["slug"]: "bubbles" for item in bubbles if item["color"] in {"CHROME", "GOLD", "ROSE GOLD"}})
     wall_cards = []
@@ -33,6 +34,10 @@ def add_stand_toilets(output):
     schema_pattern = re.compile(r'(<script type="application/ld\+json">)(.*?)(</script>)')
     original_schema = json.loads(schema_pattern.search(header)[2])
     cards, searches, favorites, shares, catalog, urls, images = [], [], [], [], [], [], []
+
+    features = ('<p class="toilet-features">غطاء من الميلامين مقاوم للكسر، ونظام شطف بلا حواف داخلية '
+                '(<bdi>Rimless</bdi>) بتقنية مضادّة للبكتيريا يسهّل التنظيف اليومي.</p>'
+                '<div class="toilet-warranty"><strong>كفالة ثبات اللون</strong><span>خمس سنوات</span></div>')
 
     entries = [(p, "stand-toilets", source, cards) for p in products]
     entries.extend((p, "wall-toilets", wall_source, wall_cards) for p in wall_products)
@@ -59,12 +64,24 @@ def add_stand_toilets(output):
         panel = panel.replace('dir="auto">Floor toilet sofa', 'dir="rtl">' + escape(ar)).replace("$250", f"${price}")
         if slug in variants_by_slug:
             swatches = []
+            thumbnails = []
             for variant in variants_by_slug[slug]:
                 current = ' aria-current="page"' if variant["slug"] == slug else ""
+                label = escape(COLORS[variant["color"]])
+                if variant in st_models:
+                    code = variant["en"].split()[-1]
+                    finish = variant["ar"].removeprefix("تواليت معلق ")
+                    label = f'<bdi>{escape(code)}</bdi> {escape(finish)}'
+                thumbnails.append(
+                    f'<a href="/{variant["slug"]}/" aria-label="{escape(variant["en"])}"{current}>'
+                    f'<img src="/assets/{variant["slug"]}.webp" alt="{escape(variant["ar"])}" width="52" height="65"></a>'
+                )
                 swatches.append(
                     f'<a href="/{variant["slug"]}/" data-finish="{variant["color"]}"{current}>'
-                    f'{escape(COLORS[variant["color"]])}</a>'
+                    f'<span>{label}</span></a>' 
                 )
+            strip = '<nav class="toilet-thumbnails" aria-label="صور الموديلات">' + "".join(thumbnails) + '</nav>'
+            panel = re.sub(r'<div class="product-gallery">.*?</div>', lambda _: strip, panel, count=1)
             picker = '<nav class="wall-variant-colors" aria-label="الألوان المتوفرة">' + "".join(swatches) + '</nav>'
             panel = re.sub(r'<div class="options"[^>]*>.*?</div>', lambda _: picker, panel, count=1)
         if p.get("origin") == "Italy":
@@ -74,6 +91,7 @@ def add_stand_toilets(output):
             panel = panel.replace('<p class="price-tag"', origin_badge + '<p class="price-tag"', 1)
         if category == "wall-toilets":
             panel = panel.replace('/#stand-toilets">تواليتات أرضية', '/#wall-toilets">تواليتات معلقة')
+        panel = panel.replace('<div class="qty">', features + '<div class="qty">', 1)
         page = personalize(head) + '<div class="app">' + section_pattern.sub(lambda _: panel, body, count=1)
         dest = output / slug
         dest.mkdir(exist_ok=True)
@@ -124,6 +142,24 @@ def add_stand_toilets(output):
     updated = script.replace(anchor, ",\n".join(catalog) + ",\n" + anchor)
     new_js = "storefront-" + sha256(updated.encode()).hexdigest()[:12] + ".js"
     (assets / new_js).write_text(updated)
+    nav_file = re.search(r'src="/assets/(storefront-navigation-[a-f0-9]+\.js)"', template)[1]
+    nav = (assets / nav_file).read_text()
+    anchor_nav = '    const filtered = group === "cabinet-luxury" && bandButton;'
+    assert nav.count(anchor_nav) == 1
+    nav = nav.replace(anchor_nav, """    if (group === "wall-toilets" || group === "stand-toilets") {
+      let origin = model;
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(positionKey));
+        const slug = saved?.href.split("/")[1];
+        if (saved?.section === group && products[slug]?.category === group) origin = slug;
+      } catch {}
+      returnLink.href = "/?model=" + encodeURIComponent(origin) + "#" + group;
+      returnLink.setAttribute("aria-label", "الرجوع لقائمة الموديلات");
+      return;
+    }
+""" + anchor_nav)
+    new_nav = "storefront-navigation-" + sha256(nav.encode()).hexdigest()[:12] + ".js"
+    (assets / new_nav).write_text(nav)
     card = re.search(r'<a class="hero mixer-product" href="/floor-toilet-sofa/".*?</a>', template)[0]
     wall_grid = []
     for grouped, items in groupby(zip(wall_products, wall_cards), key=lambda item: card_rows.get(item[0]["slug"])):
@@ -133,7 +169,11 @@ def add_stand_toilets(output):
         html = page.read_text()
         if old_js not in html:
             continue
-        html = html.replace(old_js, new_js).replace(card, card + "".join(cards))
+        if section_pattern.search(html):
+            sofa_panel = detail.replace(description, description.split(" غطاؤه")[0])
+            sofa_panel = sofa_panel.replace('<div class="qty">', features + '<div class="qty">', 1)
+            html = section_pattern.sub(lambda _: sofa_panel, html, count=1)
+        html = html.replace(old_js, new_js).replace(nav_file, new_nav).replace(card, card + "".join(cards))
         html = re.sub(r'(<link rel="stylesheet" href="/assets/[^"]+"[^>]*>)',
                       lambda m: m[1] + f'<link rel="stylesheet" href="/assets/{css_name}">', html, count=1)
         html = landing_pattern.sub(lambda m: m[1] + landing + "</section>", html)
