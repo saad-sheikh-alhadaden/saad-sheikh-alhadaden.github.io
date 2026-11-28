@@ -22,7 +22,12 @@ def add_stand_toilets(output):
     bubbles = [item for item in wall_products if item["slug"].startswith("wall-toilet-bubbles-")]
     italian_colors = [item for item in wall_products if item["slug"] in color_trio]
     st_models = [item for item in wall_products if item["slug"].startswith("wall-toilet-st-")]
-    variants_by_slug = {item["slug"]: family for family in (st_models, bubbles, italian_colors) for item in family}
+    milano_models = [item for item in wall_products if item["slug"] in {"wall-toilet-milano-1w", "wall-toilet-milano-1b"}]
+    variants_by_slug = {
+        item["slug"]: family
+        for family in (st_models, bubbles, italian_colors, milano_models)
+        for item in family
+    }
     card_rows = {slug: "italian" for slug in color_trio}
     card_rows.update({item["slug"]: "bubbles" for item in bubbles if item["color"] in {"CHROME", "GOLD", "ROSE GOLD"}})
     black_bubbles = "wall-toilet-bubbles-g01-02"
@@ -116,7 +121,12 @@ def add_stand_toilets(output):
                     f'<span>{label}</span></a>' 
                 )
             strip = '<nav class="toilet-thumbnails" aria-label="صور الموديلات">' + "".join(thumbnails) + '</nav>'
-            panel = re.sub(r'<div class="product-gallery">.*?</div>', lambda _: strip, panel, count=1)
+            panel = re.sub(
+                r'<div class="product-gallery">.*?</div>',
+                lambda match: match[0] + strip if len(photos) > 1 else strip,
+                panel,
+                count=1,
+            )
             picker = '<nav class="wall-variant-colors" aria-label="الألوان المتوفرة">' + "".join(swatches) + '</nav>'
             panel = re.sub(r'<div class="options"[^>]*>.*?</div>', lambda _: picker, panel, count=1)
         if p.get("origin") == "Italy":
