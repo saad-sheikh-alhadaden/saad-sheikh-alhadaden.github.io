@@ -276,6 +276,30 @@
     "internal_bidet": true
   },
   {
+    "slug": "wall-toilet-marble",
+    "en": "Wall toilet Marble",
+    "ar": "تواليت معلق ماربل",
+    "color": "Granit Shiny",
+    "price": 500,
+    "size": "49×36",
+    "description": "تواليت معلّق بتشطيب غرانيت لامع، بنقشة تجمع بين عروق رمادية مائلة للأزرق وخطوط دهبية دقيقة تمتدّ على الجسم والغطاء.",
+    "origin": "Italy",
+    "gallery": [
+      "wall-toilet-marble-02.webp",
+      "wall-toilet-marble-03.webp",
+      "wall-toilet-marble-04.webp"
+    ]
+  },
+  {
+    "slug": "wall-toilet-antique-arabesque",
+    "en": "Wall toilet Antique Arabesque",
+    "ar": "تواليت معلق أرابيسك آنتيك",
+    "color": "GLOSSY BLACK & GOLD",
+    "price": 350,
+    "size": "49×36",
+    "description": "تواليت معلّق بالأسود اللامع، مع زخرفة أرابيسك دهبية بارزة تمتدّ أسفل الغطاء."
+  },
+  {
     "slug": "wall-toilet-blue",
     "en": "Wall toilet Blue",
     "ar": "تواليت معلق أزرق",
