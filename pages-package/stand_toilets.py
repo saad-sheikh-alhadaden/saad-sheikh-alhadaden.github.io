@@ -18,6 +18,8 @@ def add_stand_toilets(output):
     products = json.loads((source / "products.json").read_text())
     wall_source = source.parent / "wall-toilets"
     wall_products = json.loads((wall_source / "products.json").read_text())
+    color_trio = {"wall-toilet-blue", "wall-toilet-red", "wall-toilet-yellow"}
+    variants = [item for item in wall_products if item["slug"] in color_trio]
     wall_cards = []
     template = (output / SOFA / "index.html").read_text()
     section_pattern = re.compile(r'<section id="floor-toilet-sofa".*?</section>', re.S)
@@ -51,6 +53,16 @@ def add_stand_toilets(output):
         panel = personalize(panel).replace("WHITE", color).replace("باللون أبيض", "باللون " + COLORS[color])
         panel = panel.replace('data-screen-heading>تواليت أرضي كنباية', 'data-screen-heading dir="ltr">' + escape(en))
         panel = panel.replace('dir="auto">Floor toilet sofa', 'dir="rtl">' + escape(ar)).replace("$250", f"${price}")
+        if slug in color_trio:
+            swatches = []
+            for variant in variants:
+                current = ' aria-current="page"' if variant["slug"] == slug else ""
+                swatches.append(
+                    f'<a href="/{variant["slug"]}/" data-finish="{variant["color"]}"{current}>'
+                    f'{escape(COLORS[variant["color"]])}</a>'
+                )
+            picker = '<nav class="wall-variant-colors" aria-label="الألوان المتوفرة">' + "".join(swatches) + '</nav>'
+            panel = re.sub(r'<div class="options"[^>]*>.*?</div>', lambda _: picker, panel, count=1)
         if p.get("origin") == "Italy":
             origin_badge = ('<p class="origin" dir="ltr" lang="en">Made in Italy</p>'
                             '<img class="milano-brand" src="/assets/milano-italy-bronze-01dae327f89e.webp" '
@@ -109,7 +121,6 @@ def add_stand_toilets(output):
     new_js = "storefront-" + sha256(updated.encode()).hexdigest()[:12] + ".js"
     (assets / new_js).write_text(updated)
     card = re.search(r'<a class="hero mixer-product" href="/floor-toilet-sofa/".*?</a>', template)[0]
-    color_trio = {"wall-toilet-blue", "wall-toilet-red", "wall-toilet-yellow"}
     wall_grid = []
     for grouped, items in groupby(zip(wall_products, wall_cards), key=lambda item: item[0]["slug"] in color_trio):
         content = "".join(card_html for _, card_html in items)
