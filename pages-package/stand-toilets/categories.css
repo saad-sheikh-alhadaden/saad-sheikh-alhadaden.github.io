@@ -21,9 +21,23 @@
 .toilet-choice-label [lang=en]{font-size:.88em}
 @media(min-width:760px){.toilet-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+#wall-toilets .mixer-product {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+#wall-toilets .mixer-product > img {
+  flex: none;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 790 / 988;
+}
 #wall-toilets .mixer-product-copy {
   display: grid;
+  flex: 1;
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  align-items: start;
   gap: 3px;
   padding: 8px;
   text-align: right;
