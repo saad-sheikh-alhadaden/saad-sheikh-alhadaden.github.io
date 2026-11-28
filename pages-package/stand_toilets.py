@@ -104,7 +104,7 @@ def add_stand_toilets(output):
             gallery = '<div class="product-gallery">' + "".join(buttons) + "</div>"
             panel = re.sub(r'<div class="product-gallery">.*?</div>', lambda _: gallery, panel, count=1)
         if slug in variants_by_slug:
-            use_color_menu = p in milano_models
+            group_color_options = p in milano_models
             swatches = []
             thumbnails = []
             for variant in variants_by_slug[slug]:
@@ -114,7 +114,7 @@ def add_stand_toilets(output):
                     code = variant["en"].split()[-1]
                     finish = variant["ar"].removeprefix("تواليت معلق ")
                     label = f'<bdi>{escape(code)}</bdi> {escape(finish)}'
-                if not use_color_menu:
+                if not group_color_options:
                     thumbnails.append(
                         f'<a href="/{variant["slug"]}/" aria-label="{escape(variant["en"])}"{current}>'
                         f'<img src="{image_url(variant["slug"])}" alt="{escape(variant["ar"])}" width="52" height="65"></a>'
@@ -132,10 +132,10 @@ def add_stand_toilets(output):
                     count=1,
                 )
             picker = '<nav class="wall-variant-colors" aria-label="الألوان المتوفرة">' + "".join(swatches) + '</nav>'
-            if use_color_menu:
+            if group_color_options:
                 picker = (
-                    '<details class="toilet-color-menu"><summary>اختيار اللون '
-                    f'<span>{escape(COLORS[color])}</span></summary>{picker}</details>'
+                    '<div class="toilet-color-group"><span>الألوان المتوفّرة</span>'
+                    f'{picker}</div>'
                 )
             panel = re.sub(r'<div class="options"[^>]*>.*?</div>', lambda _: picker, panel, count=1)
         if p.get("origin") == "Italy":

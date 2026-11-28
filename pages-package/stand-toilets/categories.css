@@ -87,24 +87,25 @@
   margin: 0;
   text-align: right;
 }
-.toilet-color-menu {
+.toilet-color-group {
+  display: inline-grid;
+  gap: .3rem;
   direction: rtl;
   margin-block: .55rem .75rem;
-}
-.toilet-color-menu > summary {
-  width: fit-content;
-  min-height: 44px;
-  padding: .55rem .85rem;
+  padding: .5rem .55rem;
   border: 1px solid #675537;
-  border-radius: 24px;
+  border-radius: 16px;
   background: #faf6ef;
   color: #30271c;
-  cursor: pointer;
 }
-.toilet-color-menu > summary span {
-  margin-inline-start: .55rem;
+.toilet-color-group > span {
+  padding-inline: .35rem;
+  font-size: .8rem;
   color: #70522b;
 }
-.toilet-color-menu > nav {
-  margin-block-start: .55rem;
+.toilet-color-group .wall-variant-colors a {
+  border-color: transparent;
+}
+.toilet-color-group .wall-variant-colors a::before {
+  box-shadow: inset 0 0 0 1px #827561;
 }
