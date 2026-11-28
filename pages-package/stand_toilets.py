@@ -1,6 +1,7 @@
 """Extend the packaged storefront using the existing floor toilet detail layout."""
 
 from hashlib import sha256
+from itertools import groupby
 from html import escape
 import json
 from pathlib import Path
@@ -108,6 +109,11 @@ def add_stand_toilets(output):
     new_js = "storefront-" + sha256(updated.encode()).hexdigest()[:12] + ".js"
     (assets / new_js).write_text(updated)
     card = re.search(r'<a class="hero mixer-product" href="/floor-toilet-sofa/".*?</a>', template)[0]
+    color_trio = {"wall-toilet-blue", "wall-toilet-red", "wall-toilet-yellow"}
+    wall_grid = []
+    for grouped, items in groupby(zip(wall_products, wall_cards), key=lambda item: item[0]["slug"] in color_trio):
+        content = "".join(card_html for _, card_html in items)
+        wall_grid.append(f'<div class="wall-color-row">{content}</div>' if grouped else content)
     for page in output.rglob("index.html"):
         html = page.read_text()
         if old_js not in html:
@@ -120,7 +126,7 @@ def add_stand_toilets(output):
             html = html.replace(f"<h2 data-screen-heading>{ar} <bdi>{en}</bdi></h2>", heading(ar, en))
         wall_heading = heading("تواليتات معلقة", "Wall toilets")
         html = html.replace(wall_heading, wall_heading + '<div class="cabinet-gallery" data-toilet-cards>'
-                            + "".join(wall_cards) + "</div>")
+                            + "".join(wall_grid) + "</div>")
         for attr, entries in (("data-saved", favorites), ("data-search-product", searches)):
             marker = f'<a href="/{SOFA}/" {attr}='
             html = html.replace(marker, "".join(entries) + marker)

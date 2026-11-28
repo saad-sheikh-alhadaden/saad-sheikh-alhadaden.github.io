@@ -25,3 +25,16 @@
   overflow-wrap: anywhere;
 }
 #wall-toilets .mixer-product-copy > span { justify-self: end; }
+
+#wall-toilets .wall-color-row {
+  grid-column: 1 / -1;
+  width: 100%;
+  display: grid;
+  direction: rtl;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(5px, 1.5vw, 12px);
+}
+#wall-toilets .wall-color-row .mixer-product { width: 100%; min-width: 0; }
+#wall-toilets .wall-color-row .mixer-product-copy { padding: 6px; }
+#wall-toilets .wall-color-row strong { font-size: clamp(13px, 3.5vw, 18px); }
+#wall-toilets .wall-color-row small { font-size: clamp(11px, 2.9vw, 15px); }
