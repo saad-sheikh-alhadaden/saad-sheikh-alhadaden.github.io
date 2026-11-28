@@ -70,3 +70,10 @@
 .wall-variant-colors [data-finish="WHITE & GOLD"] { --swatch:linear-gradient(135deg,#eee 50%,#cf9b46 50%); }
 .toilet-features { line-height:1.75; color:#40372c; }
 .toilet-warranty { display:flex; justify-content:space-between; gap:12px; align-items:center; margin:14px 0; padding:12px; color:#4a351b; background:#f1e4cd; border-inline-start:3px solid #956f3d; }
+
+.toilet-size { text-align:right; padding-block:10px; border-bottom:1px solid #d6c8b4; color:#433323; }
+.toilet-bidet { display:flex; align-items:center; gap:10px; direction:rtl; padding:8px; margin-block:10px 16px; border:1px solid #c8b795; border-radius:12px; background:#faf6ee; color:#392d20; cursor:pointer; }
+.toilet-bidet img { width:58px; height:58px; object-fit:cover; border-radius:8px; }
+.toilet-bidet span { flex:1; }
+.toilet-bidet bdi { font-weight:600; }
+.toilet-bidet input { width:20px; height:20px; accent-color:#76592e; }

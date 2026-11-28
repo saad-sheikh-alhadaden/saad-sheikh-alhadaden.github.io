@@ -47,6 +47,16 @@ def add_stand_toilets(output):
                 '(<bdi>Rimless</bdi>) بتقنية مضادّة للبكتيريا يسهّل التنظيف اليومي.</p>'
                 '<div class="toilet-warranty"><strong>كفالة ثبات اللون</strong><span>خمس سنوات</span></div>')
 
+    bidet_extra = 15
+
+    def size_and_options(size, internal_bidet=False):
+        markup = f'<p class="toilet-size" lang="en" dir="ltr"><strong>Size:</strong> {escape(size)} cm</p>'
+        if internal_bidet:
+            markup += ('<label class="toilet-bidet"><img src="/assets/internal-bidet.webp" '
+                       'width="64" height="64" alt=""><span>إضافة شطّاف داخلي</span>'
+                       f'<bdi>+${bidet_extra}</bdi><input type="checkbox" data-internal-bidet></label>')
+        return markup
+
     entries = [(p, "stand-toilets", source, cards) for p in products]
     entries.extend((p, "wall-toilets", wall_source, wall_cards) for p in wall_products)
     for p, category, image_dir, category_cards in entries:
@@ -99,7 +109,7 @@ def add_stand_toilets(output):
             panel = panel.replace('<p class="price-tag"', origin_badge + '<p class="price-tag"', 1)
         if category == "wall-toilets":
             panel = panel.replace('/#stand-toilets">تواليتات أرضية', '/#wall-toilets">تواليتات معلقة')
-        panel = panel.replace('<div class="qty">', features + '<div class="qty">', 1)
+        panel = panel.replace('<div class="qty">', features + size_and_options(p["size"], p.get("internal_bidet")) + '<div class="qty">' , 1)
         page = personalize(head) + '<div class="app">' + section_pattern.sub(lambda _: panel, body, count=1)
         dest = output / slug
         dest.mkdir(exist_ok=True)
@@ -116,11 +126,17 @@ def add_stand_toilets(output):
         product = dict(name=title, search=f"{title} {color} {COLORS[color]} {price}", price=price,
                        category=category, defaultColor=color, colorLabels={color: COLORS[color]},
                        images={color: image}, favoriteKey="saad-saved-" + slug)
+        if p.get("internal_bidet"):
+            option = color + "-BIDET"
+            product["prices"] = {option: price + bidet_extra}
+            product["images"][option] = image
+            product["colorLabels"][option] = COLORS[color] + " · مع شطّاف داخلي"
         catalog.append(json.dumps(slug) + ": " + json.dumps(product, ensure_ascii=False))
         urls.append(f"<url><loc>{HOST}{path}</loc></url>")
         images.append(f"<url><loc>{HOST}{path}</loc><image:image><image:loc>{HOST}{image}</image:loc></image:image></url>")
 
     assets = output / "assets"
+    copyfile(source / "internal-bidet.webp", assets / "internal-bidet.webp")
     copyfile(source / "wall-category.webp", assets / "wall-category.webp")
     css = (source / "categories.css").read_bytes()
     css_name = "toilet-categories-" + sha256(css).hexdigest()[:12] + ".css"
@@ -148,6 +164,18 @@ def add_stand_toilets(output):
     anchor = '  "floor-toilet-sofa": {'
     assert script.count(anchor) == 1
     updated = script.replace(anchor, ",\n".join(catalog) + ",\n" + anchor)
+    option_start = '  const orderColor = () =>'
+    option_end = '  const confirmation = cartConfirmationFor(addButton);'
+    assert updated.count(option_start) == updated.count(option_end) == 1
+    updated = updated.replace(option_start, '  const baseOrderColor = () =>')
+    updated = updated.replace(option_end, """  const bidet = screen.querySelector('[data-internal-bidet]');
+  const orderColor = () => bidet?.checked ? color + "-BIDET" : baseOrderColor();
+""" + option_end)
+    sync_start = '    const pendingPrice = product.prices?.[orderColor()] === null;'
+    assert updated.count(sync_start) == 1
+    updated = updated.replace(sync_start, '    if (bidet) unitPriceOutput.textContent = money(unitPrice(product, orderColor()));\n' + sync_start)
+    updated = updated.replace('  box?.addEventListener("change", syncOrder);',
+                              '  box?.addEventListener("change", syncOrder);\n  bidet?.addEventListener("change", syncOrder);')
     new_js = "storefront-" + sha256(updated.encode()).hexdigest()[:12] + ".js"
     (assets / new_js).write_text(updated)
     nav_file = re.search(r'src="/assets/(storefront-navigation-[a-f0-9]+\.js)"', template)[1]
@@ -179,7 +207,7 @@ def add_stand_toilets(output):
             continue
         if section_pattern.search(html):
             sofa_panel = detail.replace(description, description.split(" غطاؤه")[0])
-            sofa_panel = sofa_panel.replace('<div class="qty">', features + '<div class="qty">', 1)
+            sofa_panel = sofa_panel.replace('<div class="qty">', features + size_and_options("65×47") + '<div class="qty">' , 1)
             html = section_pattern.sub(lambda _: sofa_panel, html, count=1)
         html = html.replace(old_js, new_js).replace(nav_file, new_nav).replace(card, card + "".join(cards))
         html = re.sub(r'(<link rel="stylesheet" href="/assets/[^"]+"[^>]*>)',
