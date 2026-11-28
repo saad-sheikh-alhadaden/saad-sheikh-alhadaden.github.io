@@ -118,5 +118,32 @@
     "color": "CHROME",
     "price": 250,
     "description": "أوجه مثلثية بارزة تغطّي جسم التواليت بلون كروم، مع غطاء أبيض."
+  },
+  {
+    "slug": "wall-toilet-blue",
+    "en": "Wall toilet Blue",
+    "ar": "تواليت معلق أزرق",
+    "color": "BLUE",
+    "price": 400,
+    "origin": "Italy",
+    "description": "تواليت معلق إيطالي باللون أزرق مع غطاء بنفس اللون."
+  },
+  {
+    "slug": "wall-toilet-red",
+    "en": "Wall toilet Red",
+    "ar": "تواليت معلق أحمر",
+    "color": "RED",
+    "price": 400,
+    "origin": "Italy",
+    "description": "تواليت معلق إيطالي باللون أحمر مع غطاء بنفس اللون."
+  },
+  {
+    "slug": "wall-toilet-yellow",
+    "en": "Wall toilet Yellow",
+    "ar": "تواليت معلق أصفر",
+    "color": "YELLOW",
+    "price": 400,
+    "origin": "Italy",
+    "description": "تواليت معلق إيطالي باللون أصفر مع غطاء بنفس اللون."
   }
 ]

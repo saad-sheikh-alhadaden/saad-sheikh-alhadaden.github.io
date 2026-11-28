@@ -9,7 +9,7 @@ from shutil import copyfile
 
 SOFA = "floor-toilet-sofa"
 HOST = "https://saad1910.com"
-COLORS = {"ROSE GOLD": "روز غولد", "BLACK & GOLD": "أسود ودهبي", "GOLD & BLACK": "دهبي وأسود", "WHITE & GOLD": "أبيض ودهبي", "CHROME": "كروم", "PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
+COLORS = {"BLUE": "أزرق", "RED": "أحمر", "YELLOW": "أصفر", "ROSE GOLD": "روز غولد", "BLACK & GOLD": "أسود ودهبي", "GOLD & BLACK": "دهبي وأسود", "WHITE & GOLD": "أبيض ودهبي", "CHROME": "كروم", "PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
 
 
 def add_stand_toilets(output):
@@ -50,6 +50,11 @@ def add_stand_toilets(output):
         panel = personalize(panel).replace("WHITE", color).replace("باللون أبيض", "باللون " + COLORS[color])
         panel = panel.replace('data-screen-heading>تواليت أرضي كنباية', 'data-screen-heading dir="ltr">' + escape(en))
         panel = panel.replace('dir="auto">Floor toilet sofa', 'dir="rtl">' + escape(ar)).replace("$250", f"${price}")
+        if p.get("origin") == "Italy":
+            origin_badge = ('<p class="origin" dir="ltr" lang="en">Made in Italy</p>'
+                            '<img class="milano-brand" src="/assets/milano-italy-bronze-01dae327f89e.webp" '
+                            'alt="Milano Italy" width="679" height="328">')
+            panel = panel.replace('<p class="price-tag"', origin_badge + '<p class="price-tag"', 1)
         if category == "wall-toilets":
             panel = panel.replace('/#stand-toilets">تواليتات أرضية', '/#wall-toilets">تواليتات معلقة')
         page = personalize(head) + '<div class="app">' + section_pattern.sub(lambda _: panel, body, count=1)
