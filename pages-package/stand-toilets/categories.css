@@ -120,3 +120,6 @@
 .toilet-color-group .wall-variant-colors a::before {
   box-shadow: inset 0 0 0 1px #827561;
 }
+.wall-variant-models a::before {
+  display: none;
+}

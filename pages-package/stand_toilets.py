@@ -23,9 +23,11 @@ def add_stand_toilets(output):
     italian_colors = [item for item in wall_products if item["slug"] in color_trio]
     st_models = [item for item in wall_products if item["slug"].startswith("wall-toilet-st-")]
     milano_models = [item for item in wall_products if item["slug"] in {"wall-toilet-milano-1w", "wall-toilet-milano-1b"}]
+    nero_models = [item for item in wall_products if item["slug"] in {"wall-toilet-nero-7", "wall-toilet-nero-9"}]
+    white_models = [item for item in wall_products if item["slug"] in {"wall-toilet-round", "wall-toilet-cube"}]
     variants_by_slug = {
         item["slug"]: family
-        for family in (st_models, bubbles, italian_colors, milano_models)
+        for family in (st_models, bubbles, italian_colors, milano_models, nero_models, white_models)
         for item in family
     }
     card_rows = {slug: "italian" for slug in color_trio}
@@ -104,7 +106,8 @@ def add_stand_toilets(output):
             gallery = '<div class="product-gallery">' + "".join(buttons) + "</div>"
             panel = re.sub(r'<div class="product-gallery">.*?</div>', lambda _: gallery, panel, count=1)
         if slug in variants_by_slug:
-            group_color_options = p in milano_models
+            group_model_options = p in nero_models or p in white_models
+            group_options = p in milano_models or group_model_options
             swatches = []
             thumbnails = []
             for variant in variants_by_slug[slug]:
@@ -114,7 +117,9 @@ def add_stand_toilets(output):
                     code = variant["en"].split()[-1]
                     finish = variant["ar"].removeprefix("تواليت معلق ")
                     label = f'<bdi>{escape(code)}</bdi> {escape(finish)}'
-                if not group_color_options:
+                if group_model_options:
+                    label = escape(variant["ar"].removeprefix("تواليت معلق "))
+                if not group_options:
                     thumbnails.append(
                         f'<a href="/{variant["slug"]}/" aria-label="{escape(variant["en"])}"{current}>'
                         f'<img src="{image_url(variant["slug"])}" alt="{escape(variant["ar"])}" width="52" height="65"></a>'
@@ -131,10 +136,12 @@ def add_stand_toilets(output):
                     panel,
                     count=1,
                 )
-            picker = '<nav class="wall-variant-colors" aria-label="الألوان المتوفرة">' + "".join(swatches) + '</nav>'
-            if group_color_options:
+            picker_label = "الموديلات المتوفّرة" if group_model_options else "الألوان المتوفّرة"
+            picker_class = "wall-variant-colors wall-variant-models" if group_model_options else "wall-variant-colors"
+            picker = f'<nav class="{picker_class}" aria-label="{picker_label}">' + "".join(swatches) + '</nav>'
+            if group_options:
                 picker = (
-                    '<div class="toilet-color-group"><span>الألوان المتوفّرة</span>'
+                    f'<div class="toilet-color-group"><span>{picker_label}</span>'
                     f'{picker}</div>'
                 )
             panel = re.sub(r'<div class="options"[^>]*>.*?</div>', lambda _: picker, panel, count=1)

@@ -31,6 +31,35 @@
     ]
   },
   {
+    "slug": "wall-toilet-round",
+    "en": "Wall toilet Round",
+    "ar": "تواليت معلق مدور",
+    "color": "WHITE",
+    "price": 125,
+    "size": "49×36",
+    "description": "تواليت معلّق باللون الأبيض، بواجهة مستديرة وغطاء يتبع انحناءة الحوض.",
+    "gallery": [
+      "wall-toilet-round-02.webp",
+      "wall-toilet-round-03.webp",
+      "wall-toilet-round-04.webp",
+      "wall-toilet-round-05.webp",
+      "wall-toilet-round-06.webp"
+    ]
+  },
+  {
+    "slug": "wall-toilet-cube",
+    "en": "Wall toilet Cube",
+    "ar": "تواليت معلق مربع",
+    "color": "WHITE",
+    "price": 125,
+    "size": "52×36",
+    "description": "تواليت معلّق باللون الأبيض، بتصميم مربّع وزوايا مستديرة وغطاء مسطّح.",
+    "gallery": [
+      "wall-toilet-cube-02.webp",
+      "wall-toilet-cube-03.webp"
+    ]
+  },
+  {
     "slug": "wall-toilet-milano-1w",
     "en": "Wall toilet Milano 1W",
     "ar": "تواليت معلق ميلانو أبيض",
