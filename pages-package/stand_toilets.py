@@ -23,11 +23,12 @@ def add_stand_toilets(output):
     italian_colors = [item for item in wall_products if item["slug"] in color_trio]
     st_models = [item for item in wall_products if item["slug"].startswith("wall-toilet-st-")]
     milano_models = [item for item in wall_products if item["slug"] in {"wall-toilet-milano-1w", "wall-toilet-milano-1b"}]
+    stone_veneer_models = [item for item in wall_products if item["slug"].startswith("wall-toilet-stone-veneer-")]
     nero_models = [item for item in wall_products if item["slug"] in {"wall-toilet-nero-7", "wall-toilet-nero-9"}]
     white_models = [item for item in wall_products if item["slug"] in {"wall-toilet-round", "wall-toilet-cube"}]
     variants_by_slug = {
         item["slug"]: family
-        for family in (st_models, bubbles, italian_colors, milano_models, nero_models, white_models)
+        for family in (st_models, bubbles, italian_colors, milano_models, stone_veneer_models, nero_models, white_models)
         for item in family
     }
     card_rows = {slug: "italian" for slug in color_trio}
@@ -111,7 +112,7 @@ def add_stand_toilets(output):
             panel = re.sub(r'<div class="product-gallery">.*?</div>', lambda _: gallery, panel, count=1)
         if slug in variants_by_slug:
             group_model_options = p in nero_models or p in white_models
-            group_options = p in milano_models or group_model_options
+            group_options = p in milano_models or p in stone_veneer_models or group_model_options
             swatches = []
             thumbnails = []
             for variant in variants_by_slug[slug]:
