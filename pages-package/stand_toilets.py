@@ -19,7 +19,11 @@ def add_stand_toilets(output):
     wall_source = source.parent / "wall-toilets"
     wall_products = json.loads((wall_source / "products.json").read_text())
     color_trio = {"wall-toilet-blue", "wall-toilet-red", "wall-toilet-yellow"}
-    variants = [item for item in wall_products if item["slug"] in color_trio]
+    bubbles = [item for item in wall_products if item["slug"].startswith("wall-toilet-bubbles-")]
+    italian_colors = [item for item in wall_products if item["slug"] in color_trio]
+    variants_by_slug = {item["slug"]: family for family in (bubbles, italian_colors) for item in family}
+    card_rows = {slug: "italian" for slug in color_trio}
+    card_rows.update({item["slug"]: "bubbles" for item in bubbles if item["color"] in {"CHROME", "GOLD", "ROSE GOLD"}})
     wall_cards = []
     template = (output / SOFA / "index.html").read_text()
     section_pattern = re.compile(r'<section id="floor-toilet-sofa".*?</section>', re.S)
@@ -53,9 +57,9 @@ def add_stand_toilets(output):
         panel = personalize(panel).replace("WHITE", color).replace("باللون أبيض", "باللون " + COLORS[color])
         panel = panel.replace('data-screen-heading>تواليت أرضي كنباية', 'data-screen-heading dir="ltr">' + escape(en))
         panel = panel.replace('dir="auto">Floor toilet sofa', 'dir="rtl">' + escape(ar)).replace("$250", f"${price}")
-        if slug in color_trio:
+        if slug in variants_by_slug:
             swatches = []
-            for variant in variants:
+            for variant in variants_by_slug[slug]:
                 current = ' aria-current="page"' if variant["slug"] == slug else ""
                 swatches.append(
                     f'<a href="/{variant["slug"]}/" data-finish="{variant["color"]}"{current}>'
@@ -122,7 +126,7 @@ def add_stand_toilets(output):
     (assets / new_js).write_text(updated)
     card = re.search(r'<a class="hero mixer-product" href="/floor-toilet-sofa/".*?</a>', template)[0]
     wall_grid = []
-    for grouped, items in groupby(zip(wall_products, wall_cards), key=lambda item: item[0]["slug"] in color_trio):
+    for grouped, items in groupby(zip(wall_products, wall_cards), key=lambda item: card_rows.get(item[0]["slug"])):
         content = "".join(card_html for _, card_html in items)
         wall_grid.append(f'<div class="wall-color-row">{content}</div>' if grouped else content)
     for page in output.rglob("index.html"):

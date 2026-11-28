@@ -96,6 +96,14 @@
     "description": "أوجه مثلثية بارزة تغطّي جسم التواليت بلون أسود، مع غطاء بنفس اللون."
   },
   {
+    "slug": "wall-toilet-bubbles-g01-38",
+    "en": "Wall toilet Bubbles G01-38",
+    "ar": "تواليت معلق بابلز كروم",
+    "color": "CHROME",
+    "price": 250,
+    "description": "أوجه مثلثية بارزة تغطّي جسم التواليت بلون كروم، مع غطاء أبيض."
+  },
+  {
     "slug": "wall-toilet-bubbles-g01-32",
     "en": "Wall toilet Bubbles G01-32",
     "ar": "تواليت معلق بابلز دهبي",
@@ -110,14 +118,6 @@
     "color": "ROSE GOLD",
     "price": 250,
     "description": "أوجه مثلثية بارزة تغطّي جسم التواليت بلون روز غولد، مع غطاء بنفس اللون."
-  },
-  {
-    "slug": "wall-toilet-bubbles-g01-38",
-    "en": "Wall toilet Bubbles G01-38",
-    "ar": "تواليت معلق بابلز كروم",
-    "color": "CHROME",
-    "price": 250,
-    "description": "أوجه مثلثية بارزة تغطّي جسم التواليت بلون كروم، مع غطاء أبيض."
   },
   {
     "slug": "wall-toilet-blue",
