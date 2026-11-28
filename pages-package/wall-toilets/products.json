@@ -364,5 +364,23 @@
     "origin": "Italy",
     "description": "تواليت معلق إيطالي باللون أصفر مع غطاء بنفس اللون.",
     "size": "49×36"
+  },
+  {
+    "slug": "wall-toilet-nero-marquina",
+    "en": "Wall toilet Nero Marquina",
+    "ar": "تواليت معلق أسود مرخم",
+    "color": "BLACK",
+    "price": 325,
+    "size": "49×36",
+    "description": "تواليت معلّق بتشطيب أسود مرخّم، تمتدّ عروقه الفاتحة على الواجهة والغطاء."
+  },
+  {
+    "slug": "wall-toilet-statuario",
+    "en": "Wall toilet Statuario",
+    "ar": "تواليت معلق أبيض مرخم",
+    "color": "WHITE",
+    "price": 325,
+    "size": "49×36",
+    "description": "تواليت معلّق بتشطيب أبيض مرخّم، تمتدّ على الواجهة والغطاء عروق رمادية ولمسات دافئة."
   }
 ]
