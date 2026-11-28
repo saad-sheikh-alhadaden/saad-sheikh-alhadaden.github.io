@@ -244,6 +244,24 @@
     "size": "51×36"
   },
   {
+    "slug": "wall-toilet-stone-veneer-gold",
+    "en": "Wall toilet Stone veneer",
+    "ar": "تواليت معلق محجر دهبي",
+    "color": "GOLD",
+    "price": 350,
+    "size": "54×37",
+    "description": "تواليت معلّق بسطح محجّر بنقشة بارزة وتشطيب دهبي، مع غطاء أسود."
+  },
+  {
+    "slug": "wall-toilet-stone-veneer-rose-gold",
+    "en": "Wall toilet Stone veneer",
+    "ar": "تواليت معلق محجر روز غولد",
+    "color": "ROSE GOLD",
+    "price": 350,
+    "size": "54×37",
+    "description": "تواليت معلّق بسطح محجّر بنقشة بارزة وتشطيب روز غولد، مع غطاء أسود."
+  },
+  {
     "slug": "wall-toilet-bubbles-g01-01",
     "en": "Wall toilet Bubbles G01-01",
     "ar": "تواليت معلق بابلز أبيض",
