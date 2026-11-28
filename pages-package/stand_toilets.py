@@ -42,6 +42,7 @@ def add_stand_toilets(output):
     template = (output / SOFA / "index.html").read_text()
     section_pattern = re.compile(r'<section id="floor-toilet-sofa".*?</section>', re.S)
     detail = section_pattern.search(template)[0]
+    detail = detail.replace('class="product-title-row"', 'class="product-title-row toilet-product-title"')
     description = re.search(r'<p class="product-description">(.*?)</p>', detail)[1]
     header, body = template.split('<div class="app">', 1)
     schema_pattern = re.compile(r'(<script type="application/ld\+json">)(.*?)(</script>)')
@@ -88,8 +89,8 @@ def add_stand_toilets(output):
 
         panel = re.sub(r'<button type="button" data-gallery-src="[^"]+-0[234]\.webp".*?</button>', '', detail)
         panel = personalize(panel).replace("WHITE", color).replace("باللون أبيض", "باللون " + COLORS[color])
-        panel = panel.replace('data-screen-heading>تواليت أرضي كنباية', 'data-screen-heading dir="ltr">' + escape(en))
-        panel = panel.replace('dir="auto">Floor toilet sofa', 'dir="rtl">' + escape(ar)).replace("$250", f"${price}")
+        panel = panel.replace('data-screen-heading>تواليت أرضي كنباية', 'data-screen-heading lang="ar" dir="rtl">' + escape(ar))
+        panel = panel.replace('dir="auto">Floor toilet sofa', 'lang="en" dir="ltr">' + escape(en)).replace("$250", f"${price}")
         if len(photos) > 1:
             buttons = []
             for index, photo in enumerate(photos, 1):
