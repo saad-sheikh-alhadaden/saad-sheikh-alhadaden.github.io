@@ -136,6 +136,24 @@
     ]
   },
   {
+    "slug": "wall-toilet-leopard",
+    "en": "Wall toilet Leopard",
+    "ar": "تواليت معلق بنقشة النمر",
+    "color": "GOLD & GLOSSY BLACK",
+    "price": 350,
+    "size": "51×36",
+    "description": "تواليت معلّق بغطاء أسود لامع ونقشة نمر دهبية وسوداء تمتدّ على الواجهة والجوانب."
+  },
+  {
+    "slug": "wall-toilet-honeycomb",
+    "en": "Wall toilet Honeycomb",
+    "ar": "تواليت معلق بنقشة هندسية لشبكة النحل",
+    "color": "GOLD & GLOSSY BLACK",
+    "price": 350,
+    "size": "51×36",
+    "description": "تواليت معلّق بغطاء أسود لامع، تتوزّع على جسمه زخرفة هندسية دهبية مستوحاة من خلايا النحل."
+  },
+  {
     "slug": "wall-toilet-st-b06",
     "en": "Wall toilet S.T B06",
     "ar": "تواليت معلق أسود بزخرفة هندسية نجمية",
