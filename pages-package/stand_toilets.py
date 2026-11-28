@@ -104,6 +104,7 @@ def add_stand_toilets(output):
             gallery = '<div class="product-gallery">' + "".join(buttons) + "</div>"
             panel = re.sub(r'<div class="product-gallery">.*?</div>', lambda _: gallery, panel, count=1)
         if slug in variants_by_slug:
+            use_color_menu = p in milano_models
             swatches = []
             thumbnails = []
             for variant in variants_by_slug[slug]:
@@ -113,22 +114,29 @@ def add_stand_toilets(output):
                     code = variant["en"].split()[-1]
                     finish = variant["ar"].removeprefix("تواليت معلق ")
                     label = f'<bdi>{escape(code)}</bdi> {escape(finish)}'
-                thumbnails.append(
-                    f'<a href="/{variant["slug"]}/" aria-label="{escape(variant["en"])}"{current}>'
-                    f'<img src="{image_url(variant["slug"])}" alt="{escape(variant["ar"])}" width="52" height="65"></a>'
-                )
+                if not use_color_menu:
+                    thumbnails.append(
+                        f'<a href="/{variant["slug"]}/" aria-label="{escape(variant["en"])}"{current}>'
+                        f'<img src="{image_url(variant["slug"])}" alt="{escape(variant["ar"])}" width="52" height="65"></a>'
+                    )
                 swatches.append(
                     f'<a href="/{variant["slug"]}/" data-finish="{variant["color"]}"{current}>'
                     f'<span>{label}</span></a>' 
                 )
-            strip = '<nav class="toilet-thumbnails" aria-label="صور الموديلات">' + "".join(thumbnails) + '</nav>'
-            panel = re.sub(
-                r'<div class="product-gallery">.*?</div>',
-                lambda match: match[0] + strip if len(photos) > 1 else strip,
-                panel,
-                count=1,
-            )
+            if thumbnails:
+                strip = '<nav class="toilet-thumbnails" aria-label="صور الموديلات">' + "".join(thumbnails) + '</nav>'
+                panel = re.sub(
+                    r'<div class="product-gallery">.*?</div>',
+                    lambda match: match[0] + strip if len(photos) > 1 else strip,
+                    panel,
+                    count=1,
+                )
             picker = '<nav class="wall-variant-colors" aria-label="الألوان المتوفرة">' + "".join(swatches) + '</nav>'
+            if use_color_menu:
+                picker = (
+                    '<details class="toilet-color-menu"><summary>اختيار اللون '
+                    f'<span>{escape(COLORS[color])}</span></summary>{picker}</details>'
+                )
             panel = re.sub(r'<div class="options"[^>]*>.*?</div>', lambda _: picker, panel, count=1)
         if p.get("origin") == "Italy":
             origin_badge = ('<p class="origin" dir="ltr" lang="en">Made in Italy</p>'
