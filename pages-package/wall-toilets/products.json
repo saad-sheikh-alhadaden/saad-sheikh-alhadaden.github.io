@@ -1,5 +1,36 @@
 [
   {
+    "slug": "wall-toilet-nero-7",
+    "en": "Wall toilet Nero 7",
+    "ar": "تواليت معلق نيرو 7",
+    "color": "GLOSSY BLACK & GOLD",
+    "price": 400,
+    "origin": "Italy",
+    "size": "52×36",
+    "description": "تواليت معلّق بتشطيب أسود لامع، يحدّد خطّ دهبي محيط الغطاء ويبرز زواياه المستديرة.",
+    "gallery": [
+      "wall-toilet-nero-7-02.webp",
+      "wall-toilet-nero-7-03.webp",
+      "wall-toilet-nero-7-04.webp"
+    ]
+  },
+  {
+    "slug": "wall-toilet-nero-9",
+    "en": "Wall toilet Nero 9",
+    "ar": "تواليت معلق نيرو 9",
+    "color": "GLOSSY BLACK & GOLD",
+    "price": 400,
+    "origin": "Italy",
+    "size": "55×37",
+    "description": "تواليت معلّق بتشطيب أسود لامع وواجهة منحنية، يلتفّ حولها خطّ دهبي أسفل الغطاء.",
+    "gallery": [
+      "wall-toilet-nero-9-02.webp",
+      "wall-toilet-nero-9-03.webp",
+      "wall-toilet-nero-9-04.webp",
+      "wall-toilet-nero-9-05.webp"
+    ]
+  },
+  {
     "slug": "wall-toilet-milano-1w",
     "en": "Wall toilet Milano 1W",
     "ar": "تواليت معلق ميلانو أبيض",

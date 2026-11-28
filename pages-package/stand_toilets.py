@@ -10,7 +10,7 @@ from shutil import copyfile
 
 SOFA = "floor-toilet-sofa"
 HOST = "https://saad1910.com"
-COLORS = {"GLOSSY BLACK": "أسود لامع", "BLUE": "أزرق", "RED": "أحمر", "YELLOW": "أصفر", "ROSE GOLD": "روز غولد", "BLACK & GOLD": "أسود ودهبي", "GOLD & BLACK": "دهبي وأسود", "WHITE & GOLD": "أبيض ودهبي", "CHROME": "كروم", "PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
+COLORS = {"GLOSSY BLACK & GOLD": "أسود لامع ودهبي", "GLOSSY BLACK": "أسود لامع", "BLUE": "أزرق", "RED": "أحمر", "YELLOW": "أصفر", "ROSE GOLD": "روز غولد", "BLACK & GOLD": "أسود ودهبي", "GOLD & BLACK": "دهبي وأسود", "WHITE & GOLD": "أبيض ودهبي", "CHROME": "كروم", "PINK": "زهري", "WHITE": "أبيض", "GRAY": "رمادي", "BLACK": "أسود", "GOLD": "دهبي"}
 
 
 def add_stand_toilets(output):
